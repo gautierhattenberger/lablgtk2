@@ -1,4 +1,4 @@
-(* $Id: glib.mli,v 1.13 2004/06/02 20:57:25 oandrieu Exp $ *)
+(* $Id: glib.mli,v 1.14 2004/07/16 01:40:24 garrigue Exp $ *)
 
 (** Interface to Glib functions 
     @gtkdoc glib index *)
@@ -47,9 +47,12 @@ module Io : sig
 
   type channel
   type condition = [ `ERR | `HUP | `IN | `NVAL | `OUT | `PRI]
+  type id
   val channel_of_descr : Unix.file_descr -> channel
   val add_watch :
-    cond:condition -> callback:(unit -> bool) -> ?prio:int -> channel -> unit
+    cond:condition -> callback:(unit -> bool) -> ?prio:int -> channel -> id
+  val remove : id -> unit
+  val read : channel -> buf:string -> pos:int -> len:int -> int
 end
 
 (** {3 Message Logging} *)
