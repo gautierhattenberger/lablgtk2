@@ -1,3 +1,10 @@
+lablgtk2 (2.4.0+2004.11.19-1) unstable; urgency=low
+
+  * Rebuilt against ocaml 3.08.3.
+  * New upstream CVS snapshot.
+
+ -- Sven Luther <luther@debian.org>  Tue, 22 Mar 2005 09:08:31 +0100
+
 lablgtk2 (2.4.0+2004.11.19-3) unstable; urgency=low
 
   * Added GnomeUI and Panel-Applet support. This should make the package build
