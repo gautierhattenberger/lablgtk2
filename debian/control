@@ -10,8 +10,8 @@ Package: liblablgtk2-ocaml
 Section: libs
 Architecture: any
 Depends: ocaml-base-3.08,  ${shlibs:Depends}
-Description: runtime libraries for ocaml bindings for Gtk+ version 2
- lablgtk2 contains bindings for gtk+ 2.x and OCaml.
+Description: runtime libraries for Objective Caml bindings for Gtk+ version 2
+ lablgtk2 contains bindings for gtk+ 2.x and Objective Caml.
  .
  This package include only the dynamic libraries needed for running dynamic
  bytecode executables.
@@ -21,8 +21,8 @@ Section: libs
 Architecture: any
 Depends: liblablgtk2-ocaml (= ${Source-Version}), ${shlibs:Depends}
 Replaces: liblablgtk2-ocaml (<= 2.4.0+2004.11.19-3)
-Description: runtime libraries for ocaml bindings for Gtk+ version 2
- lablgtk2 contains bindings for gtk+ 2.x and OCaml.
+Description: runtime libraries for Objective Caml bindings for Gnome
+ lablgtk2 contains bindings for gtk+ 2.x and Objective Caml.
  .
  This package include only the dynamic libraries needed for running dynamic
  bytecode executables using gnome functionalities (panel-appel, gnomeui,
@@ -34,8 +34,8 @@ Architecture: any
 Suggests: liblablgtk2-gnome-ocaml-dev
 Depends: liblablgtk2-ocaml (= ${Source-Version}), ocaml-3.08, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.01-1), libgtkspell-dev
 Conflicts: findlib (<< 1.0.2)
-Description: OCaml bindings to Gtk+ version 2
- lablgtk2 contains bindings for gtk+ 2.x and OCaml.
+Description: Obejtive Caml bindings to Gtk+ version 2
+ lablgtk2 contains bindings for gtk+ 2.x and Objective Caml.
  .
  This package contains the development files of lablgtk.
 
@@ -44,8 +44,8 @@ Section: libdevel
 Architecture: any
 Depends: liblablgtk2-ocaml-dev (= ${Source-Version}), ocaml-3.08, librsvg2-dev, libgnomecanvas2-dev, libgnomeui-dev, libpanel-applet2-dev
 Replaces: liblablgtk2-ocaml-dev (<= 2.4.0+2004.11.19-3)
-Description: OCaml bindings to Gtk+ version 2
- lablgtk2 contains bindings for gtk+ 2.x and OCaml.
+Description: Objective Caml bindings to Gnome
+ lablgtk2 contains bindings for gtk+ 2.x and Objective Caml.
  .
  This package contains the development files of lablgtk for libraries using
  gnome functionalities (panel-appel, gnomeui, gnome-canvas, rsvg).
