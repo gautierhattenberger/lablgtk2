@@ -1,4 +1,4 @@
-(* $Id: gtkTree.ml,v 1.43 2004/11/10 19:54:03 oandrieu Exp $ *)
+(* $Id: gtkTree.ml,v 1.47 2005/02/07 09:29:16 oandrieu Exp $ *)
 
 open Gaux
 open Gtk
@@ -26,7 +26,7 @@ module TreePath = struct
     = "ml_gtk_tree_path_get_indices"
   external copy : tree_path -> tree_path = "ml_gtk_tree_path_copy"
   external next : tree_path -> unit = "ml_gtk_tree_path_next"
-  external prev : tree_path -> unit = "ml_gtk_tree_path_prev"
+  external prev : tree_path -> bool = "ml_gtk_tree_path_prev"
   external up : tree_path -> bool = "ml_gtk_tree_path_up"
   external down : tree_path -> unit = "ml_gtk_tree_path_down"
   external is_ancestor : tree_path -> tree_path -> bool
@@ -310,6 +310,10 @@ module TreeView = struct
     [>`treeview] obj -> x:int -> y:int ->
     (tree_path * tree_view_column obj * int * int) option
     = "ml_gtk_tree_view_get_path_at_pos"
+  external set_row_separator_func :
+    [>`treeview] obj ->
+    (Gtk.tree_model -> Gtk.tree_iter -> bool) option -> unit
+    = "ml_gtk_tree_view_set_row_separator_func"
 end
 
 module CellRenderer = CellRenderer
@@ -319,6 +323,10 @@ module CellRendererPixbuf = CellRendererPixbuf
 module CellRendererText = CellRendererText
 
 module CellRendererToggle = CellRendererToggle
+
+module CellRendererProgress = CellRendererProgress
+
+module CellRendererCombo = CellRendererCombo
 
 module CellLayout = struct
   include GtkTreeProps.CellLayout
@@ -333,3 +341,5 @@ module TreeModelSort = TreeModelSort
 module TreeSortable = TreeSortable
 
 module TreeModelFilter = TreeModelFilter
+
+module IconView = IconView

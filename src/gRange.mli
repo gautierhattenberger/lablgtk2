@@ -1,4 +1,4 @@
-(* $Id: gRange.mli,v 1.23 2004/07/05 10:05:47 oandrieu Exp $ *)
+(* $Id: gRange.mli,v 1.24 2005/01/04 00:19:05 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -26,6 +26,8 @@ class progress_bar : Gtk.progress_bar obj ->
     method orientation : Tags.progress_bar_orientation
     method pulse_step : float
     method text : string
+    method ellipsize : PangoEnums.ellipsize_mode (** @since GTK 2.6 *)
+    method set_ellipsize : PangoEnums.ellipsize_mode -> unit (** @since GTK 2.6 *)
   end
 
 (** @gtkdoc gtk GtkProgress

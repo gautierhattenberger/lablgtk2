@@ -1,4 +1,4 @@
-(* $Id: gMisc.mli,v 1.40 2004/08/27 19:16:55 oandrieu Exp $ *)
+(* $Id: gMisc.mli,v 1.42 2005/01/03 23:49:26 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -32,13 +32,16 @@ class statusbar_context :
     @gtkdoc gtk GtkStatusbar *)
 class statusbar : Gtk.statusbar obj ->
   object
-    inherit GContainer.container_full
+    inherit GPack.box
     val obj : Gtk.statusbar obj
     method new_context : name:string -> statusbar_context
+    method has_resize_grip : bool
+    method set_has_resize_grip : bool -> unit
   end
 
 (** @gtkdoc gtk GtkStatusbar *)
 val statusbar :
+  ?has_resize_grip:bool ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->
@@ -243,6 +246,17 @@ class label_skel : 'a obj ->
     method text : string
     method use_markup : bool
     method use_underline : bool
+
+    method angle : float (** @since GTK 2.6 *)
+    method set_angle : float -> unit (** @since GTK 2.6 *)
+    method max_width_chars : int (** @since GTK 2.6 *)
+    method set_max_width_chars : int -> unit (** @since GTK 2.6 *)
+    method single_line_mode : bool (** @since GTK 2.6 *)
+    method set_single_line_mode : bool -> unit (** @since GTK 2.6 *)
+    method width_chars : int (** @since GTK 2.6 *)
+    method set_width_chars : int -> unit (** @since GTK 2.6 *)
+    method ellipsize : PangoEnums.ellipsize_mode (** @since GTK 2.6 *)
+    method set_ellipsize : PangoEnums.ellipsize_mode -> unit (** @since GTK 2.6 *)
   end
 
 (** A widget that displays a small to medium amount of text
@@ -269,6 +283,7 @@ val label :
   ?line_wrap:bool ->
   ?pattern:string ->
   ?selectable:bool ->
+  ?ellipsize:PangoEnums.ellipsize_mode ->
   ?xalign:float ->
   ?yalign:float ->
   ?xpad:int ->

@@ -1,4 +1,4 @@
-/* $Id: ml_gtkedit.c,v 1.13 2004/03/18 07:05:30 garrigue Exp $ */
+/* $Id: ml_gtkedit.c,v 1.15 2005/01/04 00:19:05 oandrieu Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -14,6 +14,7 @@
 #include "ml_gdk.h"
 #include "ml_gtk.h"
 #include "gtk_tags.h"
+#include "ml_gtktree.h"
 
 /* Init all */
 
@@ -166,9 +167,6 @@ Make_Extractor (gtk_combo, GtkCombo_val, list, Val_GtkWidget)
 /* gtkcombobox.h */
 #define GtkComboBox_val(val) check_cast(GTK_COMBO_BOX,val)
 
-/* taken from ml_gtktree.c, this should go in a .h */
-#define GtkTreeIter_val(val) ((GtkTreeIter*)MLPointer_val(val))
-#define Val_GtkTreeIter(it) (copy_memblock_indirected(it,sizeof(GtkTreeIter)))
 CAMLprim value 
 ml_gtk_combo_box_get_active_iter(value combo)
 {
@@ -221,10 +219,6 @@ CAMLprim value ml_gtk_entry_get_completion(value entry)
   return c ? ml_some(Val_GAnyObject(c)) : Val_unit;
 }
 #else
-Unsupported_24(gtk_combo_box_new_text)
-Unsupported_24(gtk_combo_box_append_text)
-Unsupported_24(gtk_combo_box_insert_text)
-Unsupported_24(gtk_combo_box_prepend_text)
 Unsupported_24(gtk_combo_box_get_active_iter)
 Unsupported_24(gtk_combo_box_set_active_iter)
 
@@ -239,3 +233,29 @@ Unsupported_24(gtk_entry_completion_set_match_func)
 Unsupported_24(gtk_entry_get_completion)
 Unsupported_24(gtk_entry_set_completion)
 #endif /* HASGTK24 */
+
+#ifdef HASGTK26
+CAMLprim value
+ml_gtk_combo_box_set_row_separator_func (value cb, value fun_o)
+{
+  gpointer data;
+  GtkDestroyNotify dnotify;
+  GtkTreeViewRowSeparatorFunc func;
+  if (Is_long (fun_o))
+    {
+      data = NULL;
+      dnotify = NULL;
+      func = NULL;
+    }
+  else
+    {
+      data = ml_global_root_new (Field (fun_o, 0));
+      dnotify = ml_global_root_destroy;
+      func = ml_gtk_row_separator_func;
+    }
+  gtk_combo_box_set_row_separator_func (GtkComboBox_val (cb), func, data, dnotify);
+  return Val_unit;
+}
+#else
+Unsupported_26 (gtk_combo_box_set_row_separator_func)
+#endif /* HASGTK26 */

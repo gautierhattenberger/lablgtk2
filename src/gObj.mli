@@ -1,4 +1,4 @@
-(* $Id: gObj.mli,v 1.59 2004/11/18 12:30:39 oandrieu Exp $ *)
+(* $Id: gObj.mli,v 1.61 2005/02/18 04:21:30 garrigue Exp $ *)
 
 open Gtk
 
@@ -20,7 +20,7 @@ class gobject_ops : 'a obj ->
     method thaw_notify : unit -> unit
   end
 
-class ['a] gobject_signals : ?after:bool -> 'a obj ->
+class ['a] gobject_signals : 'a obj ->
   object ('b)
     val obj : 'a obj
     val after : bool
@@ -43,7 +43,7 @@ class gtkobj : ([> `gtk] as 'a) obj ->
     method get_oid : int
   end
 
-class gtkobj_signals_impl : ?after:bool -> ([>`gtk] as 'a) obj ->
+class gtkobj_signals_impl : ([>`gtk] as 'a) obj ->
   object ('b)
     inherit ['a] gobject_signals
     method destroy : callback:(unit -> unit) -> GtkSignal.id
@@ -57,7 +57,7 @@ class type gtkobj_signals =
 
 (** {3 GtkWidget} *)
 
-class event_signals : ?after:bool -> [> widget] obj ->
+class event_signals : [> widget] obj ->
   object ('a)
     method after : 'a
     method any :
@@ -67,6 +67,7 @@ class event_signals : ?after:bool -> [> widget] obj ->
     method button_press : callback:(GdkEvent.Button.t -> bool) -> GtkSignal.id
     method button_release :
 	callback:(GdkEvent.Button.t -> bool) -> GtkSignal.id
+    method client : callback:(GdkEvent.Client.t -> bool) -> GtkSignal.id
     method configure : callback:(GdkEvent.Configure.t -> bool) -> GtkSignal.id
     method delete : callback:([`DELETE] Gdk.event -> bool) -> GtkSignal.id
     method destroy : callback:([`DESTROY] Gdk.event -> bool) -> GtkSignal.id
@@ -88,6 +89,8 @@ class event_signals : ?after:bool -> [> widget] obj ->
 	callback:(GdkEvent.Proximity.t -> bool) -> GtkSignal.id
     method proximity_out :
 	callback:(GdkEvent.Proximity.t -> bool) -> GtkSignal.id
+    method scroll :
+	callback:(GdkEvent.Scroll.t -> bool) -> GtkSignal.id
     method selection_clear :
 	callback:(GdkEvent.Selection.t -> bool) -> GtkSignal.id
     method selection_notify :
@@ -95,6 +98,10 @@ class event_signals : ?after:bool -> [> widget] obj ->
     method selection_request :
 	callback:(GdkEvent.Selection.t -> bool) -> GtkSignal.id
     method unmap : callback:([`UNMAP] Gdk.event -> bool) -> GtkSignal.id
+    method visibility_notify :
+	callback:(GdkEvent.Visibility.t -> bool) -> GtkSignal.id
+    method window_state :
+	callback:(GdkEvent.WindowState.t -> bool) -> GtkSignal.id
   end
 
 class event_ops : [> widget] obj ->
@@ -251,7 +258,7 @@ and widget : ([> Gtk.widget] as 'a) obj ->
   end
 
 (** @gtkdoc gtk GtkWidget *)
-and misc_signals : ?after:bool -> Gtk.widget obj ->
+and misc_signals : Gtk.widget obj ->
   object ('b)
     inherit gtkobj_signals 
     method hide : callback:(unit -> unit) -> GtkSignal.id

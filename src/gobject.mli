@@ -1,4 +1,4 @@
-(* $Id: gobject.mli,v 1.17 2004/09/18 05:27:54 garrigue Exp $ *)
+(* $Id: gobject.mli,v 1.18 2004/11/25 00:04:36 oandrieu Exp $ *)
 
 type -'a obj
 type g_type
@@ -161,6 +161,7 @@ module Data :
     val unsafe_boxed_option : g_type -> 'a option data_conv
     val gobject : 'a obj data_conv
     val gobject_option : 'a obj option data_conv
+    val gobject_by_name : string -> 'a obj data_conv
     val caml : 'a data_conv
     val caml_option : 'a option data_conv
     val of_value : 'a data_conv -> g_value -> 'a

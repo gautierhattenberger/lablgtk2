@@ -288,10 +288,11 @@ GL extension:
   You can use lablgtk in combination with LablGL
 
   * get and install lablGL 0.99 from
-    http://wwwfun.kurims.kyoto-u.ac.jp/soft/olabl/lablgl.html
-  * get and install gtkglarea-1.99.x.tar.gz from
-    http://www.student.oulu.fi/~jlof/gtkglarea/index.html
-  * reconfigure: "make configure USE_GL=1"
+      http://wwwfun.kurims.kyoto-u.ac.jp/soft/olabl/lablgl.html
+  * get and install gtkglarea-1.99.0.tar.gz from
+      ftp://ftp.gnome.org/pub/gnome/sources/gtkglarea/1.99/
+    or any other gnome mirror site
+  * reconfigure
 
   You can then use the widget GlGtk.gl_area as an OpenGL window.
   Some examples are in examples/GL, but basically any LablGL example
@@ -358,4 +359,4 @@ Authors:
 Bug reports:
 	Jacques Garrigue <garrigue@kurims.kyoto-u.ac.jp>
 
-$Id: README,v 1.80 2004/07/22 13:18:01 monate Exp $
+$Id: README,v 1.82 2005/01/20 07:20:31 garrigue Exp $

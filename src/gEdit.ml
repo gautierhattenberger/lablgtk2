@@ -1,4 +1,4 @@
-(* $Id: gEdit.ml,v 1.32 2004/06/22 18:52:54 oandrieu Exp $ *)
+(* $Id: gEdit.ml,v 1.34 2005/01/08 11:41:06 oandrieu Exp $ *)
 
 open Gaux
 open Gtk
@@ -162,6 +162,9 @@ class combo_box _obj = object
     GtkEdit.ComboBox.get_active_iter obj
   method set_active_iter =
     GtkEdit.ComboBox.set_active_iter obj
+  method set_row_separator_func fo =
+    GtkEdit.ComboBox.set_row_separator_func obj 
+      (Gaux.may_map (fun f m -> f (new GTree.model m)) fo)
 end
 
 let combo_box ?model =
@@ -215,14 +218,14 @@ let text_combo_get_active ((combo, (lstore, column)) : 'a text_combo) =
   | None -> None
   | Some row -> Some (lstore#get ~row ~column)
 
-let combo_box_text ?(strings=[]) =
+let combo_box_text ?(strings=[]) ?(use_markup=false) =
   let (store, column) as model = GTree.store_of_list Gobject.Data.string strings in
   GtkEdit.ComboBox.make_params ~model:store#as_model [] ~cont:(
   GtkBase.Widget.size_params ~cont:(fun pl ?packing ?show () ->
     let combo = new combo_box (GtkEdit.ComboBox.create pl) in
     let r = GTree.cell_renderer_text [] in
     combo#pack r ; 
-    combo#add_attribute r "text" column ;
+    combo#add_attribute r (if use_markup then "markup" else "text") column ;
     GObj.pack_return combo ~packing ~show ;
     combo, model))
 
@@ -235,42 +238,3 @@ let combo_box_entry_text ?(strings=[]) =
     let combo = new combo_box_entry (GtkEdit.ComboBoxEntry.create pl) in
     GObj.pack_return combo ~packing ~show ;
     combo, model))
-
-(*
-class text obj = object (self)
-  inherit editable (obj : Gtk.text obj) as super
-  method get_chars ~start ~stop:e =
-    if start < 0 || e > Text.get_length obj || e < start then
-      invalid_arg "GEdit.text#get_chars";
-    super#get_chars ~start ~stop:e
-  method event = new GObj.event_ops obj
-  method set_point = Text.set_point obj
-  method set_hadjustment adj =
-    Text.set_adjustment obj ~horizontal:(GData.as_adjustment adj) ()
-  method set_vadjustment adj =
-    Text.set_adjustment obj ~vertical:(GData.as_adjustment adj) ()
-  method set_word_wrap = Text.set_word_wrap obj
-  method set_line_wrap = Text.set_line_wrap obj
-  method hadjustment = new GData.adjustment (Text.get_hadjustment obj)
-  method vadjustment = new GData.adjustment (Text.get_vadjustment obj)
-  method point = Text.get_point obj
-  method length = Text.get_length obj
-  method freeze () = Text.freeze obj
-  method thaw () = Text.thaw obj
-  method insert ?font ?foreground ?background text =
-    let colormap = try Some self#misc#colormap with _ -> None in
-    Text.insert obj text ?font
-      ?foreground:(may_map foreground ~f:(GDraw.color ?colormap))
-      ?background:(may_map background ~f:(GDraw.color ?colormap))
-end
-
-let text ?hadjustment ?vadjustment ?editable
-    ?word_wrap ?line_wrap ?width ?height ?packing ?show () =
-  let w = Text.create ()
-      ?hadjustment:(may_map ~f:GData.as_adjustment hadjustment)
-      ?vadjustment:(may_map ~f:GData.as_adjustment vadjustment) in
-  may word_wrap ~f:(Text.set_word_wrap w);
-  may line_wrap ~f:(Text.set_line_wrap w);
-  set_editable w ?editable ?width ?height;
-  pack_return (new text w) ~packing ~show
-*)

@@ -1,4 +1,4 @@
-(* $Id: gnoCanvas.mli,v 1.13 2004/06/02 20:39:47 oandrieu Exp $ *)
+(* $Id: gnoCanvas.mli,v 1.14 2004/12/02 02:44:43 garrigue Exp $ *)
 
 (** [libgnomecanvas] bindings *)
 
@@ -81,7 +81,7 @@ type item_event = [
   | `FOCUS_CHANGE of GdkEvent.Focus.t ]
 
 class item_signals :
-  ?after:bool -> 'b Gtk.obj ->
+  'b Gtk.obj ->
   object
     constraint 'b = [> GnomeCanvas.item]
     inherit GObj.gtkobj_signals

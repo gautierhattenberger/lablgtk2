@@ -1,4 +1,4 @@
-(* $Id: gtk.ml,v 1.111 2004/11/10 19:54:03 oandrieu Exp $ *)
+(* $Id: gtk.ml,v 1.115 2004/12/05 13:18:34 oandrieu Exp $ *)
 
 open Gobject
 
@@ -222,6 +222,8 @@ type cell_renderer = [`gtk|`cellrenderer]
 type cell_renderer_pixbuf = [cell_renderer|`cellrendererpixbuf]
 type cell_renderer_text = [cell_renderer|`cellrenderertext]
 type cell_renderer_toggle = [cell_renderer|`cellrenderertoggle]
+type cell_renderer_progress = [cell_renderer|`cellrendererprogress]
+type cell_renderer_combo = [cell_renderer_text|`cellrenderercombo]
 
 type icon_source
 type icon_set
@@ -243,6 +245,11 @@ type toggle_action = [action|`toggleaction]
 type radio_action = [toggle_action|`radioaction]
 type action_group = [`actiongroup]
 type ui_manager = [`uimanager]
+
+(* New widgets in 2.6 *)
+type icon_view = [container|`iconview]
+type about_dialog = [dialog|`aboutdialog]
+type file_chooser_button = [box|`filechooserbutton|`filechooser]
 
 (* re-export Gobject.obj *)
 type 'a obj = 'a Gobject.obj

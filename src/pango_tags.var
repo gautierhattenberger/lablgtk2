@@ -1,4 +1,4 @@
-(* $Id: pango_tags.var,v 1.4 2004/03/01 09:07:30 garrigue Exp $ *)
+(* $Id: pango_tags.var,v 1.5 2005/01/03 23:49:26 oandrieu Exp $ *)
 
 package "pango"
 prefix "pango_"
@@ -31,3 +31,7 @@ type underline = "PANGO_UNDERLINE_"
 
 type wrap_mode = "PANGO_WRAP_"
   [ `WORD | `CHAR | `WORD_CHAR ]
+
+type protect HASGTK26 ellipsize_mode = "PANGO_ELLIPSIZE_"
+  [ `NONE | `START | `MIDDLE | `END ]
+(* this enum was introduced in Pango 1.6 / GTK+ 2.6 *)

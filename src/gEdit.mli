@@ -1,4 +1,4 @@
-(* $Id: gEdit.mli,v 1.33 2004/08/19 12:33:57 oandrieu Exp $ *)
+(* $Id: gEdit.mli,v 1.35 2005/01/08 11:41:06 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -265,6 +265,13 @@ class combo_box :
     method set_row_span_column : int GTree.column -> unit
     method set_wrap_width : int -> unit
     method wrap_width : int
+    method add_tearoffs : bool (** @since GTK 2.6 *)
+    method set_add_tearoffs : bool -> unit (** @since GTK 2.6 *)
+    method focus_on_click : bool (** @since GTK 2.6 *)
+    method set_focus_on_click : bool -> unit (** @since GTK 2.6 *)
+    method has_frame : bool (** @since GTK 2.6 *)
+    method set_has_frame : bool -> unit (** @since GTK 2.6 *)
+    method set_row_separator_func : (GTree.model -> Gtk.tree_iter -> bool) option -> unit (** @since GTK 2.6 *)
   end
 
 (** @since GTK 2.4
@@ -272,6 +279,9 @@ class combo_box :
 val combo_box :
   ?model:#GTree.model ->
   ?active:int ->
+  ?add_tearoffs:bool ->
+  ?focus_on_click:bool ->
+  ?has_frame:bool ->
   ?wrap_width:int ->
   ?width:int ->
   ?height:int ->
@@ -297,6 +307,9 @@ val combo_box_entry :
   ?model:#GTree.model ->
   ?text_column:string GTree.column ->
   ?active:int ->
+  ?add_tearoffs:bool ->
+  ?focus_on_click:bool ->
+  ?has_frame:bool ->
   ?wrap_width:int ->
   ?width:int ->
   ?height:int ->
@@ -320,7 +333,11 @@ val text_combo_get_active : 'a text_combo -> string option
     @gtkdoc gtk GtkComboBox *)
 val combo_box_text :
   ?strings:string list ->
+  ?use_markup:bool ->
   ?active:int ->
+  ?add_tearoffs:bool ->
+  ?focus_on_click:bool ->
+  ?has_frame:bool ->
   ?wrap_width:int ->
   ?width:int ->
   ?height:int ->
@@ -334,6 +351,9 @@ val combo_box_text :
 val combo_box_entry_text :
   ?strings:string list ->
   ?active:int ->
+  ?add_tearoffs:bool ->
+  ?focus_on_click:bool ->
+  ?has_frame:bool ->
   ?wrap_width:int ->
   ?width:int ->
   ?height:int ->

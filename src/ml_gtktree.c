@@ -1,4 +1,4 @@
-/* $Id: ml_gtktree.c,v 1.37 2004/11/10 19:54:03 oandrieu Exp $ */
+/* $Id: ml_gtktree.c,v 1.41 2005/02/07 09:29:16 oandrieu Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -14,6 +14,7 @@
 #include "ml_gdk.h"
 #include "ml_gtk.h"
 #include "gtk_tags.h"
+#include "ml_gtktree.h"
 
 /* Init all */
 
@@ -33,6 +34,11 @@ CAMLprim value ml_gtktree_init(value unit)
 #ifdef HASGTK24
         + gtk_tree_model_filter_get_type()
 #endif
+#ifdef HASGTK26
+        + gtk_cell_renderer_progress_get_type()
+        + gtk_cell_renderer_combo_get_type()
+        + gtk_icon_view_get_type()
+#endif
         ;
     return Val_GType(t);
 }
@@ -40,8 +46,6 @@ CAMLprim value ml_gtktree_init(value unit)
 /* gtktreemodel.h */
 
 /* "Lighter" version: allocate in the ocaml heap */
-#define GtkTreeIter_val(val) ((GtkTreeIter*)MLPointer_val(val))
-#define Val_GtkTreeIter(it) (copy_memblock_indirected(it,sizeof(GtkTreeIter)))
 CAMLprim value ml_gtk_tree_iter_copy (value it) {
   /* Only valid if in old generation and compaction off */
   return Val_GtkTreeIter(GtkTreeIter_val(it));
@@ -77,7 +81,7 @@ CAMLprim value ml_gtk_tree_path_get_indices(value p)
 } 
 ML_1 (gtk_tree_path_copy, GtkTreePath_val, Val_GtkTreePath)
 ML_1 (gtk_tree_path_next, GtkTreePath_val, Unit)
-ML_1 (gtk_tree_path_prev, GtkTreePath_val, Unit)
+ML_1 (gtk_tree_path_prev, GtkTreePath_val, Val_bool)
 ML_1 (gtk_tree_path_up, GtkTreePath_val, Val_bool)
 ML_1 (gtk_tree_path_down, GtkTreePath_val, Unit)
 ML_2 (gtk_tree_path_is_ancestor, GtkTreePath_val, GtkTreePath_val, Val_bool)
@@ -450,6 +454,55 @@ CAMLprim value ml_gtk_tree_view_get_path_at_pos(value treeview,
   return Val_unit;
 }
 
+#ifdef HASGTK26
+gboolean
+ml_gtk_row_separator_func (GtkTreeModel *model,
+			   GtkTreeIter *iter,
+			   gpointer data)
+{
+  gboolean ret;
+  value *closure = data;
+  CAMLparam0();
+  CAMLlocal3 (arg1, arg2, mlret);
+  arg1 = Val_GAnyObject (model);
+  arg2 = Val_GtkTreeIter (iter);
+  mlret = callback2_exn (*closure, arg1, arg2);
+  if (Is_exception_result (ret))
+    {
+      CAML_EXN_LOG ("gtk_row_separator_func");
+      ret = FALSE;
+    }
+  else
+    ret = Bool_val (mlret);
+  CAMLreturn (ret);
+}
+
+CAMLprim value
+ml_gtk_tree_view_set_row_separator_func (value cb, value fun_o)
+{
+  gpointer data;
+  GtkDestroyNotify dnotify;
+  GtkTreeViewRowSeparatorFunc func;
+  if (Is_long (fun_o))
+    {
+      data = NULL;
+      dnotify = NULL;
+      func = NULL;
+    }
+  else
+    {
+      data = ml_global_root_new (Field (fun_o, 0));
+      dnotify = ml_global_root_destroy;
+      func = ml_gtk_row_separator_func;
+    }
+  gtk_tree_view_set_row_separator_func (GtkTreeView_val (cb), func, data, dnotify);
+  return Val_unit;
+}
+#else
+Unsupported_26 (gtk_tree_view_set_row_separator_func)
+#endif /* HASGTK26 */
+
+
 /* GtkCellLayout */
 #ifdef HASGTK24
 #define GtkCellLayout_val(val) check_cast(GTK_CELL_LAYOUT,val)
@@ -639,3 +692,62 @@ Unsupported_24 (gtk_tree_model_filter_convert_path_to_child_path)
 Unsupported_24 (gtk_tree_model_filter_convert_iter_to_child_iter)
 
 #endif /* HASGTK24 */
+
+/* GtkIconView */
+#ifdef HASGTK26
+#define GtkIconView_val(val) check_cast(GTK_ICON_VIEW,val)
+#define Val_option_GtkTreePath(v) Val_option(v,Val_GtkTreePath)
+ML_3 (gtk_icon_view_get_path_at_pos, GtkIconView_val, Int_val, Int_val, Val_option_GtkTreePath)
+static void ml_iconview_foreach (GtkIconView *icon_view, GtkTreePath *path, gpointer data)
+{
+  value *cb = data;
+  value p;
+  p = Val_GtkTreePath_copy(path);
+  callback_exn(*cb, p);
+}
+CAMLprim value ml_gtk_icon_view_selected_foreach (value i, value cb)
+{
+  CAMLparam2(i, cb);
+  gtk_icon_view_selected_foreach (GtkIconView_val(i), ml_iconview_foreach, &cb);
+  CAMLreturn(Val_unit);
+}
+ML_2 (gtk_icon_view_select_path, GtkIconView_val, GtkTreePath_val, Unit)
+ML_2 (gtk_icon_view_unselect_path, GtkIconView_val, GtkTreePath_val, Unit)
+ML_2 (gtk_icon_view_path_is_selected, GtkIconView_val, GtkTreePath_val, Val_bool)
+CAMLprim value ml_gtk_icon_view_get_selected_items (value i)
+{
+  CAMLparam1(i);
+  CAMLlocal3(path, cell, list);
+  GList *l, *head;
+  head = gtk_icon_view_get_selected_items (GtkIconView_val(i));
+  l = g_list_last (head);
+  list = Val_emptylist;
+  while (l) {
+    GtkTreePath *p = l->data;
+    path = Val_GtkTreePath(p);
+    cell = alloc_small(2, Tag_cons);
+    Field(cell, 0) = path;
+    Field(cell, 1) = list;
+    list = cell;
+    l=l->prev;
+  }
+  g_list_free(head);
+  CAMLreturn(list);
+}
+ML_1 (gtk_icon_view_select_all, GtkIconView_val, Unit)
+ML_1 (gtk_icon_view_unselect_all, GtkIconView_val, Unit)
+ML_2 (gtk_icon_view_item_activated, GtkIconView_val, GtkTreePath_val, Unit)
+
+#else
+
+Unsupported_26(gtk_icon_view_get_path_at_pos)
+Unsupported_26(gtk_icon_view_selected_foreach)
+Unsupported_26(gtk_icon_view_select_path)
+Unsupported_26(gtk_icon_view_unselect_path)
+Unsupported_26(gtk_icon_view_path_is_selected)
+Unsupported_26(gtk_icon_view_get_selected_items)
+Unsupported_26(gtk_icon_view_select_all)
+Unsupported_26(gtk_icon_view_unselect_all)
+Unsupported_26(gtk_icon_view_item_activated)
+
+#endif /* HASGTK26 */

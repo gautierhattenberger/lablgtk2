@@ -1,4 +1,4 @@
-/* $Id: wrappers.h,v 1.61 2004/11/10 19:54:03 oandrieu Exp $ */
+/* $Id: wrappers.h,v 1.62 2004/11/22 11:20:36 oandrieu Exp $ */
 
 #ifndef _wrappers_
 #define _wrappers_
@@ -38,6 +38,9 @@ value ml_lookup_flags_getter (const lookup_info table[], int data);
 #if GTK_CHECK_VERSION(2,4,0) && !defined(DISABLE_GTK24)
 #define HASGTK24
 #endif
+#if GTK_CHECK_VERSION(2,5,3) && !defined(DISABLE_GTK26)
+#define HASGTK26
+#endif
 
 /* Wrapper generators */
 
@@ -47,6 +50,9 @@ CAMLprim value ml_##cname () \
 #define Unsupported_24(cname) \
 CAMLprim value ml_##cname () \
 { failwith(#cname " unsupported in Gtk 2.x < 2.4"); return Val_unit; }
+#define Unsupported_26(cname) \
+CAMLprim value ml_##cname () \
+{ failwith(#cname " unsupported in Gtk 2.x < 2.6"); return Val_unit; }
 
 #define ID(x) (x)
 

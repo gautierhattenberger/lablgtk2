@@ -1,4 +1,4 @@
-/* $Id: ml_pango.c,v 1.13 2004/09/17 00:19:31 garrigue Exp $ */
+/* $Id: ml_pango.c,v 1.14 2005/01/03 23:49:26 oandrieu Exp $ */
 
 #include <stdio.h>
 #include <pango/pango.h>
@@ -220,3 +220,10 @@ CAMLprim value ml_pango_layout_get_pixel_extent(value layout)
   pango_layout_get_pixel_extents(PangoLayout_val(layout), &ink, NULL);
   return Val_PangoRectangle(&ink);
 }
+#ifdef HASGTK26
+ML_1(pango_layout_get_ellipsize, PangoLayout_val, Val_pango_ellipsize_mode)
+ML_2(pango_layout_set_ellipsize, PangoLayout_val, Pango_ellipsize_mode_val, Unit)
+#else
+Unsupported_26(pango_layout_get_ellipsize)
+Unsupported_26(pango_layout_set_ellipsize)
+#endif /* HASGTK26 */

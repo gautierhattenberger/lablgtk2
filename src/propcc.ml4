@@ -1,5 +1,5 @@
 (* -*- caml -*- *)
-(* $Id: propcc.ml4,v 1.21 2004/09/17 00:19:31 garrigue Exp $ *)
+(* $Id: propcc.ml4,v 1.23 2005/01/03 23:49:26 oandrieu Exp $ *)
 
 open StdLabels
 open MoreLabels
@@ -77,7 +77,7 @@ let enums = [
     (* for canvas *)
     "CapStyle"; "JoinStyle"; "LineStyle"];
   "Pango", "PangoEnums",
-  [ "Stretch"; "Style"; "Underline"; "Variant"; ]
+  [ "Stretch"; "Style"; "Underline"; "Variant"; "EllipsizeMode" ]
 ]
 
 (* These types must be registered with g_boxed_register! *)
@@ -568,6 +568,7 @@ let process_file f =
       in
       if wr_props <> [] || rd_props <> [] || wr_meths <> [] then begin
         out "@ @[<hv2>class virtual %s_props = object (self)" (camlize name);
+        out "@ method private virtual obj : _ obj";
         List.iter wr_props ~f:(fun (pname,mlname,gtype,_) ->
           out "@ @[<hv2>method set_%s =@ set %a self#obj@]"
             mlname (oprop ~name ~gtype) pname);
