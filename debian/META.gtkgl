@@ -1,5 +1,5 @@
 requires="lablgl lablgtk2"
-version="1.3.0"
+version="2.2.0"
 directory="+lablgtk2"
 
 archive(native)="lablgtkgl.cmxa"
