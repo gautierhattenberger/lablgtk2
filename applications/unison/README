@@ -5,9 +5,9 @@ You may just compile it after having installed lablgtk.
 
 	http://www.cis.upenn.edu/~bcpierce/unison/
 
-Since unison 2.9.1 compiles with the current version, there is
-currently no patches in this directory.
+Due to recent changes to lablgtk2, you need to apply the patch in this
+directory to compile unison-2.9.50.
 
 Jacques Garrigue
 
-$Id: README,v 1.13 2002/08/02 02:54:43 garrigue Exp $
+$Id: README,v 1.15 2003/08/28 09:00:43 garrigue Exp $

@@ -1,155 +1,119 @@
-(* $Id: gBin.ml,v 1.8 2002/05/30 05:49:08 garrigue Exp $ *)
+(* $Id: gBin.ml,v 1.19 2003/09/16 23:29:13 oandrieu Exp $ *)
 
 open Gaux
 open Gtk
+open GtkBinProps
 open GtkBase
 open GtkBin
 open GObj
+open OgtkBinProps
 open GContainer
 
+let set = Gobject.Property.set
+
 class scrolled_window obj = object
-  inherit container_full (obj : Gtk.scrolled_window obj)
-  method hadjustment =
-    new GData.adjustment (ScrolledWindow.get_hadjustment obj)
-  method vadjustment =
-    new GData.adjustment (ScrolledWindow.get_vadjustment obj)
-  method set_hadjustment adj =
-    ScrolledWindow.set_hadjustment obj (GData.as_adjustment adj)
-  method set_vadjustment adj =
-    ScrolledWindow.set_vadjustment obj (GData.as_adjustment adj)
-  method set_hpolicy hpolicy = ScrolledWindow.set_policy' obj ~hpolicy
-  method set_vpolicy vpolicy = ScrolledWindow.set_policy' obj ~vpolicy
-  method set_placement = ScrolledWindow.set_placement obj
+  inherit [Gtk.scrolled_window] container_impl obj
+  method connect = new container_signals_impl obj
+  inherit scrolled_window_props
   method add_with_viewport w =
     ScrolledWindow.add_with_viewport obj (as_widget w)
 end
 
-let scrolled_window ?hadjustment ?vadjustment ?hpolicy ?vpolicy
-    ?placement ?border_width ?width ?height ?packing ?show () =
-  let w =
-    ScrolledWindow.create ()
-      ?hadjustment:(may_map ~f:GData.as_adjustment hadjustment)
-      ?vadjustment:(may_map ~f:GData.as_adjustment vadjustment) in
-  ScrolledWindow.set w ?hpolicy ?vpolicy ?placement;
-  Container.set w ?border_width ?width ?height;
-  pack_return (new scrolled_window w) ~packing ~show
+let scrolled_window ?hadjustment ?vadjustment =
+  ScrolledWindow.make_params []
+    ?hadjustment:(may_map ~f:GData.as_adjustment hadjustment)
+    ?vadjustment:(may_map ~f:GData.as_adjustment vadjustment)
+    ~cont:(
+  pack_container ~create:(fun pl ->
+    new scrolled_window (ScrolledWindow.create pl)))
 
 class event_box obj = object
-  inherit container_full (obj : Gtk.event_box obj)
-  method event = new GObj.event_ops obj
+  inherit container_full obj
+  method event = new GObj.event_ops (obj :> Gtk.event_box obj)
 end
 
-let event_box ?border_width ?width ?height ?packing ?show () =
-  let w = EventBox.create () in
-  Container.set w ?border_width ?width ?height;
-  pack_return (new event_box w) ~packing ~show
+let event_box =
+  pack_container [] ~create:(fun pl -> new event_box (EventBox.create pl))
 
-class handle_box_signals obj = object
-  inherit container_signals (obj : [> handle_box] obj)
-  method child_attached ~callback =
-    GtkSignal.connect ~sgn:HandleBox.Signals.child_attached obj ~after
-      ~callback:(fun obj -> callback (new widget obj))
-  method child_detached ~callback =
-    GtkSignal.connect ~sgn:HandleBox.Signals.child_detached obj ~after
-      ~callback:(fun obj -> callback (new widget obj))
+class handle_box_signals (obj : [> handle_box] obj) = object
+  inherit container_signals_impl obj
+  inherit handle_box_sigs
 end
 
 class handle_box obj = object
-  inherit container (obj : Gtk.handle_box obj)
-  method set_shadow_type     = HandleBox.set_shadow_type     obj
-  method set_handle_position = HandleBox.set_handle_position obj
-  method set_snap_edge       = HandleBox.set_snap_edge       obj
+  inherit [Gtk.handle_box] container_impl obj
   method connect = new handle_box_signals obj
   method event = new GObj.event_ops obj
+  inherit handle_box_props
 end
 
-let handle_box ?handle_position ?snap_edge ?shadow_type
-    ?border_width ?width ?height ?packing ?show () =
-  let w = HandleBox.create () in
-  HandleBox.set w ?handle_position ?snap_edge ?shadow_type;
-  Container.set w ?border_width ?width ?height;
-  pack_return (new handle_box w) ~packing ~show
+let handle_box =
+  HandleBox.make_params [] ~cont:(
+  pack_container ~create:(fun pl -> new handle_box (HandleBox.create pl)))
 
 class frame_skel obj = object
-  inherit container (obj : [> frame] obj)
-  method set_label = Frame.set_label obj
-  method set_label_align ?x ?y () = Frame.set_label_align' obj ?x ?y
-  method set_shadow_type = Frame.set_shadow_type obj
+  inherit [[> frame]] container_impl obj
+  inherit frame_props
 end
 
 class frame obj = object
   inherit frame_skel (obj : Gtk.frame obj)
-  method connect = new container_signals obj
+  method connect = new container_signals_impl obj
 end
 
-let frame ?(label="") ?label_xalign ?label_yalign ?shadow_type
-    ?border_width ?width ?height ?packing ?show () =
-  let w = Frame.create label in
-  Frame.set w ?label_xalign ?label_yalign ?shadow_type;
-  Container.set w ?border_width ?width ?height;
-  pack_return (new frame w) ~packing ~show
+let frame =
+  Frame.make_params [] ~cont:(
+  pack_container ~create:(fun pl -> new frame (Frame.create pl)))
 
 class aspect_frame obj = object
   inherit frame_skel (obj : Gtk.aspect_frame obj)
-  method connect = new container_signals obj
-  method set_alignment ?x ?y () = AspectFrame.set obj ?xalign:x ?yalign:y
-  method set_ratio ratio = AspectFrame.set obj ~ratio
-  method set_obey_child obey_child = AspectFrame.set obj ~obey_child
+  method connect = new container_signals_impl obj
+  inherit aspect_frame_props
 end
 
-let aspect_frame ?label ?xalign ?yalign ?ratio ?obey_child
-    ?label_xalign ?label_yalign ?shadow_type
-    ?border_width ?width ?height ?packing ?show () =
-  let w =
-    AspectFrame.create ?label ?xalign ?yalign ?ratio ?obey_child () in
-  Frame.set w ?label_xalign ?label_yalign ?shadow_type;
-  Container.set w ?border_width ?width ?height;
-  pack_return (new aspect_frame w) ~packing ~show
+let aspect_frame =
+  AspectFrame.make_params [] ~cont:(
+  Frame.make_params ~cont:(
+  pack_container ~create:(fun pl -> new aspect_frame (AspectFrame.create pl))))
 
 class viewport obj = object
-  inherit container_full (obj : Gtk.viewport obj)
+  inherit [Gtk.viewport] container_impl obj
+  method connect = new container_signals_impl obj
   method event = new event_ops obj
-  method set_hadjustment adj =
-    Viewport.set_hadjustment obj (GData.as_adjustment adj)
-  method set_vadjustment adj =
-    Viewport.set_vadjustment obj (GData.as_adjustment adj)
-  method set_shadow_type = Viewport.set_shadow_type obj
-  method hadjustment = new GData.adjustment (Viewport.get_hadjustment obj)
-  method vadjustment = new GData.adjustment (Viewport.get_vadjustment obj)
+  inherit viewport_props
 end
 
-let viewport ?hadjustment ?vadjustment ?shadow_type
-    ?border_width ?width ?height ?packing ?show () =
-  let w = Viewport.create ()
-      ?hadjustment:(may_map ~f:GData.as_adjustment hadjustment)
-      ?vadjustment:(may_map ~f:GData.as_adjustment vadjustment) in
-  may shadow_type ~f:(Viewport.set_shadow_type w);
-  Container.set w ?border_width ?width ?height;
-  pack_return (new viewport w) ~packing ~show
+let viewport ?hadjustment ?vadjustment =
+  Viewport.make_params []
+    ?hadjustment:(may_map ~f:GData.as_adjustment hadjustment)
+    ?vadjustment:(may_map ~f:GData.as_adjustment vadjustment) ~cont:(
+  pack_container ~create:(fun pl -> new viewport (Viewport.create pl)))
 
 class alignment obj = object
-  inherit container_full (obj : Gtk.alignment obj)
-  method set_alignment ?x ?y () = Alignment.set ?x ?y obj
-  method set_scale ?x ?y () = Alignment.set ?xscale:x ?yscale:y obj
+  inherit [Gtk.alignment] container_impl obj
+  method connect = new container_signals_impl obj
+  inherit alignment_props
 end
 
-let alignment ?x ?y ?xscale ?yscale
-    ?border_width ?width ?height ?packing ?show () =
-  let w = Alignment.create ?x ?y ?xscale ?yscale () in
-  Container.set w ?border_width ?width ?height;
-  pack_return (new alignment w) ~packing ~show
+let alignment =
+  Alignment.make_params [] ~cont:(
+  pack_container ~create:(fun pl -> new alignment (Alignment.create pl)))
   
 let alignment_cast w = new alignment (Alignment.cast w#as_widget)
 
+class socket_signals obj = object
+  inherit container_signals_impl (obj : [> socket] obj)
+  inherit socket_sigs
+end
+
 class socket obj = object (self)
-  inherit container_full (obj : Gtk.socket obj)
+  inherit container (obj : Gtk.socket obj)
+  method connect = new socket_signals obj
   method steal = Socket.steal obj
   method xwindow =
     self#misc#realize ();
     Gdk.Window.get_xwindow self#misc#window
 end
 
-let socket ?border_width ?width ?height ?packing ?show () =
-  let w = Socket.create () in
-  Container.set w ?border_width ?width ?height;
-  pack_return (new socket w) ?packing ?show
+let socket =
+  pack_container [] ~create:(fun pl -> new socket (Socket.create pl))

@@ -1,37 +1,47 @@
-(* $Id: gDraw.mli,v 1.16 2002/06/19 10:09:53 garrigue Exp $ *)
+(* $Id: gDraw.mli,v 1.20 2003/09/27 13:42:19 oandrieu Exp $ *)
 
 open Gdk
 
+(** Offscreen drawables *)
+
+(** {3 Colors} *)
+
+(** @gtkdoc gdk gdk-Colormaps-and-Colors *)
 type color =
-  [ `COLOR of Color.t
+  [ `COLOR of Gdk.color
   | `WHITE
   | `BLACK
   | `NAME of string
   | `RGB of int * int * int]
 
-val color : ?colormap:colormap -> color -> Color.t
+val color : ?colormap:colormap -> color -> Gdk.color
 
 type optcolor =
-  [ `COLOR of Color.t
+  [ `COLOR of Gdk.color
   | `WHITE
   | `BLACK
   | `NAME of string
   | `RGB of int * int * int
   | `DEFAULT ]
 
-val optcolor : ?colormap:colormap -> optcolor -> Color.t option
+val optcolor : ?colormap:colormap -> optcolor -> Gdk.color option
 
-class ['a] drawable : ?colormap:colormap -> 'a Gdk.drawable ->
+(** {3 GdkDrawable} *)
+
+(** Functions for drawing points, lines, arcs, and text
+   @gtkdoc gdk gdk-Drawing-Primitives *)
+class drawable : ?colormap:colormap -> ([>`drawable] Gobject.obj as 'a) ->
   object
     val gc : gc
-    val w : 'a Gdk.drawable
+    val w : 'a
     method arc :
       x:int ->
       y:int ->
       width:int ->
       height:int ->
       ?filled:bool -> ?start:float -> ?angle:float -> unit -> unit
-    method color : color -> Color.t
+    method color : color -> Gdk.color
+    method depth : int
     method gc_values : GC.values
     method line : x:int -> y:int -> x:int -> y:int -> unit
     method point : x:int -> y:int -> unit
@@ -66,11 +76,16 @@ class ['a] drawable : ?colormap:colormap -> 'a Gdk.drawable ->
     method segments : ((int * int) * (int * int)) list -> unit
   end
 
+(** {3 GdkPixmap} *)
+
+(** Offscreen drawables
+   @gtkdoc gdk gdk-Bitmaps-and-Pixmaps *)
 class pixmap :
-  ?colormap:colormap -> ?mask:bitmap -> [ `pixmap] Gdk.drawable ->
+  ?colormap:colormap -> ?mask:bitmap -> Gdk.pixmap ->
   object
-    inherit [[`pixmap]] drawable
-    val bitmap : [ `bitmap] drawable option
+    inherit drawable
+    val w : Gdk.pixmap
+    val bitmap : drawable option
     val mask : bitmap option
     method mask : bitmap option
     method pixmap : Gdk.pixmap
@@ -78,27 +93,13 @@ class pixmap :
 
 class type misc_ops =
   object
-    method allocation : Gtk.rectangle
     method colormap : colormap
-    method draw : Rectangle.t option -> unit
-    method hide : unit -> unit
-    method hide_all : unit -> unit
-    method intersect : Rectangle.t -> Rectangle.t option
-    method pointer : int * int
     method realize : unit -> unit
-    method set_app_paintable : bool -> unit
-    method set_geometry :
-      ?x:int -> ?y:int -> ?width:int -> ?height:int -> unit -> unit
-    method show : unit -> unit
-    method unmap : unit -> unit
-    method unparent : unit -> unit
-    method unrealize : unit -> unit
-    method visible : bool
-    method visual : visual
     method visual_depth : int
     method window : window
   end
 
+(** @gtkdoc gdk gdk-Bitmaps-and-Pixmaps *)
 val pixmap :
   width:int -> height:int -> ?mask:bool ->
   ?window:< misc : #misc_ops; .. > -> ?colormap:colormap ->
@@ -112,10 +113,13 @@ val pixmap_from_xpm_d :
   ?window:< misc : #misc_ops; .. > ->
   ?colormap:colormap -> ?transparent:color -> unit -> pixmap
 
+(** {3 GdkDragContext} *)
+
+(** @gtkdoc gdk gdk-Drag-and-Drop *)
 class drag_context : Gdk.drag_context ->
   object
     val context : Gdk.drag_context
-    method status : ?time:int -> Tags.drag_action list -> unit
+    method status : ?time:int32 -> Tags.drag_action list -> unit
     method suggested_action : Tags.drag_action
     method targets : string list
   end

@@ -1,82 +1,73 @@
-(* $Id: gButton.ml,v 1.18 2002/04/30 02:03:50 garrigue Exp $ *)
+(* $Id: gButton.ml,v 1.26 2003/09/21 10:02:17 oandrieu Exp $ *)
 
 open Gaux
+open Gobject
 open Gtk
 open GtkBase
 open GtkButton
+open OgtkButtonProps
 open GObj
 open GContainer
 
 class button_skel obj = object (self)
   inherit container obj
   method clicked () = Button.clicked obj
-  method set_relief = Button.set_relief obj
-  method relief = Button.get_relief obj
+  method set_relief = set Button.P.relief obj
+  method relief = get Button.P.relief obj
   method grab_default () =
-    Widget.set_can_default obj true;
-    Widget.grab_default obj
+    set Widget.P.can_default obj true;
+    set Widget.P.has_default obj true
+  method event = new GObj.event_ops obj
 end
 
 class button_signals obj = object
-  inherit container_signals obj
-  method clicked = GtkSignal.connect ~sgn:Button.Signals.clicked ~after obj
-  method pressed = GtkSignal.connect ~sgn:Button.Signals.pressed ~after obj
-  method released = GtkSignal.connect ~sgn:Button.Signals.released ~after obj
-  method enter = GtkSignal.connect ~sgn:Button.Signals.enter ~after obj
-  method leave = GtkSignal.connect ~sgn:Button.Signals.leave ~after obj
+  inherit container_signals_impl obj
+  inherit button_sigs
 end
 
 class button obj = object
   inherit button_skel (obj : Gtk.button obj)
   method connect = new button_signals obj
-  method event = new GObj.event_ops obj
 end
 
-let button ?label ?border_width ?width ?height ?packing ?show () =
-  let w = Button.create ?label () in
-  Container.set w ?border_width ?width ?height;
-  pack_return (new button w) ~packing ~show
+let pack_return create p ?packing ?show () =
+  pack_return (create p) ~packing ~show
 
-class toggle_button_signals obj = object
+let button ?label =
+  Button.make_params [] ?label ~cont:(
+  pack_return (fun p -> new button (Button.create p)))
+
+class toggle_button_signals obj = object (self)
   inherit button_signals obj
-  method toggled =
-    GtkSignal.connect ~sgn:ToggleButton.Signals.toggled obj ~after
+  method toggled = self#connect ToggleButton.S.toggled
 end
 
 class toggle_button obj = object
   inherit button_skel obj
   method connect = new toggle_button_signals obj
-  method active = ToggleButton.get_active obj
-  method set_active = ToggleButton.set_active obj
-  method set_draw_indicator = ToggleButton.set_mode obj
+  method active = get ToggleButton.P.active obj
+  method set_active = set ToggleButton.P.active obj
+  method set_draw_indicator = set ToggleButton.P.draw_indicator obj
 end
 
-let toggle_button ?label ?active ?draw_indicator
-    ?border_width ?width ?height ?packing ?show () =
-  let w = ToggleButton.create_toggle ?label () in
-  ToggleButton.set w ?active ?draw_indicator;
-  Container.set w ?border_width ?width ?height;
-  pack_return (new toggle_button w) ~packing ~show
+let make_toggle_button create ?label =
+  Button.make_params [] ?label ~cont:(
+  ToggleButton.make_params ~cont:(
+  pack_return (fun p -> new toggle_button (create p))))
 
-let check_button ?label ?active ?draw_indicator
-    ?border_width ?width ?height ?packing ?show () =
-  let w = ToggleButton.create_check ?label () in
-  ToggleButton.set w ?active ?draw_indicator;
-  Container.set w ?border_width ?width ?height;
-  pack_return (new toggle_button w) ~packing ~show
+let toggle_button = make_toggle_button ToggleButton.create
+let check_button = make_toggle_button ToggleButton.create_check
 
 class radio_button obj = object
   inherit toggle_button (obj : Gtk.radio_button obj)
-  method set_group = RadioButton.set_group obj
+  method set_group = set RadioButton.P.group obj
   method group = Some obj
 end
 
-let radio_button ?group ?label ?active ?draw_indicator
-    ?border_width ?width ?height ?packing ?show () =
-  let w = RadioButton.create ?group ?label () in
-  ToggleButton.set w ?active ?draw_indicator;
-  Container.set w ?border_width ?width ?height;
-  pack_return (new radio_button w) ~packing ~show
+let radio_button ?group =
+  Button.make_params [] ~cont:(
+  ToggleButton.make_params ~cont:(
+  pack_return (fun p -> new radio_button (RadioButton.create ?group p))))
 
 class toolbar obj = object
   inherit container_full (obj : Gtk.toolbar obj)
@@ -108,19 +99,13 @@ class toolbar obj = object
 
   method insert_space = Toolbar.insert_space obj
 
-  method set_orientation = Toolbar.set_orientation obj
-  method set_style = Toolbar.set_style obj
-  method set_space_size = Toolbar.set_space_size obj
-  method set_space_style = Toolbar.set_space_style obj
+  method set_orientation = set Toolbar.P.orientation obj
+  method set_style = set Toolbar.P.toolbar_style obj
   method set_tooltips = Toolbar.set_tooltips obj
-  method set_button_relief = Toolbar.set_button_relief obj
-  method button_relief = Toolbar.get_button_relief obj
 end
 
-let toolbar ?(orientation=`HORIZONTAL) ?style
-    ?space_size ?space_style ?tooltips ?button_relief
-    ?border_width ?width ?height ?packing ?show () =
-  let w = Toolbar.create orientation ?style () in
-  Toolbar.set w ?space_size ?space_style ?tooltips ?button_relief;
-  Container.set w ?border_width ?width ?height;
-  pack_return (new toolbar w) ~packing ~show
+let toolbar ?orientation ?style ?tooltips =
+  pack_container [] ~create:(fun p ->
+    let w = Toolbar.create p in
+    Toolbar.set w ?orientation ?style ?tooltips;
+    new toolbar w)

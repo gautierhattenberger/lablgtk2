@@ -1,6 +1,11 @@
-/* $Id: ml_glib.c,v 1.20.2.2 2003/05/15 14:19:54 furuse Exp $ */
+/* $Id: ml_glib.c,v 1.34 2003/08/06 00:12:39 oandrieu Exp $ */
 
+#include <locale.h>
+#ifdef _WIN32
+#include "win32.h"
+#endif
 #include <glib.h>
+#include <gtk/gtk.h>
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/memory.h>
@@ -12,47 +17,41 @@
 
 #include "glib_tags.c"
 
+/* Not from glib! */
+ML_2(setlocale, Locale_category_val, String_option_val, Val_optstring)
+
 /* Utility functions */
-value copy_string_and_free (char *str)
+value copy_string_g_free (char *str)
 {
-    value res;
-    res = copy_string_check (str);
+    value res = copy_string_check (str);
     g_free (str);
     return res;
 }
 
-void ml_raise_glib (const char *errmsg)
-{
-  static value * exn = NULL;
-  if (exn == NULL)
-      exn = caml_named_value ("gliberror");
-  raise_with_string (*exn, (char*)errmsg);
-}
-
 value Val_GList (GList *list, value (*func)(gpointer))
 {
-    value new_cell, result, last_cell, cell;
+  CAMLparam0 ();
+  CAMLlocal4 (new_cell, result, last_cell, cell);
 
-    if (list == NULL) return Val_unit;
-
-    last_cell = cell = Val_unit;
+  last_cell = cell = Val_unit;
+  while (list != NULL) {
     result = func(list->data);
-    Begin_roots3 (last_cell, cell, result);
-    cell = last_cell = alloc_small(2,0);
-    Field(cell,0) = result;
-    Field(cell,1) = Val_unit;
+    new_cell = alloc_small(2,0);
+    Field(new_cell,0) = result;
+    Field(new_cell,1) = Val_unit;
+    if (last_cell == Val_unit) cell = new_cell;
+    else modify(&Field(last_cell,1), new_cell);
+    last_cell = new_cell;
     list = list->next;
-    while (list != NULL) {
-	result = func(list->data);
-	new_cell = alloc_small(2,0);
-	Field(new_cell,0) = result;
-	Field(new_cell,1) = Val_unit;
-	modify(&Field(last_cell,1), new_cell);
-	last_cell = new_cell;
-	list = list->next;
-    }
-    End_roots ();
-    return cell;
+  }
+  CAMLreturn (cell);
+}
+
+value Val_GList_free (GList *list, value (*func)(gpointer))
+{
+  value res = Val_GList (list, func);
+  g_list_free (list);
+  return res;
 }
 
 GList *GList_val (value list, gpointer (*func)(value))
@@ -84,6 +83,53 @@ CAMLprim value ml_g_set_print_handler (value clos)
     return old_handler;
 }
 
+/* Error handling */
+
+void ml_raise_gerror(GError *err)
+{
+  static value * exn = NULL;
+  value msg;
+  if (exn == NULL)
+      exn = caml_named_value ("gerror");
+  msg = copy_string(err->message);
+  g_error_free(err);
+  raise_with_arg (*exn, msg);
+}
+
+void ml_g_log_func(const gchar *log_domain,
+                   GLogLevelFlags log_level,
+                   const gchar *message,
+                   gpointer data)
+{
+    value *clos_p = (value*)data;
+    callback2(*clos_p, Val_int(log_level), Val_string(message));
+}
+
+ML_1 (Log_level_val, ID, Val_int)
+
+CAMLprim value ml_g_log_set_handler (value domain, value levels, value clos)
+{
+    value *clos_p = ml_global_root_new (clos);
+    int id = g_log_set_handler (String_val(domain), Int_val(levels),
+                                ml_g_log_func, clos_p);
+    CAMLparam1(domain);
+    value ret = alloc_small(3,0);
+    Field(ret,0) = domain;
+    Field(ret,1) = Int_val(id);
+    Field(ret,2) = (value)clos_p;
+    CAMLreturn(ret);
+}
+
+CAMLprim value ml_g_log_remove_handler (value hnd)
+{
+    if (Field(hnd,2) != 0) {
+        g_log_remove_handler (String_val(Field(hnd,0)), Int_val(Field(hnd,1)));
+        ml_global_root_destroy ((value*)Field(hnd,2));
+        Field(hnd,2) = 0;
+    }
+    return Val_unit;
+}
+
 /* Main loop handling */
 
 /* for 1.3 compatibility */
@@ -100,6 +146,30 @@ ML_1 (g_main_is_running, GMainLoop_val, Val_bool)
 ML_1 (g_main_quit, GMainLoop_val, Unit)
 ML_1 (g_main_destroy, GMainLoop_val, Unit)
 
+gboolean ml_g_source_func (gpointer data)
+{
+    return Bool_val (callback (*(value*)data, Val_unit));
+}
+
+CAMLprim value ml_g_timeout_add (value interval, value clos)
+{
+    value *clos_p = ml_global_root_new (clos);
+    return Val_int
+        (g_timeout_add_full (G_PRIORITY_DEFAULT, Long_val(interval),
+                             ml_g_source_func, clos_p,
+                             ml_global_root_destroy));
+}
+
+CAMLprim value ml_g_idle_add (value clos)
+{
+    value *clos_p = ml_global_root_new (clos);
+    return Val_int
+      (g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
+			ml_g_source_func, clos_p,
+			ml_global_root_destroy));
+}
+
+ML_1 (g_source_remove, Int_val, Unit)
 
 /* GIOChannel */
 
@@ -124,41 +194,15 @@ void ml_g_destroy_notify(gpointer data)
     ml_global_root_destroy(data);
 }
 
-ML_1( g_source_remove, Int_val, Val_bool );
-
 CAMLprim value ml_g_io_add_watch(value cond, value clos, value prio, value io)
 {
-    return Val_int ( g_io_add_watch_full(GIOChannel_val(io),
-					 Option_val(prio,Int_val,0),
-					 Io_condition_val(cond),
-					 ml_g_io_channel_watch,
-					 ml_global_root_new(clos),
-					 ml_g_destroy_notify) );
-}
-
-CAMLprim value ml_g_io_channel_read(value io, value str, value offset, value count)
-{
-  guint ret;
-  gsize read;
-  switch (g_io_channel_read(GIOChannel_val(io), 
-			    String_val(str) + Int_val(offset),
-			    Int_val(count),
-			    &read)) {
-  case G_IO_ERROR_NONE:
-    return Val_int( read );
-    break;
-  case G_IO_ERROR_AGAIN:
-    ml_raise_glib("g_io_channel_read: G_IO_ERROR_AGAIN");
-    break;
-  case G_IO_ERROR_INVAL:
-    ml_raise_glib("g_io_channel_read: G_IO_ERROR_INVAL");
-    break;
-  default:
-    ml_raise_glib("g_io_channel_read: G_IO_ERROR_AGAIN");
-    break;
-  }
-  /* no one reaches here... */
-  return Val_unit;
+    g_io_add_watch_full(GIOChannel_val(io),
+                        Option_val(prio,Int_val,0),
+                        Io_condition_val(cond),
+                        ml_g_io_channel_watch,
+                        ml_global_root_new(clos),
+                        ml_g_destroy_notify);
+    return Val_unit;
 }
 
 /* Thread initialization ? */
@@ -169,31 +213,32 @@ ML_0(gdk_threads_leave, Unit)
 */
 
 /* This is not used, but could be someday... */
-/*
+
+/* The day has come .... */
 CAMLprim value Val_GSList (GSList *list, value (*func)(gpointer))
 {
-    value new_cell, result, last_cell, cell;
-
-    if (list == NULL) return Val_unit;
-
-    last_cell = cell = Val_unit;
+  CAMLparam0();
+  CAMLlocal4 (new_cell, result, last_cell, cell);
+  
+  last_cell = cell = Val_unit;
+  while (list != NULL) {
     result = func(list->data);
-    Begin_roots3 (last_cell, cell, result);
-    cell = last_cell = alloc_tuple (2);
-    Field(cell,0) = result;
-    Field(cell,1) = Val_unit;
+    new_cell = alloc_small(2,0);
+    Field(new_cell,0) = result;
+    Field(new_cell,1) = Val_unit;
+    if (last_cell == Val_unit) cell = new_cell;
+    else modify(&Field(last_cell,1), new_cell);
+    last_cell = new_cell;
     list = list->next;
-    while (list != NULL) {
-	result = func(list->data);
-	new_cell = alloc_tuple(2);
-	Field(new_cell,0) = result;
-	Field(new_cell,1) = Val_unit;
-	modify(&Field(last_cell,1), new_cell);
-	last_cell = new_cell;
-	list = list->next;
-    }
-    End_roots ();
-    return cell;
+  }
+  CAMLreturn(cell);
+}
+
+value Val_GSList_free (GSList *list, value (*func)(gpointer))
+{
+  value res = Val_GSList (list, func);
+  g_slist_free (list);
+  return res;
 }
 
 GSList *GSList_val (value list, gpointer (*func)(value))
@@ -212,4 +257,91 @@ GSList *GSList_val (value list, gpointer (*func)(value))
     End_roots ();
     return res;
 }
-*/
+
+/* Character Set Conversion */
+
+CAMLprim value ml_g_convert(value str, value to, value from)
+{
+  gsize br=0,bw=0;
+  gchar* c_res;
+  GError *error=NULL;
+  c_res = g_convert(String_val(str),string_length(str),
+                    String_val(to),String_val(from),
+                    &br,&bw,&error);
+  if (error != NULL) ml_raise_gerror(error);
+  return Val_string(c_res);
+}
+
+CAMLprim value ml_g_convert_with_fallback(value fallback, value to, value from, value str)
+{
+  gsize br=0,bw=0;
+  gchar* c_res;
+  GError *error=NULL;
+  c_res = g_convert_with_fallback(String_val(str),string_length(str),
+				  String_val(to),String_val(from),Option_val(fallback ,String_val,NULL),
+		      &br,&bw,&error);
+  if (error != NULL) ml_raise_gerror(error);
+  return Val_string(c_res);
+}
+
+#define Make_conversion(cname) \
+CAMLprim value ml_##cname(value str) { \
+  gsize br=0,bw=0; \
+  gchar* c_res; \
+  GError *error=NULL; \
+  c_res = cname(String_val(str),string_length(str),&br,&bw,&error); \
+  if (error != NULL) ml_raise_gerror(error); \
+  return Val_string(c_res); \
+}
+
+Make_conversion(g_locale_to_utf8)
+Make_conversion(g_filename_to_utf8)
+Make_conversion(g_locale_from_utf8)
+Make_conversion(g_filename_from_utf8)
+
+CAMLprim value ml_g_get_charset()
+{
+  CAMLparam0();
+  CAMLlocal1(couple);
+  gboolean r;
+  G_CONST_RETURN char *c="";
+  r = g_get_charset(&c);
+  couple = alloc_tuple(2);
+  Store_field(couple,0,Val_bool(r));
+  Store_field(couple,1,Val_string(c));
+  CAMLreturn(couple);
+}
+
+CAMLprim value ml_g_utf8_validate(value s)
+{
+  const gchar *c=NULL;
+  return Val_bool(g_utf8_validate(SizedString_val(s),&c));
+}
+
+
+ML_1 (g_unichar_tolower, Int_val, Val_int)
+ML_1 (g_unichar_toupper, Int_val, Val_int)
+ML_1 (g_unichar_totitle, Int_val, Val_int)
+
+ML_1 (g_unichar_digit_value, Int_val, Val_int)
+ML_1 (g_unichar_xdigit_value, Int_val, Val_int)
+
+ML_1 (g_utf8_strlen, SizedString_val, Val_int)
+
+#define UNI_BOOL(f) ML_1(g_unichar_##f, Int_val, Val_bool)
+UNI_BOOL(validate)
+UNI_BOOL(isalnum)
+UNI_BOOL(isalpha)
+UNI_BOOL(iscntrl)
+UNI_BOOL(isdigit)
+UNI_BOOL(isgraph)
+UNI_BOOL(islower)
+UNI_BOOL(isprint)
+UNI_BOOL(ispunct)
+UNI_BOOL(isspace)
+UNI_BOOL(isupper)
+UNI_BOOL(isxdigit)
+UNI_BOOL(istitle)
+UNI_BOOL(isdefined)
+UNI_BOOL(iswide)
+#undef UNI_BOOL

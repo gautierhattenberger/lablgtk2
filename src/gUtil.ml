@@ -1,4 +1,4 @@
-(* $Id: gUtil.ml,v 1.17 2001/09/17 13:09:33 garrigue Exp $ *)
+(* $Id: gUtil.ml,v 1.18 2003/02/20 06:47:51 garrigue Exp $ *)
 
 open StdLabels
 open GObj
@@ -6,10 +6,9 @@ open GObj
 class ['a] memo () = object
   constraint 'a = #widget
   val tbl = Hashtbl.create 7
-  method add (obj : 'a) =
-    Hashtbl.add tbl obj#get_id obj
-  method find (obj : widget) = Hashtbl.find tbl obj#get_id
-  method remove (obj : widget) = Hashtbl.remove tbl obj#get_id
+  method add (obj : 'a) = Hashtbl.add tbl obj#get_oid obj
+  method find (obj : widget) = Hashtbl.find tbl obj#get_oid
+  method remove (obj : widget) = Hashtbl.remove tbl obj#get_oid
 end
 
 let signal_id = ref 0

@@ -1,12 +1,19 @@
-(* $Id: gList.mli,v 1.29.2.1 2003/05/15 14:18:34 furuse Exp $ *)
+(* $Id: gList.mli,v 1.34 2003/09/27 13:42:19 oandrieu Exp $ *)
 
 open Gtk
 open GObj
 open GContainer
 
+(** Widget for packing a list of selectable items *)
+
+(** {3 GtkListItem} *)
+
+(** An item in a {!GList.liste}
+   @gtkdoc gtk GtkListItem 
+   @deprecated . *)
 class list_item : Gtk.list_item obj ->
   object
-    inherit container
+    inherit GContainer.container
     val obj : Gtk.list_item obj
     method event : event_ops
     method as_item : Gtk.list_item obj
@@ -15,25 +22,31 @@ class list_item : Gtk.list_item obj ->
     method select : unit -> unit
     method toggle : unit -> unit
   end
+
+(** @gtkdoc gtk GtkListItem
+   @deprecated . *)
 val list_item :
   ?label:string ->
-  ?border_width:int ->
-  ?width:int ->
-  ?height:int ->
   ?packing:(list_item -> unit) -> ?show:bool -> unit -> list_item
 
+(** {3 GtkList} *)
+
+(** @gtkdoc gtk GtkList *)
 class liste_signals : Gtk.liste obj ->
   object
-    inherit container_signals
+    inherit GContainer.container_signals
     val obj : Gtk.liste obj
     method select_child : callback:(list_item -> unit) -> GtkSignal.id
     method selection_changed : callback:(unit -> unit) -> GtkSignal.id
     method unselect_child : callback:(list_item -> unit) -> GtkSignal.id
   end
 
+(** Widget for packing a list of selectable items
+   @gtkdoc gtk GtkList
+   @deprecated . *)
 class liste : Gtk.liste obj ->
   object
-    inherit [list_item] item_container
+    inherit [list_item] GContainer.item_container
     val obj : Gtk.liste obj
     method child_position : list_item -> int
     method clear_items : start:int -> stop:int -> unit
@@ -42,7 +55,12 @@ class liste : Gtk.liste obj ->
     method select_item : pos:int -> unit
     method unselect_item : pos:int -> unit
     method private wrap : Gtk.widget obj -> list_item
+    method set_selection_mode : Tags.selection_mode -> unit
+    method selection_mode : Tags.selection_mode
   end
+
+(** @gtkdoc gtk GtkList
+   @deprecated . *)
 val liste :
   ?selection_mode:Tags.selection_mode ->
   ?border_width:int ->
@@ -50,12 +68,18 @@ val liste :
   ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> liste
 
+(** {3 GtkCList} *)
+
+(** @gtkdoc gtk GtkCList *)
 class clist_signals : 'a obj ->
   object
-    inherit container_signals
+    inherit GContainer.container_signals
     constraint 'a = [> clist]
     val obj : 'a obj
     method click_column : callback:(int -> unit) -> GtkSignal.id
+    method resize_column : callback:(int -> int -> unit) -> GtkSignal.id
+    method select_all : callback:(unit -> unit) -> GtkSignal.id
+    method unselect_all : callback:(unit -> unit) -> GtkSignal.id
     method select_row :
       callback:(row:int ->
                 column:int -> event:GdkEvent.Button.t option -> unit) ->
@@ -70,9 +94,12 @@ class clist_signals : 'a obj ->
       callback:(Tags.scroll_type -> pos:clampf -> unit) -> GtkSignal.id
   end
 
+(** A multi-columned scrolling list widget
+   @gtkdoc gtk GtkCList
+   @deprecated . *)
 class ['a] clist : Gtk.clist obj ->
   object
-    inherit widget
+    inherit GObj.widget
     val obj : Gtk.clist obj
     method event : event_ops
     method append : string list -> int
@@ -146,44 +173,46 @@ class ['a] clist : Gtk.clist obj ->
     method unselect_all : unit -> unit
     method vadjustment : GData.adjustment
     method get_row_state : int -> Gtk.Tags.state_type
-    method selection : int list
   end
+
+(** @gtkdoc gtk GtkCList 
+   @deprecated . *)
 val clist :
   ?columns:int ->
-  ?titles:string list ->
   ?hadjustment:GData.adjustment ->
   ?vadjustment:GData.adjustment ->
-  ?shadow_type:Tags.shadow_type ->
+  ?titles:string list ->
   ?button_actions:(int * Tags.button_action list) list ->
-  ?selection_mode:Tags.selection_mode ->
-  ?reorderable:bool ->
-  ?use_drag_icons:bool ->
-  ?row_height:int ->
   ?titles_show:bool ->
-  ?titles_active:bool ->
   ?auto_sort:bool ->
   ?sort_column:int ->
   ?sort_type:Tags.sort_type ->
+  ?reorderable:bool ->
+  ?row_height:int ->
+  ?selection_mode:Tags.selection_mode ->
+  ?shadow_type:Tags.shadow_type ->
+  ?titles_active:bool ->
+  ?use_drag_icons:bool ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> string clist
 val clist_poly :
   ?columns:int ->
-  ?titles:string list ->
   ?hadjustment:GData.adjustment ->
   ?vadjustment:GData.adjustment ->
-  ?shadow_type:Tags.shadow_type ->
+  ?titles:string list ->
   ?button_actions:(int * Tags.button_action list) list ->
-  ?selection_mode:Tags.selection_mode ->
-  ?reorderable:bool ->
-  ?use_drag_icons:bool ->
-  ?row_height:int ->
   ?titles_show:bool ->
-  ?titles_active:bool ->
   ?auto_sort:bool ->
   ?sort_column:int ->
   ?sort_type:Tags.sort_type ->
+  ?reorderable:bool ->
+  ?row_height:int ->
+  ?selection_mode:Tags.selection_mode ->
+  ?shadow_type:Tags.shadow_type ->
+  ?titles_active:bool ->
+  ?use_drag_icons:bool ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->

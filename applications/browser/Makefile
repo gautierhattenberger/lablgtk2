@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2001/09/06 08:47:53 garrigue Exp $
+# $Id: Makefile,v 1.10 2003/02/21 08:07:40 garrigue Exp $
 # Makefile for lablgtk.
 
 all: browser
@@ -14,7 +14,11 @@ RANLIB = ranlib
 
 include ../../config.make
 
-MLFLAGS = -I ../../src -I ocaml-src/utils -I ocaml-src/parsing
+MLFLAGS = -I ../../src -I ocaml-src/utils -I ocaml-src/parsing \
+	-I ocaml-src/typing
+ifdef DEBUG
+MLFLAGS += -custom -g -ccopt -g #-cclib -lcamlrund
+endif
 
 # Rules
 .SUFFIXES: .ml .mli .cmo .cmi .cmx .c .o .var .h .opt .def
@@ -26,11 +30,13 @@ MLFLAGS = -I ../../src -I ocaml-src/utils -I ocaml-src/parsing
 	$(COMPOPT) $<
 
 # Targets
-MLOBJS = text.cmo file.cmo lexical.cmo shell.cmo editor.cmo
+MLOBJS =  list2.cmo jg_memo.cmo jg_message.cmo file.cmo \
+	lexical.cmo searchid.cmo searchpos.cmo \
+	shell.cmo editor.cmo
 
 browser: $(MLOBJS)
 	$(LINKER) -o $@	toplevellib.cma str.cma unix.cma \
-	    lablgtk.cma	$(MLOBJS) 
+	    lablgtk.cma	$(MLOBJS)
 
 clean:
 	rm -f *.cm* browser

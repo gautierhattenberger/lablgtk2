@@ -1,4 +1,6 @@
-(* $Id: gpointer.ml,v 1.2 2002/06/19 10:09:53 garrigue Exp $ *)
+(* $Id: gpointer.ml,v 1.8 2003/10/07 05:38:31 garrigue Exp $ *)
+
+open StdLabels
 
 (* marked pointers *)
 type 'a optaddr
@@ -11,8 +13,7 @@ let optaddr : 'a option -> 'a optaddr =
 (* naked pointers *)
 type optstring
 
-external get_null : unit -> optstring = "ml_get_null"
-let raw_null = get_null ()
+let raw_null = snd (Obj.magic Nativeint.zero)
 
 let optstring : string option -> optstring =
   function
@@ -21,7 +22,18 @@ let optstring : string option -> optstring =
 
 (* boxed pointers *)
 type boxed
-let boxed_null : boxed = Obj.magic (0, raw_null)
+let boxed_null : boxed = Obj.magic Nativeint.zero
+
+external peek_string : ?pos:int -> ?len:int -> boxed -> string
+    = "ml_string_at_pointer"
+external peek_int : boxed -> int
+    = "ml_int_at_pointer"
+external poke_int : boxed -> int -> unit
+    = "ml_set_int_at_pointer"
+external peek_nativeint : boxed -> nativeint
+    = "ml_long_at_pointer"
+external poke_nativeint : boxed -> nativeint -> unit
+    = "ml_set_long_at_pointer"
 
 type 'a optboxed
 
@@ -35,10 +47,34 @@ let may_box ~f obj : 'a optboxed =
     None -> Obj.magic boxed_null
   | Some obj -> Obj.magic (f obj : 'a)
 
+(* Variant tables *)
+
+type 'a variant_table constraint 'a = [> ]
+
+external decode_variant : 'a variant_table -> int -> 'a
+  = "ml_ml_lookup_from_c"
+external encode_variant : 'a variant_table -> 'a -> int
+  = "ml_ml_lookup_to_c"
+
+let encode_flags tbl l =
+  List.fold_left l ~init:0 ~f:(fun acc v -> acc lor (encode_variant tbl v))
+
+let decode_flags tbl c =
+  let l = ref [] in
+  for i = 30 downto 0 do (* only 31-bits in ocaml usual integers *)
+    let d = 1 lsl i in
+    if c land d <> 0 then l := decode_variant tbl d :: !l
+  done;
+  !l
+
 (* Exceptions *)
 
 exception Null
 let _ =  Callback.register_exception "null_pointer" Null
+
+(* Stable pointer *)
+type 'a stable
+external stable_copy : 'a -> 'a stable = "ml_stable_copy"
 
 (* Region pointers *)
 

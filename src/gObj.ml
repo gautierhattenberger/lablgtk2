@@ -1,81 +1,88 @@
-(* $Id: gObj.ml,v 1.42 2002/08/19 02:57:05 garrigue Exp $ *)
+(* $Id: gObj.ml,v 1.56 2003/09/22 09:41:59 oandrieu Exp $ *)
 
 open StdLabels
 open Gaux
+open Gobject
 open Gtk
 open GtkData
 open GtkBase
 
-(* Object *)
+(* GObject *)
 
-class gtkobj obj = object
-  val obj = obj
-  method destroy () = Object.destroy obj
-  method get_id = Object.get_id obj
+class ['a] gobject_signals ?(after=false) obj = object
+  val obj : 'a obj = obj
+  val after = after
+  method after = {< after = true >}
+  method private connect : 'b. ('a,'b) GtkSignal.t -> callback:'b -> _ =
+    fun sgn -> GtkSignal.connect obj ~sgn ~after
 end
 
-class gtkobj_misc obj = object
+class gobject_ops obj = object
   val obj = obj
-  method get_type = Type.name (Object.get_type obj)
+  method get_oid = get_oid obj
+  method get_type = Type.name (get_type obj)
   method disconnect = GtkSignal.disconnect obj
   method handler_block = GtkSignal.handler_block obj
   method handler_unblock = GtkSignal.handler_unblock obj
+  method set_property : 'a. string -> 'a data_set -> unit =
+    Property.set_dyn obj
+  method get_property = Property.get_dyn obj
+  method freeze_notify () = Property.freeze_notify obj
+  method thaw_notify () = Property.thaw_notify obj
 end
 
-class gtkobj_signals ?(after=false) obj = object
-  val obj = obj
-  val after = after
-  method after = {< after = true >}
-  method destroy = GtkSignal.connect ~sgn:Object.Signals.destroy obj
+(* GtkObject *)
+
+class type ['a] objvar = object
+  val obj : 'a obj
+  method private obj : 'a obj
 end
+
+class gtkobj obj = object
+  val obj = obj
+  method private obj = obj
+  method destroy () = Object.destroy obj
+  method get_oid = get_oid obj
+end
+
+class gtkobj_signals_impl ?after obj = object (self)
+  inherit ['a] gobject_signals ?after obj
+  method destroy = self#connect Object.S.destroy
+end
+
+class type gtkobj_signals =
+  object ('a)
+    method after : 'a
+    method destroy : callback:(unit -> unit) -> GtkSignal.id
+  end
 
 (* Widget *)
 
-class event_signals ?(after=false) obj = object
-  val obj = (obj :> Gtk.widget obj)
-  val after = after
-  method after = {< after = true >}
-  method any = GtkSignal.connect ~sgn:Widget.Signals.Event.any ~after obj
-  method button_press =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.button_press ~after obj
-  method button_release =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.button_release ~after obj
-  method configure =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.configure ~after obj
-  method delete =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.delete ~after obj
-  method destroy =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.destroy ~after obj
-  method enter_notify =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.enter_notify ~after obj
-  method expose =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.expose ~after obj
-  method focus_in =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.focus_in ~after obj
-  method focus_out =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.focus_out ~after obj
-  method key_press =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.key_press ~after obj
-  method key_release =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.key_release ~after obj
-  method leave_notify =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.leave_notify ~after obj
-  method map = GtkSignal.connect ~sgn:Widget.Signals.Event.map ~after obj
-  method motion_notify =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.motion_notify ~after obj
-  method property_notify =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.property_notify ~after obj
-  method proximity_in =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.proximity_in ~after obj
-  method proximity_out =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.proximity_out ~after obj
-  method selection_clear =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.selection_clear ~after obj
-  method selection_notify =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.selection_notify ~after obj
+class event_signals ?after obj = object (self)
+  inherit ['a] gobject_signals ?after (obj :> Gtk.widget obj)
+  method any = self#connect Widget.Signals.Event.any
+  method button_press = self#connect Widget.Signals.Event.button_press
+  method button_release = self#connect Widget.Signals.Event.button_release
+  method configure = self#connect Widget.Signals.Event.configure
+  method delete = self#connect Widget.Signals.Event.delete
+  method destroy = self#connect Widget.Signals.Event.destroy
+  method enter_notify = self#connect Widget.Signals.Event.enter_notify
+  method expose = self#connect Widget.Signals.Event.expose
+  method focus_in = self#connect Widget.Signals.Event.focus_in
+  method focus_out = self#connect Widget.Signals.Event.focus_out
+  method key_press = self#connect Widget.Signals.Event.key_press
+  method key_release = self#connect Widget.Signals.Event.key_release
+  method leave_notify = self#connect Widget.Signals.Event.leave_notify
+  method map = self#connect Widget.Signals.Event.map
+  method motion_notify = self#connect Widget.Signals.Event.motion_notify
+  method property_notify = self#connect Widget.Signals.Event.property_notify
+  method proximity_in = self#connect Widget.Signals.Event.proximity_in
+  method proximity_out = self#connect Widget.Signals.Event.proximity_out
+  method selection_clear = self#connect Widget.Signals.Event.selection_clear
+  method selection_notify = self#connect Widget.Signals.Event.selection_notify
   method selection_request =
-    GtkSignal.connect ~sgn:Widget.Signals.Event.selection_request ~after obj
-  method unmap = GtkSignal.connect ~sgn:Widget.Signals.Event.unmap ~after obj
+    self#connect Widget.Signals.Event.selection_request
+  method unmap = self#connect Widget.Signals.Event.unmap
 end
 
 class event_ops obj = object
@@ -83,7 +90,7 @@ class event_ops obj = object
   method add = Widget.add_events obj
   method connect = new event_signals obj
   method send : Gdk.Tags.event_type Gdk.event -> bool = Widget.event obj
-  method set_extensions = Widget.set_extension_events obj
+  method set_extensions = set Widget.P.extension_events obj
 end
 
 let iter_setcol set style =
@@ -133,36 +140,28 @@ class selection_context sel = object
     Selection.set sel ~typ ~format ~data:(Some data)
 end
 
-class drag_signals ?(after=false) obj = object
-  val obj =  obj
-  val after = after
-  method after = {< after = true >}
-  method beginning ~callback =
-    GtkSignal.connect ~sgn:DnD.Signals.drag_begin ~after obj
-      ~callback:(fun context -> callback (new drag_context context))
-  method ending ~callback =
-    GtkSignal.connect ~sgn:DnD.Signals.drag_end ~after obj
-      ~callback:(fun context -> callback (new drag_context context))
-  method data_delete ~callback =
-    GtkSignal.connect ~sgn:DnD.Signals.drag_data_delete ~after obj
-      ~callback:(fun context -> callback (new drag_context context))
-  method leave ~callback =
-    GtkSignal.connect ~sgn:DnD.Signals.drag_leave ~after obj
-      ~callback:(fun context -> callback (new drag_context context))
-  method motion ~callback =
-    GtkSignal.connect ~sgn:DnD.Signals.drag_motion ~after obj
-      ~callback:(fun context -> callback (new drag_context context))
-  method drop ~callback =
-    GtkSignal.connect ~sgn:DnD.Signals.drag_drop ~after obj
-      ~callback:(fun context -> callback (new drag_context context))
+open Widget
+
+class drag_signals obj = object (self)
+  inherit ['a] gobject_signals obj
+  method private connect_drag : 'b. ('a, Gdk.drag_context -> 'b) GtkSignal.t ->
+    callback:(drag_context -> 'b) -> _ =
+      fun sgn ~callback ->
+        self#connect sgn (fun context -> callback (new drag_context context))
+  method beginning = self#connect_drag Widget.S.drag_begin
+  method ending = self#connect_drag Widget.S.drag_end
+  method data_delete = self#connect_drag Widget.S.drag_data_delete
+  method leave = self#connect_drag Widget.S.drag_leave
+  method motion = self#connect_drag Widget.S.drag_motion
+  method drop = self#connect_drag Widget.S.drag_drop
   method data_get ~callback =
-    GtkSignal.connect ~sgn:DnD.Signals.drag_data_get ~after obj ~callback:
+    self#connect Widget.S.drag_data_get ~callback:
       begin fun context seldata ~info ~time ->
         callback (new drag_context context) (new selection_context seldata)
           ~info ~time
       end
   method data_received ~callback =
-    GtkSignal.connect ~sgn:DnD.Signals.drag_data_received ~after obj
+    self#connect Widget.S.drag_data_received
       ~callback:(fun context ~x ~y data -> callback (new drag_context context)
 	       ~x ~y (new selection_data data))
 
@@ -174,7 +173,7 @@ and drag_ops obj = object
   method dest_set ?(flags=[`ALL]) ?(actions=[]) targets =
     DnD.dest_set obj ~flags ~actions ~targets:(Array.of_list targets)
   method dest_unset () = DnD.dest_unset obj
-  method get_data ~target ?(time=0) (context : drag_context) =
+  method get_data ~target ?(time=Int32.zero) (context : drag_context) =
     DnD.get_data obj context#context ~target:(Gdk.Atom.intern target) ~time
   method highlight () = DnD.highlight obj
   method unhighlight () = DnD.unhighlight obj
@@ -191,7 +190,7 @@ and drag_context context = object
   method context = context
   method finish = DnD.finish context
   method source_widget =
-    new widget (Object.unsafe_cast (DnD.get_source_widget context))
+    new widget (unsafe_cast (DnD.get_source_widget context))
   method set_icon_widget (w : widget) =
     DnD.set_icon_widget context (w#as_widget)
   method set_icon_pixmap ?(colormap = Gdk.Color.get_system_colormap ())
@@ -199,100 +198,110 @@ and drag_context context = object
     DnD.set_icon_pixmap context ~colormap pix#pixmap ?mask:pix#mask
 end
 
-and misc_signals ?after obj = object
-  inherit gtkobj_signals ?after obj
-  method draw ~callback =
-    GtkSignal.connect obj ~sgn:Widget.Signals.draw ~after ~callback:
-      begin fun rect ->
-	callback
-	  { x = Gdk.Rectangle.x rect ; y = Gdk.Rectangle.y rect;
-	    width = Gdk.Rectangle.width rect;
-	    height = Gdk.Rectangle.height rect }
-      end
-  method show = GtkSignal.connect ~sgn:Widget.Signals.show ~after obj
-  method hide = GtkSignal.connect ~sgn:Widget.Signals.hide ~after obj
-  method map = GtkSignal.connect ~sgn:Widget.Signals.map ~after obj
-  method unmap = GtkSignal.connect ~sgn:Widget.Signals.unmap ~after obj
-  method realize = GtkSignal.connect ~sgn:Widget.Signals.realize ~after obj
-  method size_allocate =
-    GtkSignal.connect ~sgn:Widget.Signals.size_allocate ~after obj
-  method state_changed =
-    GtkSignal.connect ~sgn:Widget.Signals.state_changed ~after obj
+and misc_signals ?after obj = object (self)
+  inherit gtkobj_signals_impl ?after obj
+  method show = self#connect S.show
+  method hide = self#connect S.hide
+  method map = self#connect S.map
+  method unmap = self#connect S.unmap
+  method realize = self#connect S.realize
+  method unrealize = self#connect S.unrealize
+  method state_changed = self#connect S.state_changed
+  method size_allocate = self#connect S.size_allocate
   method parent_set ~callback =
-    GtkSignal.connect obj ~sgn:Widget.Signals.parent_set ~after ~callback:
+    self#connect S.parent_set ~callback:
       begin function
 	  None   -> callback None
-	| Some w -> callback (Some (new widget (Object.unsafe_cast w)))
+	| Some w -> callback (Some (new widget (unsafe_cast w)))
       end
   method style_set ~callback =
-    GtkSignal.connect obj ~sgn:Widget.Signals.style_set ~after ~callback:
+    self#connect S.style_set ~callback:
       (fun opt -> callback (may opt ~f:(new style)))
   method selection_get ~callback =
-    GtkSignal.connect obj ~sgn:Selection.Signals.selection_get ~after
-      ~callback:
+    self#connect S.selection_get ~callback:
       begin fun seldata ~info ~time ->
         callback (new selection_context seldata) ~info ~time
       end
   method selection_received ~callback =
-    GtkSignal.connect obj ~sgn:Selection.Signals.selection_received ~after
+    self#connect S.selection_received
       ~callback:(fun data -> callback (new selection_data data)) 
 end
 
-and misc_ops obj = object
-  inherit gtkobj_misc obj
+and misc_ops obj = object (self)
+  inherit gobject_ops obj
+  method get_flag = Object.get_flag obj
   method connect = new misc_signals obj
-  method show () = Widget.show obj
-  method unparent () = Widget.unparent obj
-  method show_all () = Widget.show_all obj
-  method hide () = Widget.hide obj
-  method hide_all () = Widget.hide_all obj
-  method map () = Widget.map obj
-  method unmap () = Widget.unmap obj
-  method realize () = Widget.realize obj
-  method unrealize () = Widget.unrealize obj
-  method draw = Widget.draw obj
-  method activate () = Widget.activate obj
-  method reparent (w : widget) =  Widget.reparent obj w#as_widget
-  method popup = Widget.popup obj
-  method intersect = Widget.intersect obj
-  method grab_focus () = Widget.grab_focus obj
-  method grab_default () = Widget.grab_default obj
-  method is_ancestor (w : widget) = Widget.is_ancestor obj w#as_widget
+  method show () = show obj
+  method unparent () = unparent obj
+  method show_all () = show_all obj
+  method hide () = hide obj
+  method hide_all () = hide_all obj
+  method map () = map obj
+  method unmap () = unmap obj
+  method realize () = realize obj
+  method unrealize () = unrealize obj
+  method draw = draw obj
+  method activate () = activate obj
+  method reparent (w : widget) =  reparent obj w#as_widget
+  (* method popup = popup obj *)
+  method intersect = intersect obj
+  method grab_focus () = set P.has_focus obj true
+  method grab_default () = set P.has_default obj true
+  method is_ancestor (w : widget) = is_ancestor obj w#as_widget
   method add_accelerator ~sgn:sg ~group ?modi ?flags key =
-    Widget.add_accelerator obj ~sgn:sg group ~key ?modi ?flags
+    add_accelerator obj ~sgn:sg group ~key ?modi ?flags
   method remove_accelerator ~group ?modi key =
-    Widget.remove_accelerator obj group ~key ?modi
-  method lock_accelerators () = Widget.lock_accelerators obj
-  method set_name = Widget.set_name obj
-  method set_state = Widget.set_state obj
-  method set_sensitive = Widget.set_sensitive obj
-  method set_can_default = Widget.set_can_default obj
-  method set_can_focus = Widget.set_can_focus obj
-  method set_geometry ?(x = -2) ?(y = -2) ?(width = -2) ?(height = -2)  () =
-    if x+y <> -4 then Widget.set_uposition obj ~x ~y;
-    if width+height <> -4 then Widget.set_usize obj ~width ~height
-  method set_style (style : style) = Widget.set_style obj style#as_style
+    remove_accelerator obj group ~key ?modi
+  (* method lock_accelerators () = lock_accelerators obj *)
+  method set_name = set P.name obj
+  method set_state = set_state obj
+  method set_sensitive = set P.sensitive obj
+  method set_can_default = set P.can_default obj
+  method set_can_focus = set P.can_focus obj
+  method set_size_request =
+    Widget.size_params [] ~cont:(fun p () -> set_params obj p)
+  method set_size_chars ?desc ?lang ?width ?height () =
+    let metrics = 
+      (self#pango_context : GPango.context)#get_metrics ?desc ?lang () in
+    let width = may_map width ~f:
+        (fun w -> w * GPango.to_pixels metrics#approx_digit_width)
+    and height = may_map height ~f:
+        (fun h -> h * GPango.to_pixels (metrics#ascent+metrics#descent)) in
+    self#set_size_request ?width ?height ()
+  method set_style (style : style) = set P.style obj style#as_style
+  method modify_fg = iter_setcol modify_fg obj
+  method modify_bg = iter_setcol modify_bg obj
+  method modify_text = iter_setcol modify_text obj
+  method modify_base = iter_setcol modify_base obj
+  method modify_font = modify_font obj
+  method modify_font_by_name s =
+    modify_font obj (Pango.Font.from_string s)
+  method create_pango_context () =
+    new GPango.context_rw (create_pango_context obj)
   (* get functions *)
-  method name = Widget.get_name obj
+  method name = get P.name obj
   method toplevel =
-    try new widget (Object.unsafe_cast (Widget.get_toplevel obj))
+    try new widget (unsafe_cast (get_toplevel obj))
     with Gpointer.Null -> failwith "GObj.misc_ops#toplevel"
-  method window = Widget.window obj
-  method colormap = Widget.get_colormap obj
-  method visual = Widget.get_visual obj
-  method visual_depth = Gdk.Window.visual_depth (Widget.get_visual obj)
-  method pointer = Widget.get_pointer obj
-  method style = new style (Widget.get_style obj)
-  method visible = Widget.visible obj
-  method has_focus = Widget.has_focus obj
+  method window = window obj
+  method colormap = get_colormap obj
+  method visual = get_visual obj
+  method visual_depth = Gdk.Visual.depth (get_visual obj)
+  method pointer = get_pointer obj
+  method style = new style (get P.style obj)
+  method visible = self#get_flag `VISIBLE
   method parent =
-    try Some (new widget (Object.unsafe_cast (Widget.parent obj)))
-    with Gpointer.Null -> None
-  method set_app_paintable = Widget.set_app_paintable obj
-  method allocation = Widget.allocation obj
-  method convert_selection ~target ?(time=0) sel =
+    may_map (fun w -> new widget (unsafe_cast w)) (get P.parent obj)
+  method set_app_paintable = set P.app_paintable obj
+  method allocation = allocation obj
+  method pango_context = new GPango.context (get_pango_context obj)
+  (* icon *)
+  method render_icon ?detail ~size id =
+    render_icon obj (GtkStock.convert_id id) size detail
+  (* selection *)
+  method convert_selection ~target ?(time=Int32.zero) sel =
     Selection.convert obj ~sel ~target:(Gdk.Atom.intern target) ~time
-  method grab_selection ?(time=0) sel = Selection.owner_set obj ~sel ~time
+  method grab_selection ?(time=Int32.zero) sel = Selection.owner_set obj ~sel ~time
   method add_selection_target ~target ?(info=0) sel =
     Selection.add_target obj ~sel ~target:(Gdk.Atom.intern target) ~info
 end
@@ -301,22 +310,40 @@ and widget obj = object (self)
   inherit gtkobj obj
   method as_widget = (obj :> Gtk.widget obj)
   method misc = new misc_ops (obj :> Gtk.widget obj)
-  method drag = new drag_ops (Object.unsafe_cast obj : Gtk.widget obj)
+  method drag = new drag_ops (unsafe_cast obj : Gtk.widget obj)
   method coerce = (self :> widget)
 end
 
 (* just to check that GDraw.misc_ops is compatible with misc_ops *)
 let _ = fun (x : #GDraw.misc_ops) -> (x : misc_ops)
 
-class widget_signals ?after (obj : [> `widget] obj) =
-  gtkobj_signals ?after obj
+class widget_signals_impl (obj : [>Gtk.widget] obj) = gtkobj_signals_impl obj
+
+class type widget_signals = gtkobj_signals
+
+class ['a] widget_impl (obj : 'a obj) = widget obj
 
 class widget_full obj = object
   inherit widget obj
-  method connect = new widget_signals obj
+  method connect = new widget_signals_impl obj
 end
 
 let as_widget (w : widget) = w#as_widget
+
+let wrap_widget w = new widget (unsafe_cast w)
+let unwrap_widget w = unsafe_cast w#as_widget
+let conv_widget_option =
+  { kind = `OBJECT;
+    proj = (function `OBJECT c -> may_map ~f:wrap_widget c
+           | _ -> failwith "GObj.get_object");
+    inj = (fun c -> `OBJECT (may_map ~f:unwrap_widget c)) }
+let conv_widget =
+  { kind = `OBJECT;
+    proj = (function `OBJECT (Some c) -> wrap_widget c
+           | `OBJECT None -> raise Gpointer.Null
+           | _ -> failwith "GObj.get_object");
+    inj = (fun c -> `OBJECT (Some (unwrap_widget c))) }
+
 
 let pack_return self ~packing ~show =
   may packing ~f:(fun f -> (f (self :> widget) : unit));

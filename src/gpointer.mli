@@ -1,4 +1,4 @@
-(* $Id: gpointer.mli,v 1.1 2002/06/19 10:09:53 garrigue Exp $ *)
+(* $Id: gpointer.mli,v 1.7 2003/10/07 05:38:31 garrigue Exp $ *)
 
 (** [Gpointer]: various kinds of pointers to C data *)
 
@@ -14,13 +14,29 @@ val optstring : string option -> optstring
 (** Boxed pointers *)
 type boxed
 val boxed_null : boxed
+val peek_string : ?pos:int -> ?len:int -> boxed -> string
+val peek_int : boxed -> int
+val poke_int : boxed -> int -> unit
+val peek_nativeint : boxed -> nativeint
+val poke_nativeint : boxed -> nativeint -> unit
+
 type 'a optboxed
 val optboxed : 'a option -> 'a optboxed
 val may_box : f:('a -> 'b) -> 'a option -> 'b optboxed
 
+(** Variant tables *)
+type 'a variant_table constraint 'a = [> ]
+val decode_variant : 'a variant_table -> int -> 'a
+val encode_variant : 'a variant_table -> 'a -> int
+val decode_flags : 'a variant_table -> int -> 'a list
+val encode_flags : 'a variant_table -> 'a list -> int
+
 (** Null pointer exception *)
 exception Null
 
+(** Ensure a value is copied in the old generation *)
+type 'a stable
+val stable_copy : 'a -> 'a stable
 
 (** Region handling *)
 

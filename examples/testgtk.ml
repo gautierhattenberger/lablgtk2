@@ -1,5 +1,6 @@
-(* $Id: testgtk.ml,v 1.30 2001/09/06 08:47:55 garrigue Exp $ *)
+(* $Id: testgtk.ml,v 1.38 2003/07/09 01:59:40 garrigue Exp $ *)
 
+open StdLabels
 open GdkKeysyms
 open GMain
 open GObj
@@ -261,10 +262,9 @@ let create_menus =
 	    ~packing: menubar#append () in
 	menuitem #set_submenu (create_menu 2 true);
 
-	let menuitem = GMenu.menu_item ~label:"foo"
+	let menuitem = GMenu.menu_item ~label:"foo" ~right_justified:true
 	    ~packing: menubar#append () in
 	menuitem #set_submenu (create_menu 3 true);
-	menuitem #right_justify ();
 
 	let box2 = GPack.vbox ~spacing: 10 ~packing: box1#add
 	    ~border_width: 10 () in
@@ -275,7 +275,7 @@ let create_menus =
 	let menuitem = GMenu.check_menu_item ~label:"Accelerate Me"
 	    ~packing:menu#append () in
 	menuitem #add_accelerator ~group:accel_group _M
-	  ~flags:[`VISIBLE; `SIGNAL_VISIBLE];
+	  ~flags:[`VISIBLE];
 
 	let menuitem = GMenu.check_menu_item ~label:"Accelerator Locked"
 	    ~packing:menu#append () in
@@ -286,7 +286,14 @@ let create_menus =
 	    ~packing:menu#append () in
 	menuitem #add_accelerator ~group:accel_group _F
 	  ~flags:[`VISIBLE];
-	menuitem #misc#lock_accelerators ();
+
+	let menuitem = GMenu.image_menu_item ~stock:`OPEN
+	    ~packing:menu#append () in
+	let path = "<APPLICATION>/Open" in
+	GtkMenu.MenuItem.set_accel_path menuitem#as_item path;
+	let stock = GtkStock.Item.lookup `OPEN in
+	GtkData.AccelMap.add_entry ~key:stock.GtkStock.keyval 
+	  ~modi:stock.GtkStock.modifier path;
 
 	let optionmenu = GMenu.option_menu ~packing: box2#add () in
 	optionmenu #set_menu menu;
@@ -474,18 +481,6 @@ let make_toolbar (toolbar : GButton.toolbar) window =
 			 ~tooltip:"This is an unusable GtkEntry"
 			 ~tooltip_private: "Hey don't click me!!!") ();
   
-  toolbar #insert_button ~text:"Small"
-    ~tooltip:"Use small spaces"
-    ~tooltip_private:"Toolbar/Small"
-    ~icon:(icon ())
-    ~callback:(fun _ -> toolbar #set_space_size 5) ();
-  
-  toolbar #insert_button ~text:"Big"
-    ~tooltip:"Use big spaces"
-    ~tooltip_private:"Toolbar/Big"
-    ~icon:(icon ())
-    ~callback:(fun _ -> toolbar #set_space_size 10) ();
-  
   toolbar #insert_space ();
   
   toolbar #insert_button ~text:"Enable"
@@ -497,30 +492,6 @@ let make_toolbar (toolbar : GButton.toolbar) window =
     ~tooltip:"Disable tooltips"
     ~icon:(icon ())
     ~callback:(fun _ -> toolbar #set_tooltips false) ();
-  
-  toolbar #insert_space ();
-  
-  toolbar #insert_button ~text:"Borders"
-    ~tooltip:"Show borders"
-    ~icon:(icon ())
-    ~callback:(fun _ -> toolbar #set_button_relief `NORMAL) ();
-  
-  toolbar #insert_button ~text:"Borderless"
-    ~tooltip:"Hide borders"
-    ~icon:(icon ())
-    ~callback:(fun _ -> toolbar #set_button_relief `NONE) ();
-  
-  toolbar #insert_space ();
-  
-  toolbar #insert_button ~text:"Empty"
-    ~tooltip:"Empty spaces"
-    ~icon:(icon ())
-    ~callback:(fun _ -> toolbar #set_space_style `EMPTY) ();
-  
-  toolbar #insert_button ~text:"Lines"
-    ~tooltip:"Lines in spaces"
-    ~icon:(icon ())
-    ~callback:(fun _ -> toolbar #set_space_style `LINE) ();
   ()
  
 let create_toolbar =
@@ -529,8 +500,7 @@ let create_toolbar =
     match !rw with
     | None ->
 	let window = GWindow.window ~title: "Toolbar test"
-	    ~border_width: 0 ~allow_shrink: false ~allow_grow: true
-	    ~auto_shrink: true () in
+	    ~border_width: 0 ~allow_shrink: false ~allow_grow: true () in
 	rw := Some window;
 	window #connect#destroy ~callback:(fun _ -> rw := None);
 	window #misc #realize ();
@@ -547,7 +517,9 @@ let create_toolbar =
 (* Handlebox *)
 
 let handle_box_child_signal action (hb : GBin.handle_box) child =
-  Printf.printf "%s: child <%s> %s\n" hb#misc#get_type child#misc#get_type action
+  Printf.printf "%s: child <%s> %s\n" hb#misc#get_type
+    child#misc#get_type action;
+  flush stdout
 
 let create_handle_box =
   let rw = ref None in
@@ -555,8 +527,7 @@ let create_handle_box =
     match !rw with
     | None ->
 	let window = GWindow.window ~title: "Handle box test"
-	    ~border_width: 20 ~allow_shrink: false ~allow_grow: true
-	    ~auto_shrink: true () in
+	    ~border_width: 20 ~allow_shrink: false ~allow_grow: true () in
 	rw := Some window;
 	window #connect#destroy ~callback:(fun _ -> rw := None);
 	window #misc #realize ();
@@ -578,7 +549,6 @@ let create_handle_box =
 
 	let toolbar = GButton.toolbar ~packing:handle_box#add () in
 	make_toolbar toolbar window;
-	toolbar #set_button_relief `NORMAL;
 
 	let handle_box = GBin.handle_box ~packing:hbox#pack () in
 	handle_box #connect#child_attached
@@ -670,7 +640,8 @@ let rec create_subtree (item : GTree.tree_item) level nb_item_max
     let item_subtree = GTree.tree () in
     for nb_item = 1 to nb_item_max do
       let item_new = GTree.tree_item ~packing:(item_subtree#insert ~pos:0) ()in
-      let ali = GBin.alignment ~x:0. ~xscale:0. ~packing:item_new#add () in
+      let ali =
+        GBin.alignment ~xalign:0. ~xscale:0. ~packing:item_new#add () in
       let label = GMisc.label ~packing:ali#add
           ~text:("item" ^ string_of_int level ^ "-" ^ string_of_int nb_item) ()
       in
@@ -678,9 +649,7 @@ let rec create_subtree (item : GTree.tree_item) level nb_item_max
         ali#remove label#coerce;
         let evbox = GBin.event_box ~packing:ali#add () in
         evbox#add label#coerce;
-        let style = evbox#misc#style#copy in
-        evbox#misc#set_style style;
-        style#set_bg [`NORMAL, `NAME "green"];
+        evbox#misc#modify_bg [`NORMAL, `NAME "green"]
       end;
       create_subtree item_new (level + 1) nb_item_max recursion_level_max;
     done;
@@ -848,9 +817,7 @@ let create_tree_mode_window =
 let tips_query_widget_entered (toggle : GButton.toggle_button)
     (tq : GMisc.tips_query) _ ~text ~privat:_  =
   if toggle #active then begin
-    tq #set_text
-      (match text with
-      | None -> "There is no tip!" | Some _ -> "There is a tip!");
+    tq #set_text (if text = "" then "There is no tip!" else "There is a tip!");
     GtkSignal.stop_emit ()
   end
 
@@ -859,7 +826,7 @@ let tips_query_widget_selected (w : #widget option) ~text ~privat:tp _ =
   | None -> ()
   | Some w -> 
     Printf.printf "Help \"%s\" requested for <%s>\n"
-	(match tp with None -> "None" | Some t -> t)
+	(if tp = "" then "None" else tp)
 	(w #misc#get_type));
    true
 
@@ -871,8 +838,7 @@ let create_tooltips =
     | None ->
 
 	let window = GWindow.window ~title:"Tooltips"
-	    ~border_width:0 ~allow_shrink:false ~allow_grow:false
-	    ~auto_shrink:true () in
+	    ~border_width:0 ~allow_shrink:false ~allow_grow:false () in
 	rw := Some window;
 	let tooltips = GData.tooltips () in
 	window #connect#destroy 
@@ -912,7 +878,7 @@ let create_tooltips =
 	tooltips #set_tip button#coerce ~text:"Start the Tooltips Inspector"
 	  ~privat:"ContextHelp/buttons/?";
 
-	tips_query #set_caller button#coerce;
+	tips_query #set_caller (Some button#coerce);
 	tips_query #connect#widget_entered
 	  ~callback:(tips_query_widget_entered toggle tips_query);
 	tips_query #connect#widget_selected ~callback:tips_query_widget_selected;
@@ -1001,8 +967,9 @@ let set_parent child old_parent =
   Printf.printf
     "set parent for \"%s\": new parent: \"%s\", old parent: \"%s\"\n" 
     child#misc#get_type
-    (match child#misc#parent with Some p -> p#misc#get_type | None -> "(NULL)")
-    (name_opt old_parent)
+    (name_opt child#misc#parent)
+    (name_opt old_parent);
+  flush stdout
 
 let reparent_label (label : GMisc.label) new_parent _ =
   label #misc#reparent new_parent
@@ -1107,8 +1074,8 @@ let create_main_window () =
     "WM hints", None
   ] in
 
-  let window = GWindow.window ~title:"main window" ~allow_shrink:false
-      ~allow_grow:false ~auto_shrink:false ~width:200 ~height:400 ~x:20 ~y:20 () in
+  let window = GWindow.window ~title:"main window" ~width:200 ~height:400 () in
+  window#move ~x:20 ~y:20;
 
   window #connect#destroy ~callback: Main.quit;
 

@@ -1,4 +1,14 @@
-(* $Id: glib_tags.var,v 1.1 2002/07/06 03:02:31 garrigue Exp $ *)
+(* $Id: glib_tags.var,v 1.5 2003/06/20 15:08:14 garrigue Exp $ *)
+
+(* package "glib" *)
+
+type log_level = "G_LOG_LEVEL_"
+   [ `ERROR | `CRITICAL | `WARNING | `MESSAGE | `INFO | `DEBUG
+   | `FLAG_RECURSION "G_LOG_FLAG_RECURSION"
+   | `FLAG_FATAL "G_LOG_FLAG_FATAL" ]
 
 type io_condition = "G_IO_"
    [ `IN | `OUT | `PRI | `ERR | `HUP | `NVAL ]
+
+type locale_category = "LC_"
+    [ `ALL | `COLLATE | `CTYPE | `MESSAGES | `MONETARY | `NUMERIC | `TIME ]

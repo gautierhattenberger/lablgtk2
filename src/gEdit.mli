@@ -1,35 +1,30 @@
-(* $Id: gEdit.mli,v 1.18.2.1 2003/05/13 07:52:43 garrigue Exp $ *)
+(* $Id: gEdit.mli,v 1.24 2003/09/27 13:42:19 oandrieu Exp $ *)
 
 open Gtk
 open GObj
 
-class editable_signals : 'a obj ->
+(** Editable Widgets *)
+
+(** {3 GtkEditable} *)
+
+(** @gtkdoc gtk GtkEditable *)
+class editable_signals : [> editable] obj ->
   object
-    inherit widget_signals
-    constraint 'a = [> editable]
-    val obj : 'a obj
-    method activate : callback:(unit -> unit) -> GtkSignal.id
+    inherit GObj.widget_signals
     method changed : callback:(unit -> unit) -> GtkSignal.id
     method delete_text :
       callback:(start:int -> stop:int -> unit) -> GtkSignal.id
     method insert_text :
-      callback:(string -> pos:int -> unit) -> GtkSignal.id
-    method copy_clipboard : callback:(unit -> unit) -> GtkSignal.id
-    method cut_clipboard : callback:(unit -> unit) -> GtkSignal.id
-    method paste_clipboard : callback:(unit -> unit) -> GtkSignal.id
-    method move_cursor : callback:(int -> int -> unit) -> GtkSignal.id
-    method move_page : callback:(int -> unit) -> GtkSignal.id
-    method move_word : callback:(int -> unit) -> GtkSignal.id
-    method move_to_row : callback:(int -> unit) -> GtkSignal.id
-    method move_to_column : callback:(int -> unit) -> GtkSignal.id
+      callback:(string -> pos:int ref -> unit) -> GtkSignal.id
   end
 
+(** Interface for text-editing widgets
+   @gtkdoc gtk GtkEditable *)
 class editable : 'a obj ->
   object
-    inherit widget
+    inherit GObj.widget
     constraint 'a = [> Gtk.editable]
     val obj : 'a obj
-    method connect : editable_signals
     method copy_clipboard : unit -> unit
     method cut_clipboard : unit -> unit
     method delete_selection : unit -> unit
@@ -40,122 +35,155 @@ class editable : 'a obj ->
     method position : int
     method select_region : start:int -> stop:int -> unit
     method selection : (int * int) option
-    method set_editable : bool -> unit
     method set_position : int -> unit
-    method move_cursor : int -> int -> unit
-    method move_page : int -> unit
-    method move_word : int -> unit
-    method move_to_row : int -> unit
-    method move_to_column : int -> unit
   end
 
-class entry : 'a obj ->
+(** {3 GtkEntry} *)
+
+(** @gtkdoc gtk GtkEntry *)
+class entry_signals : [> Gtk.entry] obj ->
+  object
+    inherit editable_signals
+    method activate : callback:(unit -> unit) -> GtkSignal.id
+    method copy_clipboard : callback:(unit -> unit) -> GtkSignal.id
+    method cut_clipboard : callback:(unit -> unit) -> GtkSignal.id
+    method delete_from_cursor :
+      callback:(Gtk.Tags.delete_type -> int -> unit) -> GtkSignal.id
+    method insert_at_cursor : callback:(string -> unit) -> GtkSignal.id
+    method move_cursor :
+      callback:(Gtk.Tags.movement_step -> int -> extend:bool -> unit) ->
+      GtkSignal.id
+    method paste_clipboard : callback:(unit -> unit) -> GtkSignal.id
+    method populate_popup : callback:(GMenu.menu -> unit) -> GtkSignal.id
+    method toggle_overwrite : callback:(unit -> unit) -> GtkSignal.id
+  end
+
+(** A single line text entry field
+   @gtkdoc gtk GtkEntry *)
+class entry : ([> Gtk.entry] as 'a) obj ->
   object
     inherit editable
-    constraint 'a = [> Gtk.entry]
     val obj : 'a obj
+    method connect : entry_signals
     method event : event_ops
     method append_text : string -> unit
     method prepend_text : string -> unit
+    method scroll_offset : int
+    method text : string
+    method text_length : int
+    method set_activates_default : bool -> unit
+    method set_editable : bool -> unit
+    method set_has_frame : bool -> unit
+    method set_invisible_char : int -> unit
     method set_max_length : int -> unit
     method set_text : string -> unit
     method set_visibility : bool -> unit
-    method text : string
-    method text_length : int
+    method set_width_chars : int -> unit
+    method activates_default : bool
+    method editable : bool
+    method has_frame : bool
+    method invisible_char : int
+    method max_length : int
+    method visibility : bool
+    method width_chars : int
   end
+
+(** @gtkdoc gtk GtkEntry *)
 val entry :
-  ?max_length:int ->
   ?text:string ->
   ?visibility:bool ->
+  ?max_length:int ->
+  ?activates_default:bool ->
   ?editable:bool ->
-  ?width:int ->
-  ?height:int ->
+  ?has_frame:bool ->
+  ?width_chars:int ->
+  ?width:int -> ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> entry
 
+(** {4 GtkSpinButton} *)
+
+(** @gtkdoc gtk GtkSpinButton *)
+class spin_button_signals : [> Gtk.spin_button] obj ->
+  object
+    inherit entry_signals
+    method change_value :
+      callback:(Gtk.Tags.scroll_type -> unit) -> GtkSignal.id
+    method input : callback:(unit -> int) -> GtkSignal.id
+    method output : callback:(unit -> bool) -> GtkSignal.id
+    method value_changed : callback:(unit -> unit) -> GtkSignal.id
+  end
+
+(** Retrieve an integer or floating-point number from the user
+   @gtkdoc gtk GtkSpinButton *)
 class spin_button : Gtk.spin_button obj ->
   object
-    inherit entry
+    inherit GObj.widget
     val obj : Gtk.spin_button obj
-    method adjustment : GData.adjustment
+    method connect : spin_button_signals
+    method event : GObj.event_ops
+    method spin : Tags.spin_type -> unit
+    method update : unit
+    method value_as_int : int
     method set_adjustment : GData.adjustment -> unit
     method set_digits : int -> unit
     method set_numeric : bool -> unit
-    method set_shadow_type : Tags.shadow_type -> unit
+    method set_rate : float -> unit
     method set_snap_to_ticks : bool -> unit
     method set_update_policy : [`ALWAYS|`IF_VALID] -> unit
     method set_value : float -> unit
     method set_wrap : bool -> unit
-    method spin : Tags.spin_type -> unit
-    method update : unit
+    method adjustment : GData.adjustment
+    method digits : int
+    method numeric : bool
+    method rate : float
+    method snap_to_ticks : bool
+    method update_policy : [`ALWAYS|`IF_VALID]
     method value : float
-    method value_as_int : int
+    method wrap : bool
   end
+
+(** @gtkdoc gtk GtkSpinButton *)
 val spin_button :
   ?adjustment:GData.adjustment ->
   ?rate:float ->
   ?digits:int ->
-  ?value:float ->
-  ?update_policy:[`ALWAYS|`IF_VALID] ->
   ?numeric:bool ->
-  ?wrap:bool ->
-  ?shadow_type:Tags.shadow_type ->
   ?snap_to_ticks:bool ->
-  ?width:int ->
-  ?height:int ->
+  ?update_policy:[`ALWAYS|`IF_VALID] ->
+  ?value:float ->
+  ?wrap:bool ->
+  ?width:int -> ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> spin_button
 
+(** {3 GtkCombo} *)
+
+(** A text entry field with a dropdown list
+   @gtkdoc gtk GtkCombo *)
 class combo : Gtk.combo obj ->
   object
-    inherit widget
+    inherit GObj.widget
     val obj : Gtk.combo obj
     method disable_activate : unit -> unit
     method entry : entry
     method list : GList.liste
-    method set_case_sensitive : bool -> unit
     method set_item_string : GList.list_item -> string -> unit
     method set_popdown_strings : string list -> unit
-    method set_use_arrows : [`NEVER|`DEFAULT|`ALWAYS] -> unit
-    method set_value_in_list :
-      ?required:bool -> ?ok_if_empty:bool -> unit -> unit
+    method set_allow_empty : bool -> unit
+    method set_case_sensitive : bool -> unit
+    method set_enable_arrow_keys : bool -> unit
+    method set_value_in_list : bool -> unit
+    method allow_empty : bool
+    method case_sensitive : bool
+    method enable_arrow_keys : bool
+    method value_in_list : bool
   end
+
+(** @gtkdoc gtk GtkCombo *)
 val combo :
   ?popdown_strings:string list ->
-  ?use_arrows:[`NEVER|`DEFAULT|`ALWAYS] ->
+  ?allow_empty:bool ->
   ?case_sensitive:bool ->
+  ?enable_arrow_keys:bool ->
   ?value_in_list:bool ->
-  ?ok_if_empty:bool ->
-  ?border_width:int ->
-  ?width:int ->
-  ?height:int ->
+  ?border_width:int -> ?width:int -> ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> combo
-
-class text : Gtk.text obj ->
-  object
-    inherit editable
-    val obj : Gtk.text obj
-    method event : event_ops
-    method freeze : unit -> unit
-    method hadjustment : GData.adjustment
-    method insert :
-      ?font:Gdk.font ->
-      ?foreground:GDraw.color -> ?background:GDraw.color -> string -> unit
-    method length : int
-    method point : int
-    method set_hadjustment : GData.adjustment -> unit
-    method set_point : int -> unit
-    method set_vadjustment : GData.adjustment -> unit
-    method set_word_wrap : bool -> unit
-    method set_line_wrap : bool -> unit
-    method thaw : unit -> unit
-    method vadjustment : GData.adjustment
-    method forward_delete : int -> unit
-    method backward_delete : int -> unit
-  end
-val text :
-  ?hadjustment:GData.adjustment ->
-  ?vadjustment:GData.adjustment ->
-  ?editable:bool ->
-  ?word_wrap:bool ->
-  ?line_wrap:bool ->
-  ?width:int ->
-  ?height:int -> ?packing:(widget -> unit) -> ?show:bool -> unit -> text

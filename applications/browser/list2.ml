@@ -1,25 +1,23 @@
-(* $Id: list2.ml,v 1.2 2000/04/26 01:32:31 garrigue Exp $ *)
+(*************************************************************************)
+(*                                                                       *)
+(*                Objective Caml LablTk library                          *)
+(*                                                                       *)
+(*            Jacques Garrigue, Kyoto University RIMS                    *)
+(*                                                                       *)
+(*   Copyright 1999 Institut National de Recherche en Informatique et    *)
+(*   en Automatique and Kyoto University.  All rights reserved.          *)
+(*   This file is distributed under the terms of the GNU Library         *)
+(*   General Public License, with the special exception on linking       *)
+(*   described in file ../../../LICENSE.                                 *)
+(*                                                                       *)
+(*************************************************************************)
 
-let rec cut l ~len =
-  if len <= 0 then [], l else
-  match l with
-    a::l ->
-      let l1, l2 = cut l ~len:(len-1) in
-      a::l1, l2
-  | [] ->
-      invalid_arg "cut_list"
+(* $Id: list2.ml,v 1.3 2003/02/20 06:47:47 garrigue Exp $ *)
 
-let rec chop l ~len =
-  if l = [] then [] else
-  let l1, l2 =
-    try cut_list l ~len
-    with Invalid_argument _ -> l, []
-  in
-  l1 :: chop l2 ~len
+open StdLabels
 
+let exclude x l = List.filter l ~f:((<>) x)
 
-let rec iteri_aux ~f:f ~i = function
-    [] -> ()
-  | a::l -> f ~i a; iteri_aux ~f:f ~i:(i+1) l
-
-let iteri = iteri_aux ~i:0
+let rec flat_map ~f = function
+    [] -> []
+  | x :: l -> f x @ flat_map ~f l

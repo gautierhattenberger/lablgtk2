@@ -1,4 +1,4 @@
-/* $Id: ml_gtkrange.c,v 1.1 2000/11/16 08:15:20 garrigue Exp $ */
+/* $Id: ml_gtkrange.c,v 1.4 2003/06/18 10:04:55 garrigue Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -10,12 +10,29 @@
 
 #include "wrappers.h"
 #include "ml_glib.h"
+#include "ml_gobject.h"
 #include "ml_gdk.h"
 #include "ml_gtk.h"
 #include "gtk_tags.h"
 
-/* gtkprogress.h */
+/* Init all */
 
+CAMLprim value ml_gtkrange_init(value unit)
+{
+    /* Since these are declared const, must force gcc to call them! */
+    GType t =
+        gtk_progress_bar_get_type() +
+        gtk_hscale_get_type() +
+        gtk_vscale_get_type() +
+        gtk_hscrollbar_get_type() +
+        gtk_vscrollbar_get_type() +
+        gtk_hruler_get_type() +
+        gtk_vruler_get_type();
+    return Val_GType(t);
+}
+
+/* gtkprogress.h */
+/*
 #define GtkProgress_val(val) check_cast(GTK_PROGRESS,val)
 ML_2 (gtk_progress_set_show_text, GtkProgress_val, Bool_val, Unit)
 ML_3 (gtk_progress_set_text_alignment, GtkProgress_val,
@@ -33,20 +50,33 @@ ML_2 (gtk_progress_set_activity_mode, GtkProgress_val, Bool_val, Unit)
 ML_1 (gtk_progress_get_current_text, GtkProgress_val, Val_string)
 Make_Extractor (gtk_progress_get, GtkProgress_val, adjustment,
 		Val_GtkAny)
-
+*/
 /* gtkprogressbar.h */
 
 #define GtkProgressBar_val(val) check_cast(GTK_PROGRESS_BAR,val)
 ML_0 (gtk_progress_bar_new, Val_GtkWidget_sink)
-ML_1 (gtk_progress_bar_new_with_adjustment, GtkAdjustment_val,
+
+ML_2 (gtk_progress_bar_set_orientation, GtkProgressBar_val,Progress_bar_orientation_val, Unit)
+ML_1 (gtk_progress_bar_get_orientation, GtkProgressBar_val,Val_progress_bar_orientation)
+
+
+ML_2 (gtk_progress_bar_set_pulse_step, GtkProgressBar_val,Float_val, Unit)
+ML_1 (gtk_progress_bar_get_pulse_step, GtkProgressBar_val,copy_double)
+ML_2 (gtk_progress_bar_set_fraction, GtkProgressBar_val,Float_val, Unit)
+ML_1 (gtk_progress_bar_get_fraction, GtkProgressBar_val,copy_double)
+ML_2 (gtk_progress_bar_set_text, GtkProgressBar_val,String_val, Unit)
+ML_1 (gtk_progress_bar_get_text, GtkProgressBar_val,Val_string)
+ML_1 (gtk_progress_bar_pulse, GtkProgressBar_val, Unit)
+
+     /*ML_1 (gtk_progress_bar_new_with_adjustment, GtkAdjustment_val,
       Val_GtkWidget_sink)
 ML_2 (gtk_progress_bar_set_bar_style, GtkProgressBar_val,
       Progress_bar_style_val, Unit)
 ML_2 (gtk_progress_bar_set_discrete_blocks, GtkProgressBar_val, Int_val, Unit)
 ML_2 (gtk_progress_bar_set_activity_step, GtkProgressBar_val, Int_val, Unit)
 ML_2 (gtk_progress_bar_set_activity_blocks, GtkProgressBar_val, Int_val, Unit)
-ML_2 (gtk_progress_bar_set_orientation, GtkProgressBar_val,
-      Progress_bar_orientation_val, Unit)
+
+ */
 /* ML_2 (gtk_progress_bar_update, GtkProgressBar_val, Float_val, Unit) */
 
 /* gtkrange.h */
@@ -57,16 +87,17 @@ ML_2 (gtk_range_set_adjustment, GtkRange_val, GtkAdjustment_val, Unit)
 ML_2 (gtk_range_set_update_policy, GtkRange_val, Update_type_val, Unit)
 
 /* gtkscale.h */
-
+/*
 #define GtkScale_val(val) check_cast(GTK_SCALE,val)
 ML_2 (gtk_scale_set_digits, GtkScale_val, Int_val, Unit)
 ML_2 (gtk_scale_set_draw_value, GtkScale_val, Bool_val, Unit)
-ML_2 (gtk_scale_set_value_pos, GtkScale_val, Position_val, Unit)
-ML_1 (gtk_scale_get_value_width, GtkScale_val, Val_int)
-ML_1 (gtk_scale_draw_value, GtkScale_val, Unit)
+ML_2 (gtk_scale_set_value_pos, GtkScale_val, Position_type_val, Unit)
+ML_1 (gtk_scale_get_digits, GtkScale_val, Val_int)
+ML_1 (gtk_scale_get_draw_value, GtkScale_val, Val_bool)
+ML_1 (gtk_scale_get_value_pos, GtkScale_val, Val_position)
 ML_1 (gtk_hscale_new, GtkAdjustment_val, Val_GtkWidget_sink)
 ML_1 (gtk_vscale_new, GtkAdjustment_val, Val_GtkWidget_sink)
-
+*/
 /* gtkscrollbar.h */
 
 ML_1 (gtk_hscrollbar_new, GtkAdjustment_val, Val_GtkWidget_sink)

@@ -1,4 +1,4 @@
-(* $Id: calc.ml,v 1.11 2000/06/06 03:51:02 garrigue Exp $ *)
+(* $Id: calc.ml,v 1.12 2003/02/20 06:47:47 garrigue Exp $ *)
 
 (* A simple calculator ported from LablTk to LablGtk *)
 
@@ -102,7 +102,7 @@ class calculator ?packing ?show () =
 
 (* Finally start everything *)
 
-let w = GWindow.window ~auto_shrink:true ()
+let w = GWindow.window ()
 
 let applet = new calculator ~packing: w#add ()
 

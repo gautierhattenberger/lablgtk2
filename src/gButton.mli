@@ -1,22 +1,30 @@
-(* $Id: gButton.mli,v 1.17 2002/05/30 05:49:08 garrigue Exp $ *)
+(* $Id: gButton.mli,v 1.24 2003/09/27 13:42:19 oandrieu Exp $ *)
 
 open Gtk
 open GObj
 open GContainer
 
+(** A widget that creates a signal when clicked on *)
+
+(** {3 GtkButton} *)
+
+(** @gtkdoc gtk GtkButton *)
 class button_skel : 'a obj ->
   object
-    inherit container
+    inherit GContainer.container
     constraint 'a = [> button]
     val obj : 'a obj
     method clicked : unit -> unit
     method set_relief : Tags.relief_style -> unit
     method relief : Tags.relief_style
     method grab_default : unit -> unit
+    method event : event_ops
   end
+
+(** @gtkdoc gtk GtkButton *)
 class button_signals : 'b obj ->
   object ('a)
-    inherit container_signals
+    inherit GContainer.container_signals
     constraint 'b = [> button]
     val obj : 'b obj
     method clicked : callback:(unit -> unit) -> GtkSignal.id
@@ -26,20 +34,26 @@ class button_signals : 'b obj ->
     method released : callback:(unit -> unit) -> GtkSignal.id
   end
 
+(** A widget that creates a signal when clicked on
+   @gtkdoc gtk GtkButton *)
 class button : Gtk.button obj ->
   object
     inherit button_skel
     val obj : Gtk.button obj
-    method event : event_ops
     method connect : button_signals
   end
+
+(** @gtkdoc gtk GtkButton *)
 val button :
   ?label:string ->
-  ?border_width:int ->
-  ?width:int ->
-  ?height:int ->
+  ?use_mnemonic:bool ->
+  ?stock:GtkStock.id ->
+  ?relief:Tags.relief_style ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> button
 
+(** {4 GtkToggleButton & GtkRadioButton} *)
+
+(** @gtkdoc gtk GtkToggleButton *)
 class toggle_button_signals : 'b obj ->
   object ('a)
     inherit button_signals
@@ -48,6 +62,8 @@ class toggle_button_signals : 'b obj ->
     method toggled : callback:(unit -> unit) -> GtkSignal.id
   end
 
+(** Create buttons which retain their state
+   @gtkdoc gtk GtkToggleButton *)
 class toggle_button :
   'a obj ->
   object
@@ -59,23 +75,29 @@ class toggle_button :
     method set_active : bool -> unit
     method set_draw_indicator : bool -> unit
   end
+
+(** @gtkdoc gtk GtkToggleButton *)
 val toggle_button :
   ?label:string ->
+  ?use_mnemonic:bool ->
+  ?stock:GtkStock.id ->
+  ?relief:Tags.relief_style ->
   ?active:bool ->
   ?draw_indicator:bool ->
-  ?border_width:int ->
-  ?width:int ->
-  ?height:int ->
-  ?packing:(widget -> unit) -> ?show:bool -> unit -> toggle_button
-val check_button :
-  ?label:string ->
-  ?active:bool ->
-  ?draw_indicator:bool ->
-  ?border_width:int ->
-  ?width:int ->
-  ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> toggle_button
 
+(** @gtkdoc gtk GtkCheckButton *)
+val check_button :
+  ?label:string ->
+  ?use_mnemonic:bool ->
+  ?stock:GtkStock.id ->
+  ?relief:Tags.relief_style ->
+  ?active:bool ->
+  ?draw_indicator:bool ->
+  ?packing:(widget -> unit) -> ?show:bool -> unit -> toggle_button
+
+(** A choice from multiple check buttons
+   @gtkdoc gtk GtkRadioButton *)
 class radio_button :
   Gtk.radio_button obj ->
   object
@@ -84,22 +106,27 @@ class radio_button :
     method group : Gtk.radio_button group
     method set_group : Gtk.radio_button group -> unit
   end
+
+(** @gtkdoc gtk GtkRadioButton *)
 val radio_button :
   ?group:Gtk.radio_button group ->
   ?label:string ->
+  ?use_mnemonic:bool ->
+  ?stock:GtkStock.id ->
+  ?relief:Tags.relief_style ->
   ?active:bool ->
   ?draw_indicator:bool ->
-  ?border_width:int ->
-  ?width:int ->
-  ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> radio_button
 
+(** {3 GtkToolbar} *)
+
+(** Create bars of buttons and other widgets 
+   @gtkdoc gtk GtkToolbar *)
 class toolbar :
   Gtk.toolbar obj ->
   object
-    inherit container_full
+    inherit GContainer.container_full
     val obj : Gtk.toolbar obj
-    method button_relief : Tags.relief_style
     method insert_button :
       ?text:string ->
       ?tooltip:string ->
@@ -122,20 +149,16 @@ class toolbar :
     method insert_widget :
       ?tooltip:string ->
       ?tooltip_private:string -> ?pos:int -> widget -> unit
-    method set_button_relief : Tags.relief_style -> unit
     method set_orientation : Tags.orientation -> unit
-    method set_space_size : int -> unit
-    method set_space_style : [`EMPTY|`LINE] -> unit
     method set_style : Tags.toolbar_style -> unit
     method set_tooltips : bool -> unit
   end
+
+(** @gtkdoc gtk GtkToolbar *)
 val toolbar :
   ?orientation:Tags.orientation ->
   ?style:Tags.toolbar_style ->
-  ?space_size:int ->
-  ?space_style:[`EMPTY|`LINE] ->
   ?tooltips:bool ->
-  ?button_relief:Tags.relief_style ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->

@@ -1,4 +1,4 @@
-(* $Id: gears.ml,v 1.2 2001/09/06 08:47:55 garrigue Exp $ *)
+(* $Id: gears.ml,v 1.3 2003/02/20 06:47:48 garrigue Exp $ *)
 
 (*
  * 3-D gear wheels.  This program is in the public domain.

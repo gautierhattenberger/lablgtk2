@@ -1,4 +1,4 @@
-/* $Id: wrappers.h,v 1.39 2002/10/31 03:27:38 garrigue Exp $ */
+/* $Id: wrappers.h,v 1.48 2003/06/17 17:20:51 monate Exp $ */
 
 #ifndef _wrappers_
 #define _wrappers_
@@ -6,14 +6,16 @@
 #include <caml/misc.h>
 #include <caml/mlvalues.h>
 #include <caml/fail.h>
+#include <caml/custom.h>
+CAMLextern char *young_start, *young_end; /* from minor_gc.h */
 
 value copy_memblock_indirected (void *src, asize_t size);
+value alloc_memblock_indirected (asize_t size);
 value ml_some (value);
 void ml_raise_null_pointer (void) Noreturn;
 value Val_pointer (void *);
 value copy_string_check (const char*);
 value copy_string_or_null (const char *);
-value copy_string_g_free (char *);
 
 value *ml_global_root_new (value v);
 void ml_global_root_destroy (void *data);
@@ -22,7 +24,19 @@ typedef struct { value key; int data; } lookup_info;
 value ml_lookup_from_c (lookup_info *table, int data);
 int ml_lookup_to_c (lookup_info *table, value key);
 
+/* Compatibility */
+#include <gtk/gtkversion.h>
+#if GTK_CHECK_VERSION(2,2,0) && !defined(DISABLE_GTK22)
+#define HASGTK22
+#endif
+
 /* Wrapper generators */
+
+#define Unsupported(cname) \
+CAMLprim value ml_##cname () \
+{ failwith(#cname " unsupported in Gtk 2.x < 2.2"); return Val_unit; }
+
+#define ID(x) (x)
 
 #define ML_0(cname, conv) \
 CAMLprim value ml_##cname (value unit) { return conv (cname ()); }
@@ -176,10 +190,19 @@ CAMLprim value cname##_bc (value *argv, int argn) \
 #define Bool_ptr(x) ((long) x - 1)
 #define Char_val Int_val
 #define Float_val(x) ((float)Double_val(x))
+#define SizedString_val(x) String_val(x), string_length(x)
 
 #define Option_val(val,unwrap,default) \
 ((long)val-1 ? unwrap(Field(val,0)) : default)
 #define String_option_val(s) Option_val(s,String_val,NULL)
+
+/* Strings are not always old, so they may move around... */
+/* problems with alloca on Linux
+#define StableString_val(val) \
+  ((char*)(val) < young_end && (char*)(val) > young_start ? \
+   memcpy(alloca(Bosize_val(val)), (char*)(val), Bosize_val(val)) : \
+   String_val(val))
+*/
 
 /* Utility */
 
@@ -193,17 +216,23 @@ CAMLprim value cname##_bc (value *argv, int argn) \
 #define Make_Val_final_pointer(type, init, final, adv) \
 static void ml_final_##type (value val) \
 { if (Field(val,1)) final ((type*)Field(val,1)); } \
+static struct custom_operations ml_custom_##type = \
+{ #type"/2.0/", ml_final_##type, custom_compare_default, \
+  custom_hash_default, custom_serialize_default, custom_deserialize_default };\
 value Val_##type (type *p) \
 { value ret; if (!p) ml_raise_null_pointer(); \
-  ret = alloc_final (2, ml_final_##type, adv, 1000); \
+  ret = alloc_custom (&ml_custom_##type, sizeof(value), adv, 1000); \
   initialize (&Field(ret,1), (value) p); init(p); return ret; }
 
 #define Make_Val_final_pointer_ext(type, ext, init, final, adv) \
 static void ml_final_##type##ext (value val) \
 { if (Field(val,1)) final ((type*)Field(val,1)); } \
+static struct custom_operations ml_custom_##type##ext = \
+{ #type#ext"/2.0/", ml_final_##type##ext, custom_compare_default, \
+  custom_hash_default, custom_serialize_default, custom_deserialize_default };\
 value Val_##type##ext (type *p) \
 { value ret; if (!p) ml_raise_null_pointer(); \
-  ret = alloc_final (2, ml_final_##type##ext, adv, 1000); \
+  ret = alloc_custom (&ml_custom_##type##ext, sizeof(value), adv, 1000); \
   initialize (&Field(ret,1), (value) p); init(p); return ret; }
 
 #define Pointer_val(val) ((void*)Field(val,1))
@@ -254,5 +283,8 @@ int OptFlags_##conv (value list) \
 #define Val_option(v,f) (v ? ml_some(f(v)) : Val_unit)
 
 #define Check_null(v) (v ? v : (ml_raise_null_pointer (), v))
+
+#define Val_nativeint copy_nativeint
+#define Val_int64 copy_int64
 
 #endif /* _wrappers_ */

@@ -85,7 +85,7 @@ class drag_info = object
   method set_drag_action (w : Gdk.window) ~x ~y =
     begin
       let (x0, y0) = Window.get_position w in
-      let (width, height) = Window.get_size w in
+      let (width, height) = Drawable.get_size w in
       drag_action <- get_position_in_widget w ~x ~y ~width ~height;
       let (x1, y1) = (x0+width, y0+height) in
       toimen <-
@@ -110,7 +110,7 @@ let to_grid2 g (x, y) = (to_grid g x, to_grid g y)
 
 class fix_editor ~width ~height ~packing =
   let info = new drag_info in
-  let fix = GPack.fixed ~width ~height ~packing () in
+  let fix = GPack.fixed ~has_window:true ~width ~height ~packing () in
   let _ = fix#misc#realize () in
   let fix_window = fix#misc#window in
   let fix_drawing = new GDraw.drawable fix_window in
@@ -127,7 +127,7 @@ class fix_editor ~width ~height ~packing =
 	pix#rectangle ~filled:true ~x:0 ~y:0 ~width:g ~height:g ();
 	pix#set_foreground `BLACK;
       	pix#point ~x:0 ~y:0;
-      	Gdk.Window.set_back_pixmap (fix#misc#window) (`PIXMAP pix#pixmap)
+      	Gdk.Window.set_back_pixmap fix_window (`PIXMAP pix#pixmap)
       end;
       grid <- g
 
@@ -135,7 +135,7 @@ class fix_editor ~width ~height ~packing =
       let evb = GBin.event_box ~border_width:0 ~packing:fix#add () in
       let lbl = GMisc.label ~text:name ~width ~height ~packing:evb#add () in
       evb#misc#realize ();
-      evb#misc#set_geometry ~x ~y ();
+      fix#move evb#coerce ~x ~y;
       self#connect_signals ~ebox:evb ~widget:lbl#coerce ~callback;
       ()
 
@@ -145,7 +145,7 @@ class fix_editor ~width ~height ~packing =
       let draw_id = ref None in
       let exps_id = ref None in
       let on_paint _ =
-      	let (width, height) = Window.get_size (ebox#misc#window) in begin
+      	let (width, height) = Drawable.get_size (ebox#misc#window) in begin
       	  drawing#set_foreground `BLACK;
       	  drawing#rectangle ~filled:true ~x:0 ~y:0
 	    ~width:corner_width ~height:corner_height ();
@@ -180,7 +180,7 @@ class fix_editor ~width ~height ~packing =
 	  begin match action with
 	    GB_MIDDLE ->
 	      let (nx, ny) = to_grid2 grid (mx-ox, my-oy) in
-	      ebox#misc#set_geometry ~x:nx ~y:ny ();
+	      fix#move ebox#coerce ~x:nx ~y:ny;
 	      if cbfun ~x:nx ~y:ny ~width:(-2) ~height:(-2) then
 	      	()
 	      else (* should we undo ? *) ()
@@ -194,7 +194,8 @@ class fix_editor ~width ~height ~packing =
 	      let (ty, by) =
 	      	if my<toi_y then (my, toi_y) else (toi_y, my) in
 	      let (w, h) = (rx-lx, by-ty) in
-	      ebox#misc#set_geometry ~x:lx ~y:ty ~width:w ~height:h ();
+	      ebox#misc#set_size_request ~width:w ~height:h ();
+              fix#move ebox#coerce ~x:lx ~y:ty;
 	      if cbfun ~x:lx ~y:ty ~width:w ~height:h then
 	      	()
 	      else (* should we undo ? *) ()
@@ -203,7 +204,8 @@ class fix_editor ~width ~height ~packing =
 	      let my = to_grid grid my in
 	      let (ty, by) = if my<toi_y then (my, toi_y) else (toi_y, my) in
 	      let h = by-ty in
-	      ebox#misc#set_geometry ~y:ty ~height:h ();
+	      fix#move ebox#coerce ~x:lx ~y:ty;
+              ebox#misc#set_size_request ~height:h ();
 	      if cbfun ~x:lx ~y:ty ~width:(-2) ~height:h then
 	      	()
 	      else (* should we undo ? *) ()
@@ -212,7 +214,8 @@ class fix_editor ~width ~height ~packing =
 	      let mx = to_grid grid mx in
 	      let (lx, rx) = if mx<toi_x then (mx, toi_x) else (toi_x, mx) in
 	      let w = rx-lx in 
-	      ebox#misc#set_geometry ~x:lx ~width:w ();
+              fix#move ebox#coerce ~x:lx ~y:ty;
+	      ebox#misc#set_size_request ~width:w ();
 	      if cbfun ~x:lx ~y:ty ~width:w ~height:(-2) then
 	      	()
 	      else (* should we undo ? *) ()
@@ -227,7 +230,7 @@ class fix_editor ~width ~height ~packing =
       	end;
       exps_id := Some (ebox#event#connect#after#expose
                          ~callback:(fun _ -> on_paint(); false));
-      draw_id := Some (ebox#misc#connect#draw ~callback:on_paint);
+      (* draw_id := Some (ebox#misc#connect#draw ~callback:on_paint); *)
       ()
     initializer
       fix#drag#dest_set ~actions:[`COPY]

@@ -1,4 +1,4 @@
-/* $Id: ml_gtklist.c,v 1.4.2.1 2003/05/15 14:21:19 furuse Exp $ */
+/* $Id: ml_gtklist.c,v 1.8 2003/06/19 07:12:53 garrigue Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -10,11 +10,24 @@
 
 #include "wrappers.h"
 #include "ml_glib.h"
+#include "ml_gobject.h"
 #include "ml_gdk.h"
 #include "ml_gtk.h"
 #include "gtk_tags.h"
 
 static Make_Flags_val (Button_action_val)
+
+/* Init all */
+
+CAMLprim value ml_gtklist_init(value unit)
+{
+    /* Since these are declared const, must force gcc to call them! */
+    GType t =
+        gtk_list_item_get_type() +
+        gtk_list_get_type() +
+        gtk_clist_get_type();
+    return Val_GType(t);
+}
 
 /* gtklistitem.h */
 
@@ -40,7 +53,6 @@ ML_2 (gtk_list_unselect_item, GtkList_val, Int_val, Unit)
 ML_2 (gtk_list_select_child, GtkList_val, GtkWidget_val, Unit)
 ML_2 (gtk_list_unselect_child, GtkList_val, GtkWidget_val, Unit)
 ML_2 (gtk_list_child_position, GtkList_val, GtkWidget_val, Val_int)
-ML_2 (gtk_list_set_selection_mode, GtkList_val, Selection_mode_val, Unit)
 
 /* gtkclist.h */
 
@@ -167,6 +179,8 @@ ML_2 (gtk_clist_set_sort_type, GtkCList_val, Sort_type_val, Unit)
 ML_1 (gtk_clist_sort, GtkCList_val, Unit)
 ML_2 (gtk_clist_set_auto_sort, GtkCList_val, Bool_val, Unit)
 
+ML_1 (Scroll_type_val, ID, Val_long)
+
 CAMLprim value ml_gtk_clist_get_row_state (value clist, value y)
 {
     GtkCListRow *row;
@@ -182,13 +196,4 @@ CAMLprim value ml_gtk_clist_get_row_state (value clist, value y)
 
     row = list->data;
     return (Val_state_type (row->state));
-}
-
-static value val_int(gpointer i)
-{
-  return Val_int (GPOINTER_TO_INT(i));
-}
-CAMLprim value ml_gtk_clist_selection (value clist)
-{
-  return( Val_GList(GtkCList_val(clist)->selection, val_int) );
 }

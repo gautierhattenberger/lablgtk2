@@ -1,8 +1,8 @@
-(* $Id: gladecalc.ml,v 1.2 2001/09/06 08:47:56 garrigue Exp $ *)
+(* $Id: gladecalc.ml,v 1.3 2003/02/20 06:47:48 garrigue Exp $ *)
 
 open StdLabels
 
-(* lablgladecc project2.glade > project2.ml *)
+(* lablgladecc2 project2.glade > project2.ml *)
 #use "project2.ml";;
 
 let w1 = new window1 ()

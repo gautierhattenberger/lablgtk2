@@ -1,27 +1,322 @@
-$Id: CHANGES,v 1.143.2.6 2003/10/03 10:02:29 garrigue Exp $
+$Id: CHANGES,v 1.214 2003/10/10 08:40:22 garrigue Exp $
 
-In lablgtk-1.2.6:
+In lablgtk-2.2.0:
 
-2003.05.21
+2003.10.10 [Jacques]
+  * merge Makefile.nt into Makefile, check for msvc
+
+2003.10.09 [Benjamin]
+  * doc: correct GtkAjustement link to the right Gtk doc
+  * doc: fix Makefile for doc (use of OCAML instead of CAMLC and mkdir ../doc/html) 
+
+2003.10.07 [Jacques]
+  * add Gpointer.{peek,poke}_nativeint
+
+2003.09.27 [Olivier]
+  * remove `NONE response in dialogs
+  * improved ocamldoc documentation
+    (custom generator with links to 
+     GTK+ API reference)
+
+2003.09.22 [Jacques] (request F.Pottier)
+  * add window#maximize/fulscreen/stick
+  * add GTree.row_reference and GTree.Path
+
+2003.09.17 [Olivier]
+  * GNOME libpanelapplet support. Now we can write panel applets in caml.
+
+2003.09.11 [Olivier]
+  * configure script prints a summary of the libraries that will be built.
+  * in the output of pkg-config, filter out the options that
+    ocamlmklib doesn't like.
+
+2003.08.28 [Benjamin]
+  * mnemonic support for all kind of menus. Defaults to true in factory.
+
+2003.08.18 [Olivier]
+  * wrap GtkNotebook::switch_page instead of change_current_page
+
+2003.08.15 [Jacques]
+  * split gtk.props in small pieces, to allow more generation
+
+2003.08.06 [Olivier]
+  * in GWindow: color_selection_dialog, file_selection and 
+    font_selection_dialog now inherit from GWindow.dialog
+
+2003.08.05 [Olivier]
+  * Added some libgnomeui bindings (Druids)
+  * some new things in Gdkpixbuf :
+      save, fill, subpixbuf, saturate_and_pixelate
+      gdkpixbuf-specific errors
+
+2003.07.18 [Benjamin]
+  * New Glib.Unichar module 
+
+2003.07.17 [Benjamin]
+  * Fix Win32 compilation
+
+2003.07.09 [Jun Furuse]
+  Improvements of lablgladecc:
+  * Internal widgets are now also accessible by instance variables.
+    The user can use simply widget names inside sub-class definitions,
+    instead writing self#widget_name.
+  * A flag -hide-default hides all the widget with default names 
+    come from glade, like label123.
+  * Added check_all function to the output so that one can check 
+    all the widgets really exist.
+  * reparent method is added to facilitate to embed one glade toplevel
+    widget into a container.
+
+2003.07.09 [Jacques]
+  * ?width and ?height in GWindow back to setting size_request
+    (default size did not work properly)
+  * backward compatibility: GMisc.label has two exclusive parameters, 
+    ?text and ?markup (and no ?use_markup).
+
+2003.07.07 [Benjamin]
+  * Fixed confusion between text/label in a Label. Now GMisc.label expects 
+    ~label instead of ~text. This is consistant with the semantic of text and 
+    label properties (label may contain pango makups/text never do)
+
+
+In lablgtk2-20030707
+
+2003.07.05 [Jacques]
+  * #misc#set_geometry renamed in #misc#set_size_request
+  * ?width and ?height in GWindow set default size rather than size request
+
+2003.07.02 [Jacques]
+  * fix configure (split PKG_CHECK_MODULES for GTK and GTKALL)
+  * fix name of gtk_gl_area_swap_buffers
+
+2003.06.24 [Benjamin]
+  * Fix deps in Makefile
+  * Fix generation of an incorrect lablgtk2 when debug is enabled
+  * Fix Gtk 2.0 compatibility
+  
+2003.06.24 [Jacques]
+  * finish going to generation, add missing signals
+  * wrap clipboard and cell renderers
+  * add GMain.init to avoid "open GMain"
+
+2003.06.23 [Jacques]
+  * Lots of changes: generate signals and externals too.
+
+2003.06.19 [Jacques]
+  * Add GData.clipboard.
+  * Properties for GtkCellRenderer.
+  * Towards canvas properties.
+
+2003.06.18 [Jacques]
+  * Massive change: generate properties automatically.
+    Probable incompatibilities: inform immediately.
+
+2003.06.17 [Benjamin]
+  * Fix Gtk 2.0 compatibility
+
+2003.06.16 [Benjamin]
+  * Fix dependencies in Makefile. Now make -j works.
+  * Add "world" target in Makefile. 
+
+2003.06.15 [Jacques]
+  * Starting automatic generation of code. Should reduce need to write
+    wrappers and externals manually.
+
+2003.06.13 [Benjamin]
+  * Experimental g_type_register_static: not to be used at this time
+
+2003.06.11 [Jacques]
+  * changes in object properties (GtkBase.Tables, ...)
+  * add check_externals utility, fix some bugs
+  * additions in GtkWindow.ml
+
+2003.06.10 [Jacques]
+  * changes in object properties (gobject.ml, gtkTree.ml)
+
+2003.06.06 [Jacques]
+  * new #misc#get_flag to get misc widget info
+  * font_desc handling in Pango
+
+2003.06.04 [Jacques]
+  * GtkDialog cleanup
+  * add applications/osiris (just started)
+
+2003.05.29 [Jacques]
+  * fixed GtkTree.TreeView.Properties.model
+  * fixed ml_gobject.{get,set}_value to assume interfaces are objects
+
+2003.05.26 [Jun Furuse]
+  * msvc port is done!
+
+2003.05.24 [Jun Furuse]
+  * added Window.get_visual
+
+2003.05.23 [Benjamin]
+  * fixed incorrect type of trreview#connect#row_activated
+
+2003.05.21 [Jun Furuse]
   * fixed a problem of SpinButton.get_value_as_int for the case of 
-    the value is minus' src/gtkEdit.ml (Jun Furuse)
+    the value is minus' src/gtkEdit.ml
 
-2003.05.15
-  * ocamllex is abstracted by CAMLLEX in Makefiles (Jun Furuse)
-  * more parametrizations in config.make.nt (Jun)
-  * added the selection method to clist. (Jun)
-  * Glib.Io.add_watch returns event source, so that we can remove it later (J)
-  * added Glib.Io.read (J)
-  * added a new module Gdk.Input (J)
+2003.05.14 [Benjamin]
+ * Glib.Convert convert_with_fallback support
 
-2003.05.13
-  * various improvements to GtkText (Antoine Mine)
+2003.05.12 [Benjamin]
+ * GtkData.AccelMap support
+ * GtkImageMenuItem support
+ * MenuFactory accel_map support by default
+ * GtkStock.Item.lookup support
+
+2003.05.01 [Maxence]
+ * srcdoc target added to generate HTML doc in src/doc/index.html
+   (I did not test on Windows)
+
+In lablgtk2-20030423:
+
+2003.04.22 [Jacques]
+ * GtkThread.thread_main automatically switches to gui thread.
+
+2003.04.21 [Benjamin]
+ * GRange.progress_bar updated. Old functions deprecated.
+
+2003.04.12 [Olivier]
+ * add GWindow.message_dialog, add methods in GWindow.dialog
+
+2003.04.11 [Jun]
+ * add GtkWindow.Window.resize and its C interface 
+
+2003.04.08 [Jacques]
+ * lots of change in GtkTree*, add examples/tree_store.ml
+
+2003.04.02 [Jacques]
+ * finish? GtkTreeView
+
+In lablgtk2-20030326:
+
+2003.03.20 [Olivier]
+ * add stocks and mnemonics for buttons
+ * add icon factories
+
+2003.03.19 [Jacques]
+ * more property support (phantom type like for signals)
+
+2003.03.18 [Jacques]
+ * lots of GtkTree* additions
+ * small changes in ml_glibc, gObj.ml
+
+2003.03.17 [Benjamin]
+ * Restore Variant and stretch properties in GtkText
+ * GTK 2.0 fixes in GtkTree
+
+2003.03.16 [Olivier]
+ * GnomeCanvas: avoid duplicate properties type declaration
+
+2003.03.15
+ * changes in Gobject.Property and Gobject.Value.set
+   (use set_boxed in ml_gobject.c for automatic copying)
+ * adapt text and gnome-canvas (no need to build g_values)
+
+In lablgtk2-beta:
+
+2003.03.14
+ * libgnomecanvas support [Olivier]
+ * prepare for release, and fix makefiles [Jacques]
+
+2003.03.13
+ * Add Idle support
+
+2003.02.26 [Benjamin]
+ * Use mnemonics by default in factories
+
+2003.02.25 [Benjamin]
+ * GMenu new methods
+ * Support for mnemonic in labels.
+ * First patch to correct alloca problem in insert_text*
+
+2003.02.25
+ * copy_block_indirected allocates in old generation
+ * disable compaction in gtkMain.ml
+ * copy young strings to the stack when needed
+ * free lists obtained from Gtk
+
+2003.02.24
+ * replace alloc_final by alloc_custom (wrapper.h)
+ * better gtk-2.0 support (ml_gdk.c)
+
+2003.02.21
+ * Support for GTK 2.0 and librsvg 2.0 compilation (O. Andrieu) [Benjamin]
+ 
+
+In lablgtk2-20030221:
+
+2003.02.21
+ * add GObj.misc_ops#set_size_chars
+ * applications/browser only works with CVS version of ocaml
+ * bug fixes
+
+2003.02.20
+ * additions to Pango [Jacques]
+[Benjamin]:
+ * added set_stock to GMisc.image
+ * In GMisc.label_skel : 
+	added : #set_markup #set_markup_with_mnemonic #label
+	changed : semantic of #text (returns text with markups and mnemonics)
+		old semantic available with #label.
+ * In GText.iter : add #language
+
+2003.02.19
+ * GdkDrawable is also a GObject
+ * split GText.iter/nocopy_iter (Benjamin)
+ * finish split (Jacques)
+
+2003.02.14
+ * Added librsvg support (contributed by Olivier Andrieu)
+ * Ported applications/browser
+ * GText.iter#forward/backward return self
+
+2003.02.13
+ * Starting to add GtkTreeView. See tree2.ml.
+
+2003.02.12
+ * API changes and bug fixes in GText (Jacques)
+
+2003.02.11
+ * API changes in GText (Jacques)
+ * Many bug fix in GText (Benjamin)
+
+In lablgtk2-20030210:
+
+2003.02.10
+ * merge trunk
+ * Add gtkgl-2.0 and libglade-2.0 support
+
+2003.01.22
+ * Support for interaction between GtkTextBuffer and GtkClipboard. (Benjamin)
+ * Support for search functions in GtkTextIter. (Benjamin)
+
+2002.01.16
+ * fix memory management in ml_gdk.h
+ * GObject and GtkObject are different! fix gtk.ml
+
+2002.01.15
+  * added GtkAccelGroup and GtkClipboard support (Jacques)
+  * suppress Gdk.Tags.selection (use Gdk.Atom.primary/secondary/clipboard)
+  * time is 32-bit! (Benjamin)
+
+In lablgtk2-alpha:
+
+2002.12.26
+  * lots of changes to adapt to gtk2
+  * callback handling and property support completely rewritten
+  * many API changes
+  * new text widget interfaced by Benjamin Monate
+  * Gtk2 automatically calls setlocale in gtk_init, but we
+    revert LC_NUMERIC to C immediately after
+
+In trunk:
 
 2003.04.14
   * fix Glib.IO (Henri Dubois-Ferriere)
-
-2003.04.08
-  * fixes in ml_gdk.c: win32 and ClientData
 
 2003.01.22
   * GtkThread.main switches GtkMain.Main.main to call GtkThread.thread_main

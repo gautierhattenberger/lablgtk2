@@ -1,11 +1,13 @@
-(* $Id: gtkSignal.mli,v 1.5.2.1 2003/05/13 07:52:43 garrigue Exp $ *)
+(* $Id: gtkSignal.mli,v 1.9 2003/09/22 03:24:15 garrigue Exp $ *)
 
-open Gtk
+open Gobject
 
 type id
+type 'a marshaller = 'a -> Closure.argv -> unit
 type ('a,'b) t =
- { name: string; classe: 'a;
-   marshaller: ('b -> GtkArgv.t -> GtkArgv.data list -> unit) }
+ { name: string; classe: 'a; marshaller: 'b marshaller }
+    (* When writing marshallers, beware that the list omits the 0th
+       argument of argv, which is the referent object *)
 
 val stop_emit : unit -> unit
     (* Call [stop_emit ()] in a callback to prohibit further handling
@@ -17,31 +19,66 @@ val connect :
   sgn:('a, 'b) t -> callback:'b -> ?after:bool -> 'a obj -> id
     (* You may use [stop_emit] inside the callback *)
 
+val user_handler : (exn -> unit) ref
+    (* A hook to allow changing the behaviour of exceptions in callbacks
+       The default behaviour of printing the exception and ignoring it
+       is obtained when [user_handler] is set to [Pervasives.raise] *)
+
 external connect_by_name :
-  'a obj -> name:string -> callback:(GtkArgv.t -> unit) -> after:bool -> id
-  = "ml_gtk_signal_connect"
+  'a obj -> name:string -> callback:g_closure -> after:bool -> id
+  = "ml_g_signal_connect_closure"
 external disconnect : 'a obj -> id -> unit
-  = "ml_gtk_signal_disconnect"
+  = "ml_g_signal_handler_disconnect"
 external emit_stop_by_name : 'a obj -> name:string -> unit
-  = "ml_gtk_signal_emit_stop_by_name"
+  = "ml_g_signal_stop_emission_by_name"
     (* Unsafe: use [stop_emit] instead. *)
 external handler_block : 'a obj -> id -> unit
-  = "ml_gtk_signal_handler_block"
+  = "ml_g_signal_handler_block"
 external handler_unblock : 'a obj -> id -> unit
-  = "ml_gtk_signal_handler_unblock"
+  = "ml_g_signal_handler_unblock"
 
 (* Some marshaller functions, to build signals *)
-val marshal_unit : (unit -> unit) -> GtkArgv.t -> GtkArgv.data list -> unit
-val marshal_int : (int -> unit) -> GtkArgv.t -> GtkArgv.data list -> unit
-val marshal_int2 : 
-    (int -> int -> unit) -> GtkArgv.t -> GtkArgv.data list -> unit
+val marshal_unit : (unit -> unit) marshaller
+val marshal_int : (int -> unit) marshaller
+val marshal_string : (string -> unit) marshaller
+
+val marshal1 : 'a data_conv -> string -> ('a -> unit) marshaller
+val marshal2 :
+  'a data_conv -> 'b data_conv -> string -> ('a -> 'b -> unit) marshaller
+val marshal3 :
+  'a data_conv -> 'b data_conv -> 'c data_conv ->
+  string -> ('a -> 'b -> 'c -> unit) marshaller
+val marshal4 :
+  'a data_conv -> 'b data_conv -> 'c data_conv -> 'd data_conv ->
+  string -> ('a -> 'b -> 'c -> 'd -> unit) marshaller
+val marshal5 :
+  'a data_conv -> 'b data_conv -> 'c data_conv -> 'd data_conv ->
+  'e data_conv -> string -> ('a -> 'b -> 'c -> 'd -> 'e -> unit) marshaller
+val marshal6 :
+  'a data_conv -> 'b data_conv -> 'c data_conv -> 'd data_conv ->
+  'e data_conv -> 'f data_conv ->
+  string -> ('a -> 'b -> 'c -> 'd -> 'e -> 'f -> unit) marshaller
+
+val marshal0_ret : ret:'a data_conv -> (unit -> 'a) marshaller
+val marshal1_ret :
+  ret:'a data_conv -> 'b data_conv -> string -> ('b -> 'a) marshaller
+val marshal2_ret :
+  ret:'a data_conv -> 'b data_conv -> 'c data_conv ->
+  string -> ('b -> 'c -> 'a) marshaller
+val marshal3_ret :
+  ret:'a data_conv -> 'b data_conv -> 'c data_conv -> 'd data_conv ->
+  string -> ('b -> 'c -> 'd -> 'a) marshaller
+val marshal4_ret :
+  ret:'a data_conv -> 'b data_conv -> 'c data_conv -> 'd data_conv ->
+  'e data_conv -> string -> ('b -> 'c -> 'd -> 'e -> 'a) marshaller
 
 (* Emitter functions *)
 val emit :
-  'a obj -> sgn:('a, 'b) t -> emitter:('a obj -> name:string -> 'b) -> 'b
+  'a Gobject.obj -> sgn:('a, 'b) t ->
+  emitter:(cont:('c Gobject.data_set array -> 'd) -> 'b) ->
+  conv:(Gobject.g_value -> 'd) -> 'b
 val emit_unit : 'a obj -> sgn:('a, unit -> unit) t -> unit
 val emit_int : 'a obj -> sgn:('a, int -> unit) t -> int -> unit
-val emit_int2 : 'a obj -> sgn:('a, int -> int -> unit) t -> int -> int -> unit
 
 (* Internal functions. *)
 val enter_callback : (unit -> unit) ref

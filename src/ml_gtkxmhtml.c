@@ -1,4 +1,4 @@
-/* $Id: ml_gtkxmhtml.c,v 1.4 2002/07/15 03:43:29 garrigue Exp $ */
+/* $Id: ml_gtkxmhtml.c,v 1.5 2003/02/20 06:47:54 garrigue Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>

@@ -1,4 +1,4 @@
-(* $Id: glade.mli,v 1.7 2001/05/18 08:21:58 garrigue Exp $ *)
+(* $Id: glade.mli,v 1.9 2003/07/09 09:59:17 furuse Exp $ *)
 
 (* This module provides some low-level interfacing with libglade *)
 
@@ -9,10 +9,9 @@ external init : unit -> unit = "ml_glade_init"
 (* The raw glade XML widget *)
 type glade_xml = [ `data | `glade_xml]
 
-external create :
+val create :
     ?file:string -> ?data:string ->
     ?root:string -> ?domain:string -> unit -> glade_xml Gtk.obj
-    = "ml_glade_xml_new"
       (* One of [file] or [data] must be given, [data] is preferred when *)
       (* both are given. If [root] is omitted the first widget is used *)
       (* as root. [domain] is for localization. *)
@@ -26,13 +25,8 @@ val signal_autoconnect :
 external get_widget :
   [> `glade_xml] Gtk.obj -> name:string -> Gtk.widget Gtk.obj
   = "ml_glade_xml_get_widget"
-external get_widget_by_long_name :
-  [> `glade_xml] Gtk.obj -> name:string -> Gtk.widget Gtk.obj
-  = "ml_glade_xml_get_widget_by_long_name"
 external get_widget_name : [> `widget] Gtk.obj -> string
   = "ml_glade_get_widget_name"
-external get_widget_long_name : [> `widget] Gtk.obj -> string
-  = "ml_glade_get_widget_long_name"
 external get_widget_tree : [> `widget] Gtk.obj -> glade_xml Gtk.obj
   = "ml_glade_get_widget_tree"
 
@@ -41,8 +35,8 @@ external get_widget_tree : [> `widget] Gtk.obj -> glade_xml Gtk.obj
 type handler =
   [ `Simple of unit -> unit
   | `Object of string * (unit Gtk.obj -> unit)
-  | `Custom of GtkArgv.t -> GtkArgv.data list -> unit]
-val gtk_bool : bool -> GtkArgv.t -> 'a -> unit
+  | `Custom of Gobject.Closure.argv -> Gobject.data_get list -> unit]
+val gtk_bool : bool -> Gobject.Closure.argv -> 'a -> unit
 
 val add_handler : name:string -> handler -> unit
     (* Add a global handler for some well known name.
@@ -67,9 +61,7 @@ val trace_handlers : out_channel -> [> `glade_xml] Gtk.obj -> unit
 
 (* Class skeleton, for use in generated wrappers *)
 
-class xml :
-  ?file:string -> ?data:string -> ?root:string ->
-  ?domain:string -> ?trace:out_channel -> ?autoconnect:bool -> unit ->
+class xml : ?trace:out_channel -> ?autoconnect:bool -> glade_xml Gtk.obj ->
   object
     val xml : glade_xml Gtk.obj
     method xml : glade_xml Gtk.obj

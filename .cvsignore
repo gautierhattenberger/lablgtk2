@@ -1,1 +1,6 @@
 config.make
+config.cache
+ config.status
+configure
+aclocal.m4
+doc/html

@@ -1,4 +1,4 @@
-(* $Id: file.ml,v 1.3 2000/04/26 01:32:30 garrigue Exp $ *)
+(* $Id: file.ml,v 1.5 2003/07/06 23:38:55 garrigue Exp $ *)
 
 let dialog ~title ~callback ?filename () =
   let sel =
@@ -6,8 +6,18 @@ let dialog ~title ~callback ?filename () =
   sel#cancel_button#connect#clicked ~callback:sel#destroy;
   sel#ok_button#connect#clicked ~callback:
     begin fun () ->
-      let name = sel#get_filename in
+      let name = sel#filename in
       sel#destroy ();
       callback name
     end;
   sel#show ()
+
+let input_channel b ic =
+  let buf = String.create 1024 and len = ref 0 in
+  while len := input ic buf 0 1024; !len > 0 do
+    Buffer.add_substring b buf 0 !len
+  done
+
+let with_file name ~f =
+  let ic = open_in name in
+  try f ic; close_in ic with exn -> close_in ic; raise exn
