@@ -20,6 +20,7 @@ Package: liblablgtk2-gnome-ocaml
 Section: libs
 Architecture: any
 Depends: liblablgtk2-ocaml (= ${Source-Version}), ${shlibs:Depends}
+Replaces: liblablgtk2-ocaml (<= 2.4.0+2004.11.19-3)
 Description: runtime libraries for ocaml bindings for Gtk+ version 2
  lablgtk2 contains bindings for gtk+ 2.x and OCaml.
  .
@@ -42,7 +43,7 @@ Package: liblablgtk2-gnome-ocaml-dev
 Section: libdevel
 Architecture: any
 Depends: liblablgtk2-ocaml-dev (= ${Source-Version}), ocaml-3.08, librsvg2-dev, libgnomecanvas2-dev, libgnomeui-dev, libpanel-applet2-dev
-Conflicts: findlib (<< 1.0.2)
+Replaces: liblablgtk2-ocaml-dev (<= 2.4.0+2004.11.19-3)
 Description: OCaml bindings to Gtk+ version 2
  lablgtk2 contains bindings for gtk+ 2.x and OCaml.
  .

@@ -75,8 +75,6 @@ install: build
 	$(MAKE) install DESTDIR=$(DESTDIR)
 
 	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
-
-	# TODO !!!!!!!!!
 	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/METAS
 
 	# This file is needed by lablgtk2-doc
@@ -96,7 +94,7 @@ binary-arch: build install
 
 #	dh_installdebconf -s
 	dh_installdocs -s
-	dh_installexamples -s
+	dh_installexamples -s --exclude='.cvsignore'
 	dh_installmenu -s
 	dh_movefiles -s
 	dh_install -s --sourcedir=$(DESTDIR) --list-missing
