@@ -1,4 +1,4 @@
-(* $Id: gtkBin.props,v 1.1 2003/08/15 11:08:42 garrigue Exp $ *)
+(* $Id: gtkBin.props,v 1.3 2003/12/10 10:49:57 oandrieu Exp $ *)
 
 prefix "Gtk"
 
@@ -68,8 +68,11 @@ class Viewport set wrap : Bin {
   signal set_scroll_adjustments : GtkAdjustment_opt GtkAdjustment_opt
 }
 
-class Socket wrapsig : Container {
-  method steal : "Gdk.xid -> unit"
-  signal plug_added
-  signal plug_removed
+class Expander set wrap wrapsig : Bin {
+  "expanded"             gboolean             : Read / Write / Construct
+  "label"                gchararray           : Read / Write / Construct
+  "label-widget"         GtkWidget            : Read / Write / NoSet
+  "spacing"              gint                 : Read / Write
+  "use-underline"        gboolean             : Read / Write / Construct
+  signal activate
 }

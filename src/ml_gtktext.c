@@ -1,4 +1,4 @@
-/* $Id: ml_gtktext.c,v 1.15 2003/06/24 09:20:04 garrigue Exp $ */
+/* $Id: ml_gtktext.c,v 1.16 2004/01/08 00:54:29 oandrieu Exp $ */
 /* Author: Benjamin Monate */
 
 #include <stdio.h>
@@ -883,7 +883,7 @@ ML_3 (gtk_text_iter_in_range, GtkTextIter_val, GtkTextIter_val,
       GtkTextIter_val, Val_bool)
 ML_2 (gtk_text_iter_order, GtkTextIter_val, GtkTextIter_val, Unit)
 
-Make_OptFlags_val(Text_search_flag_val)
+static Make_OptFlags_val(Text_search_flag_val)
 
 #define Make_search(dir) \
 CAMLprim value ml_gtk_text_iter_##dir##_search (value ti_start, \

@@ -1,4 +1,4 @@
-(* $Id: gtk.ml,v 1.98 2003/06/24 09:20:03 garrigue Exp $ *)
+(* $Id: gtk.ml,v 1.103 2004/01/04 19:14:57 oandrieu Exp $ *)
 
 open Gobject
 
@@ -98,6 +98,8 @@ module Tags = struct
     | `NO_REPARENT | `APP_PAINTABLE | `RECEIVES_DEFAULT | `DOUBLE_BUFFERED ]
   type size_group_mode =
     [ `NONE | `HORIZONTAL | `VERTICAL | `BOTH ]
+  type file_chooser_action =
+    [ `OPEN | `SAVE ]
 end
 open Tags
 
@@ -124,6 +126,10 @@ type widget = [`gtk|`widget]
 type container = [widget|`container]
 type bin = [container|`bin]
 type alignment = [bin|`alignment]
+type button = [bin|`button]
+type toggle_button = [button|`togglebutton]
+type radio_button = [button|`togglebutton|`radiobutton]
+type option_menu = [button|`optionmenu]
 type event_box = [bin|`eventbox]
 type frame = [bin|`frame]
 type aspect_frame = [bin|`frame|`aspectframe]
@@ -136,6 +142,7 @@ type image_menu_item = [menu_item| `imagemenuitem]
 type check_menu_item = [item|`menuitem|`checkmenuitem]
 type radio_menu_item = [item|`menuitem|`checkmenuitem|`radiomenuitem]
 type tree_item = [item|`treeitem]
+type scrolled_window = [bin|`scrolledwindow]
 type viewport = [bin|`viewport]
 type window = [bin|`window]
 type dialog = [window|`dialog]
@@ -152,10 +159,6 @@ type color_selection = [container|`box|`colorselection]
 type font_selection = [container|`box|`fontselection]
 type combo = [container|`box|`combo]
 type statusbar = [container|`box|`statusbar]
-type button = [container|`button]
-type toggle_button = [button|`togglebutton]
-type radio_button = [button|`togglebutton|`radiobutton]
-type option_menu = [button|`optionmenu]
 type clist = [container|`clist]
 type fixed = [container|`fixed]
 type layout = [container|`layout]
@@ -166,7 +169,6 @@ type menu_bar = [container|`menushell|`menubar]
 type notebook = [container|`notebook]
 type packer = [container|`packer]
 type paned = [container|`paned]
-type scrolled_window = [container|`scrolledwindow]
 type socket = [container|`socket]
 type table = [container|`table]
 type toolbar = [container|`toolbar]
@@ -201,11 +203,14 @@ type text_child_anchor = [`textchildanchor] obj
 type text_iter
 
 type tree_view = [container|`treeview]
-type tree_view_column = [`gtk|`treeviewcolumn]
+type tree_view_column = [`gtk|`celllayout|`treeviewcolumn]
 type tree_selection = [`treeselection] obj
 type tree_model = [`treemodel] obj
-type tree_store = [`treestore|`treemodel] obj
-type list_store = [`liststore|`treemodel] obj
+type tree_sortable = [`treemodel|`tree_sortable] obj
+type tree_model_sort = [`treemodelsort|`treesortable|`treemodel] obj
+type tree_model_filter = [`treemodelfilter|`treemodel] obj
+type tree_store = [`treestore|`treesortable|`treemodel] obj
+type list_store = [`liststore|`treesortable|`treemodel] obj
 type tree_iter
 type tree_path
 type row_reference
@@ -220,5 +225,22 @@ type icon_factory = [`iconfactory] obj
 
 type size_group = [`sizegroup] obj
 
+(* New widgets in 2.4 *)
+type cell_layout = [`celllayout]
+type combo_box = [bin|`combobox|cell_layout]
+type combo_box_entry = [combo_box|`comboboxentry]
+type expander = [bin|`expander]
+type file_filter = [`gtk|`filefilter]
+type file_chooser = [ `filechooser]
+type entry_completion = [`entrycompletion|cell_layout] obj
+
+type action = [`action]
+type toggle_action = [action|`toggleaction]
+type radio_action = [toggle_action|`radioaction]
+type action_group = [`actiongroup]
+type ui_manager = [`uimanager]
+
 (* re-export Gobject.obj *)
 type 'a obj = 'a Gobject.obj
+  (* constraint 'a = [> `gtk] *)
+  (* *Props modules break this *)

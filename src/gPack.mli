@@ -1,4 +1,4 @@
-(* $Id: gPack.mli,v 1.28 2003/09/27 13:42:19 oandrieu Exp $ *)
+(* $Id: gPack.mli,v 1.30 2003/12/01 08:48:55 oandrieu Exp $ *)
 
 open Gtk
 open GObj

@@ -1,4 +1,4 @@
-(* $Id: gButton.mli,v 1.24 2003/09/27 13:42:19 oandrieu Exp $ *)
+(* $Id: gButton.mli,v 1.28 2003/12/01 08:48:55 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -11,12 +11,14 @@ open GContainer
 (** @gtkdoc gtk GtkButton *)
 class button_skel : 'a obj ->
   object
-    inherit GContainer.container
+    inherit GContainer.bin
     constraint 'a = [> button]
     val obj : 'a obj
     method clicked : unit -> unit
     method set_relief : Tags.relief_style -> unit
     method relief : Tags.relief_style
+    method set_label : string -> unit
+    method label : string
     method grab_default : unit -> unit
     method event : event_ops
   end

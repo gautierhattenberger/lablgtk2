@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.131 2003/10/10 06:30:46 garrigue Exp $
+# $Id: Makefile,v 1.135 2003/12/14 23:00:59 oandrieu Exp $
 # Makefile for lablgtk.
 
 COMPILER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS) -w s -c
@@ -24,8 +24,6 @@ TARGETS = varcc$(XE) lablgtktop$(XE) lablgtk2$(XB)
 
 all: byte
 world: byte $(OCAMLBEST)
-
-LABLGLDIR = $(LIBDIR)/lablGL
 
 MLLIBS = lablgtk.cma
 CLIBS = liblablgtk2$(XA)
@@ -133,12 +131,12 @@ opt:  $(TARGETS) lablgtkopt
 GTKOBJS =  ml_gtk$(XO) ml_pango$(XO) ml_gtkbin$(XO) ml_gtkbutton$(XO) \
 	ml_gtkedit$(XO) ml_gtklist$(XO) ml_gtkmenu$(XO) ml_gtkmisc$(XO) \
 	ml_gtkpack$(XO) ml_gtkrange$(XO) ml_gtktext$(XO) ml_gtktree$(XO) \
-	ml_gtkstock$(XO)
+	ml_gtkstock$(XO) ml_gtkfile$(XO) ml_gtkaction$(XO)
 COBJS = ml_gdkpixbuf$(XO) ml_gdk$(XO) ml_glib$(XO) ml_gobject$(XO) \
 	ml_gpointer$(XO) wrappers$(XO) $(GTKOBJS)
 GTKPROPS = gtkBase.props gtkBin.props gtkButton.props gtkEdit.props \
 	gtkList.props gtkMenu.props gtkMisc.props gtkPack.props \
-	gtkRange.props gtkText.props gtkTree.props
+	gtkRange.props gtkText.props gtkTree.props gtkFile.props gtkAction.props
 MLOBJS1 =  gaux.cmo gpointer.cmo glib.cmo gobject.cmo
 ENUMOBJS = gdkEnums.cmo pangoEnums.cmo gtkEnums.cmo
 MLOBJS2 = gdk.cmo gdkEvent.cmo gdkKeysyms.cmo gdkPixbuf.cmo \
@@ -146,11 +144,11 @@ MLOBJS2 = gdk.cmo gdkEvent.cmo gdkKeysyms.cmo gdkPixbuf.cmo \
 MLOBJS3 = gtkData.cmo gtkBase.cmo gtkPack.cmo gtkButton.cmo \
 	gtkMenu.cmo gtkMisc.cmo gtkWindow.cmo gtkList.cmo \
 	gtkBin.cmo gtkEdit.cmo gtkRange.cmo gtkText.cmo gtkTree.cmo \
-	gtkMain.cmo \
+	gtkFile.cmo gtkMain.cmo \
 	gPango.cmo gDraw.cmo gObj.cmo gData.cmo gMain.cmo
 MLOBJS4 = gContainer.cmo gPack.cmo gButton.cmo gText.cmo \
-	gMenu.cmo gMisc.cmo gTree.cmo gList.cmo gWindow.cmo gBin.cmo \
-	gEdit.cmo gRange.cmo gUtil.cmo gToolbox.cmo
+	gMenu.cmo gMisc.cmo gTree.cmo gList.cmo gFile.cmo gWindow.cmo gBin.cmo \
+	gEdit.cmo gRange.cmo gAction.cmo gUtil.cmo gToolbox.cmo
 MLOBJS =  $(MLOBJS1) $(ENUMOBJS) $(MLOBJS2) $(GTKPROPS:.props=Props.cmo) \
 	$(MLOBJS3) $(GTKPROPS:%.props=o%Props.cmo) $(MLOBJS4)
 MLXOBJS = $(MLOBJS1) $(ENUMOBJS) $(MLOBJS2) $(MLOBJS3) $(MLOBJS4)
@@ -344,18 +342,19 @@ clean:
 
 
 DOCFILES =  gaux.ml gpointer.mli glib.mli gobject.mli \
+        gdkEnums.ml pangoEnums.ml gtkEnums.ml \
         gdk.mli gdkEvent.ml gdkPixbuf.mli \
         gtk.ml pango.ml gtkSignal.mli gtkObject.ml \
         $(GTKPROPS:%.props=%Props.ml) \
         gtkStock.ml gtkData.ml gtkBase.ml gtkPack.ml gtkButton.ml \
         gtkMenu.ml gtkMisc.ml gtkWindow.ml gtkList.ml \
         gtkEdit.ml gtkRange.ml gtkText.ml gtkTree.ml \
-        gtkMain.ml \
+        gtkFile.ml gtkMain.ml \
         gPango.ml gDraw.mli \
         gObj.mli gMain.mli gData.mli gContainer.mli gBin.mli gPack.mli gButton.mli \
         gText.mli \
-        gMenu.mli gMisc.mli gTree.mli gList.mli gWindow.mli \
-        gEdit.mli gRange.mli gUtil.mli gToolbox.mli
+        gMenu.mli gMisc.mli gTree.mli gFile.mli gList.mli gWindow.mli \
+        gEdit.mli gRange.mli gAction.mli gUtil.mli gToolbox.mli
 ifdef USE_GLADE
 DOCFILES += glade.mli xml_lexer.mli
 endif
@@ -374,18 +373,17 @@ endif
 
 OCAMLDOC = ocamldoc
 lablgtk$(XO)doc : $(DOCFILES) $(ALLOBJS)
-	$(OCAMLDOC) -dump $@ -v  -I $(LABLGLDIR) $(DOCFILES)
+	$(OCAMLDOC) -dump $@ -v $(if $(LABLGLDIR),-I $(LABLGLDIR)) $(DOCFILES)
 gtkdoc.cmo : gtkdoc.ml
 	$(CAMLC) -I +ocamldoc -c $<
+DOCDIR=../doc
+DOC_URI=
+DOC_BASE_URI=$(if $(DOC_URI),-base-uri $(DOC_URI))
 doc : lablgtk$(XO)doc gtkdoc.cmo
-	mkdir -p ../doc/html
-	$(OCAMLDOC) -g ./gtkdoc.cmo -v -t LablGTK -d ../doc/html -load $<
+	mkdir -p $(DOCDIR)/html
+	$(OCAMLDOC) -g ./gtkdoc.cmo $(DOC_BASE_URI) -v -t LablGTK -d $(DOCDIR)/html -load $<
 doc_texi : lablgtk$(XO)doc
-	$(OCAMLDOC) -texi -v -t LablGTK -o ../doc/lablgtk2.texi -load $<
-
-srcdoc: $(ALLOBJS)
-	mkdir -p doc
-	$(OCAMLDOC) -html -t "Lablgtk2" -d doc -I . `ls $(ALLOBJS:.cmo=.mli) 2> /dev/null`
+	$(OCAMLDOC) -texi -v -t LablGTK -o $(DOCDIR)/lablgtk2.texi -load $<
 
 $(GTKOBJS): pango_tags.h gtk_tags.h ml_gtk.h gdk_tags.h ml_gdk.h \
 	    ml_gobject.h ml_glib.h wrappers.h

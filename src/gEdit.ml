@@ -1,4 +1,4 @@
-(* $Id: gEdit.ml,v 1.26 2003/08/15 11:08:42 garrigue Exp $ *)
+(* $Id: gEdit.ml,v 1.28 2004/01/04 19:14:57 oandrieu Exp $ *)
 
 open Gaux
 open Gtk
@@ -27,6 +27,41 @@ class editable obj = object
   method selection = Editable.get_selection_bounds obj
 end
 
+class entry_completion_signals obj = object (self)
+  inherit [[> `entrycompletion]] GObj.gobject_signals obj
+  method action_activated = self#connect EntryCompletion.S.action_activated
+  method match_selected ~callback = 
+    self#connect EntryCompletion.S.match_selected
+      ~callback:(fun _model iter -> callback (new GTree.model _model) iter)
+end
+
+class entry_completion obj = object
+  method as_entry_completion = (obj :> Gtk.entry_completion)
+
+  method set_minimum_key_length =
+    Gobject.set EntryCompletion.P.minimum_key_length obj
+  method minimum_key_length =
+    Gobject.get EntryCompletion.P.minimum_key_length obj
+  method set_model (m : GTree.model) = Gobject.set EntryCompletion.P.model obj m#as_model
+  method model = new GTree.model (Gobject.get EntryCompletion.P.model obj)
+
+  method misc = new GObj.gobject_ops obj
+  method connect = new entry_completion_signals obj
+
+  method get_entry = may_map (new GObj.widget) (EntryCompletion.get_entry obj)
+  method complete () = EntryCompletion.complete obj
+  method insert_action_text = EntryCompletion.insert_action_text obj
+  method insert_action_markup = EntryCompletion.insert_action_markup obj
+  method delete_action = EntryCompletion.delete_action obj
+  method set_text_column c = 
+    EntryCompletion.set_text_column obj (c : string GTree.column).GTree.index
+  method set_match_func =
+    EntryCompletion.set_match_func obj
+
+  inherit GTree.cell_layout obj
+  val obj = obj
+end
+
 class entry_signals obj = object (self)
   inherit editable_signals obj
   inherit entry_sigs
@@ -43,6 +78,9 @@ class entry obj = object
   method append_text = Entry.append_text obj
   method prepend_text = Entry.prepend_text obj
   method text_length = Entry.text_length obj
+  method get_completion = may_map (new entry_completion) (Entry.get_completion obj)
+  method set_completion (c : entry_completion) = 
+    Entry.set_completion obj c#as_entry_completion
 end
 
 let pack_sized ~create pl =
@@ -52,6 +90,14 @@ let pack_sized ~create pl =
 let entry =
   Entry.make_params [] ~cont:(
   pack_sized ~create:(fun pl -> new entry (Entry.create pl)))
+
+let entry_completion ?model =
+  EntryCompletion.make_params []
+    ?model:(may_map (fun m -> m#as_model) model)
+    ~cont:(fun pl ?entry () -> 
+      let c = new entry_completion (EntryCompletion.create pl) in
+      may (fun e -> e#set_completion c) entry ;
+      c)
 
 class spin_button_signals obj = object
   inherit entry_signals obj
@@ -90,6 +136,79 @@ let combo ?popdown_strings =
     let w = Combo.create pl in
     may (Combo.set_popdown_strings w) popdown_strings;
     new combo w))
+
+class combo_box_signals obj = object
+  inherit GContainer.container_signals_impl (obj :> Gtk.combo_box Gtk.obj)
+  inherit OgtkEditProps.combo_box_sigs
+end
+
+class combo_box _obj = object
+  inherit [[> Gtk.combo_box]] GContainer.bin_impl _obj
+  inherit OgtkEditProps.combo_box_props
+  inherit GTree.cell_layout _obj
+  method connect = new combo_box_signals obj
+  method model =
+    new GTree.model (Gobject.get GtkEditProps.ComboBox.P.model obj)
+  method set_row_span_column (col : int GTree.column) =
+    Gobject.set GtkEdit.ComboBox.P.row_span_column obj col.GTree.index
+  method set_column_span_column (col : int GTree.column) =
+    Gobject.set GtkEdit.ComboBox.P.column_span_column obj col.GTree.index
+  method active_iter =
+    GtkEdit.ComboBox.get_active_iter obj
+  method set_active_iter =
+    GtkEdit.ComboBox.set_active_iter obj
+end
+
+let combo_box ~model =
+  GtkEdit.ComboBox.make_params [] ~cont:(
+  GContainer.pack_container ~create:(fun pl ->
+    let w = GtkEdit.ComboBox.create ~model:model#as_model pl in
+    new combo_box w))
+  
+class combo_box_text _obj = object
+  inherit combo_box _obj
+  val column =
+    let model_id = 
+      Gobject.get_oid (Gobject.get GtkEdit.ComboBox.P.model _obj) in
+    let col_list = new GTree.column_list in
+    Hashtbl.add GTree.model_ids model_id col_list#id ;
+    { GTree.index = 0 ; GTree.conv = Gobject.Data.string ; 
+      GTree.creator = col_list#id }
+  method column = column
+  method append_text = GtkEdit.ComboBox.append_text obj
+  method insert_text = GtkEdit.ComboBox.insert_text obj
+  method prepend_text = GtkEdit.ComboBox.prepend_text obj
+end
+
+(* convenience functions for simple text-only comboboxes *)
+let combo_box_text =
+  GtkEdit.ComboBox.make_params [] ~cont:(
+  GContainer.pack_container ~create:(fun pl ->
+    let w = GtkEdit.ComboBox.new_text () in
+    Gobject.set_params w pl ;
+    new combo_box_text w))
+
+class combo_box_entry _obj = object (self)
+  inherit combo_box _obj
+  val text_column =
+    let model_id = 
+      Gobject.get_oid (Gobject.get GtkEdit.ComboBox.P.model _obj) in
+    let col_list_id = Hashtbl.find GTree.model_ids model_id in
+    { GTree.index = Gobject.get GtkEdit.ComboBoxEntry.P.text_column _obj ;
+      GTree.conv  = Gobject.Data.string ; 
+      GTree.creator = col_list_id }
+  method text_column = text_column
+  method entry = new entry (GtkEdit.Entry.cast self#child#as_widget)
+end
+
+let combo_box_entry ~model ~text_column =
+  GtkEdit.ComboBox.make_params 
+    [ Gobject.param GtkEdit.ComboBox.P.model model#as_model ;
+      Gobject.param GtkEdit.ComboBoxEntry.P.text_column text_column.GTree.index ]
+    ~cont:(
+  GContainer.pack_container ~create:(fun pl ->
+    new combo_box_entry (GtkEdit.ComboBoxEntry.create pl)))
+
 
 (*
 class text obj = object (self)

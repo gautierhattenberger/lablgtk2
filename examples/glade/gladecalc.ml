@@ -1,4 +1,4 @@
-(* $Id: gladecalc.ml,v 1.3 2003/02/20 06:47:48 garrigue Exp $ *)
+(* $Id: gladecalc.ml,v 1.4 2004/01/13 05:49:52 garrigue Exp $ *)
 
 open StdLabels
 
@@ -6,7 +6,6 @@ open StdLabels
 #use "project2.ml";;
 
 let w1 = new window1 ()
-let _ = w1#check_widgets
 
 let numbers =
   [| w1#button0; w1#button1; w1#button2; w1#button3; w1#button4;

@@ -1,4 +1,4 @@
-(* $Id: glade_demo.ml,v 1.6 2003/06/13 17:58:24 monate Exp $ *)
+(* $Id: glade_demo.ml,v 1.7 2004/01/13 05:49:52 garrigue Exp $ *)
 
 (* An experiment on using libglade in lablgtk *)
 
@@ -7,7 +7,7 @@
 
 class editor () =
   object (self)
-    inherit window1  ()
+    inherit window1 ()
 
     method open_file () =
       let fs = GWindow.file_selection ~title:"Open file" ~modal:true () in

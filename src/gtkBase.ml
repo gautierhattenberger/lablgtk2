@@ -1,4 +1,4 @@
-(* $Id: gtkBase.ml,v 1.47 2003/08/15 11:08:42 garrigue Exp $ *)
+(* $Id: gtkBase.ml,v 1.48 2003/10/20 00:29:50 garrigue Exp $ *)
 
 open Gaux
 open Gobject
@@ -237,6 +237,8 @@ module Container = struct
     foreach w ~f:(fun c -> l := c :: !l);
     List.rev !l
 end
+
+module Bin = Bin
 
 module Item = Item
 

@@ -1,4 +1,67 @@
-$Id: CHANGES,v 1.214 2003/10/10 08:40:22 garrigue Exp $
+$Id: CHANGES,v 1.230 2004/01/13 06:40:24 garrigue Exp $
+
+2004.01.13 [Jacques]
+  * revert to GWindow.window_skel/window
+  * prepare snapshot
+
+2004.01.08 [Olivier]
+  * GtkTreeModel{Sort,Filter} fixes
+  * added some missing GtkTreeModel methods
+    (get_iter_first, iter_has_child, iter_n_children, flags, foreach)
+  * in wrappers, added a function for converting a C flags value into
+    a variant list (the reverse of the Make_Flags_val macro)
+
+2004.01.04 [Olivier]
+  * support for GtkEntryCompletion (2.4)
+
+2003.12.21 [Olivier]
+  * add event-after signal for widgets
+
+2003.12.20 [Olivier]
+  * make the comparison function use gtk_tree_path_compare
+    for Gtk.tree_path values.
+
+2003.12.19 [Olivier]
+  * added support for GtkTreeSortable, GtkTreeModelSort
+    and GtkTreeModelFilter (2.4)
+  * fixes for GtkComboBox
+  * GTree.view_column inherit from GTree.cell_layout,
+    add a few methods to GTree.view_column
+
+2003.12.17 [Jacques]
+  * some additions/improvements to lablgladecc
+
+2003.12.13 [Olivier]
+  * More GTK 2.4 support:
+    Action-based menus and toolbars
+  * added GtkData.AccelGroup.parse
+
+2003.12.10 [Olivier]
+  * support for GTK 2.4 widgets: 
+    GtkComboBox, GtkExpander, GtkFileChooser
+
+2003.11.30 [Olivier]
+  * move event method of GRange.scrollbar in GRange.range (GtkScale
+    widgets also receive events), removed GRange.scrollbar class
+  * added event method in GTree.view, GRange.ruler
+
+2003.10.30 [Jacques]
+  * add GWindow.file_selection#dir_list  (Francois Pessaux)
+  * move GBin.socket to GWindow.socket (this wasn't a bin)
+  * add GWindow.plug_signals
+
+2003.10.28 [Olivier]
+  * make Panel.applet inherit GContainer.bin; 
+    remove the unit arg for getters
+
+2003.10.20 [Jacques]
+  * add bin class for #child
+
+2003.10.13 [Olivier]
+  * autoconf support for lablGL location
+
+2003.10.09 [Olivier]
+  * wrap GtkButton label property in button_skel
 
 In lablgtk-2.2.0:
 

@@ -1,4 +1,4 @@
-(* $Id: gRange.ml,v 1.19 2003/08/15 11:08:42 garrigue Exp $ *)
+(* $Id: gRange.ml,v 1.21 2003/12/01 08:48:55 oandrieu Exp $ *)
 
 open Gaux
 open Gtk
@@ -27,6 +27,7 @@ end
 class range obj = object
   inherit ['a] widget_impl obj
   method connect = new range_signals obj
+  method event = new GObj.event_ops obj
   inherit range_props
 end
 
@@ -41,19 +42,15 @@ let scale dir ?adjustment =
     ~cont:(fun pl ?packing ?show params ->
       pack_return (new scale (Scale.create dir pl)) ~packing ~show))
 
-class scrollbar obj = object
-  inherit range (obj : Gtk.scrollbar obj)
-  method event = new GObj.event_ops obj
-end
-
 let scrollbar dir ?adjustment =
   Range.make_params [] ?adjustment:(may_map GData.as_adjustment adjustment)
     ~cont:(fun pl ?packing ?show params ->
-      pack_return (new scrollbar (Scrollbar.create dir pl)) ~packing ~show)
+      pack_return (new range (Scrollbar.create dir pl)) ~packing ~show)
 
 class ruler obj = object
   inherit ['a] widget_impl obj
   method connect = new widget_signals_impl obj
+  method event = new GObj.event_ops obj
   inherit ruler_props
   method set_metric = Ruler.set_metric obj
 end

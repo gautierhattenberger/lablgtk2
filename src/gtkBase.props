@@ -1,4 +1,4 @@
-(* $Id: gtkBase.props,v 1.2 2003/09/22 09:41:59 oandrieu Exp $ *)
+(* $Id: gtkBase.props,v 1.5 2003/12/22 01:42:24 oandrieu Exp $ *)
 
 prefix "Gtk"
 
@@ -87,6 +87,7 @@ class Widget abstract : Object {
   signal drag_motion : GdkDragContext x:int y:int time:int32 -> bool
   (* events *)
   signal event : GdkEvent -> bool
+  signal event_after : GdkEvent
   (* events share the same marshaller
   signal button_press_event : GdkEventButton -> bool
   signal button_release_event : GdkEventButton -> bool
@@ -128,6 +129,10 @@ class Container abstract : Widget {
   signal remove :    GtkWidget   / Wrap
   signal check_resize
   signal set_focus : GtkWidget_opt
+}
+
+class Bin abstract : Container {
+  method get_child : "widget obj"
 }
 
 class Item abstract wrapsig : Bin {
@@ -210,6 +215,12 @@ class MessageDialog abstract wrap : Dialog {
   "message-type"         GtkMessageType       : Read / Write / Construct
 }
 
-class Plug abstract : Bin {
+class Plug abstract wrapsig : Bin {
   signal embedded
+}
+
+class Socket wrapsig : Container {
+  method steal : "Gdk.xid -> unit"
+  signal plug_added
+  signal plug_removed
 }

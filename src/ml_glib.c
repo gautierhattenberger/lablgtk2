@@ -1,4 +1,4 @@
-/* $Id: ml_glib.c,v 1.34 2003/08/06 00:12:39 oandrieu Exp $ */
+/* $Id: ml_glib.c,v 1.35 2003/12/10 10:49:57 oandrieu Exp $ */
 
 #include <locale.h>
 #ifdef _WIN32
@@ -215,7 +215,7 @@ ML_0(gdk_threads_leave, Unit)
 /* This is not used, but could be someday... */
 
 /* The day has come .... */
-CAMLprim value Val_GSList (GSList *list, value (*func)(gpointer))
+value Val_GSList (GSList *list, value (*func)(gpointer))
 {
   CAMLparam0();
   CAMLlocal4 (new_cell, result, last_cell, cell);

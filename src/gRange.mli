@@ -1,4 +1,4 @@
-(* $Id: gRange.mli,v 1.20 2003/09/27 13:42:19 oandrieu Exp $ *)
+(* $Id: gRange.mli,v 1.22 2003/12/01 08:48:55 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -53,6 +53,7 @@ class range : ([> Gtk.range] as 'a) obj ->
     inherit GObj.widget
     val obj : 'a obj
     method connect : range_signals
+    method event : GObj.event_ops
     method set_adjustment : GData.adjustment -> unit
     method set_inverted : bool -> unit
     method set_update_policy : Tags.update_type -> unit
@@ -93,22 +94,12 @@ val scale :
 (** @gtkdoc gtk GtkScrollbar
    @gtkdoc gtk GtkHScrollbar
    @gtkdoc gtk GtkVScrollbar *)
-class scrollbar : Gtk.scrollbar obj ->
-  object
-    inherit range
-    val obj : Gtk.scrollbar obj
-    method event : event_ops
-  end
-
-(** @gtkdoc gtk GtkScrollbar
-   @gtkdoc gtk GtkHScrollbar
-   @gtkdoc gtk GtkVScrollbar *)
 val scrollbar :
   Tags.orientation ->
   ?adjustment:GData.adjustment ->
   ?inverted:bool ->
   ?update_policy:Tags.update_type ->
-  ?packing:(widget -> unit) -> ?show:bool -> unit -> scrollbar
+  ?packing:(widget -> unit) -> ?show:bool -> unit -> range
 
 (** {3 GtkRuler} *)
 
@@ -120,6 +111,7 @@ class ruler :
   object
     inherit GObj.widget_full
     val obj : 'a Gtk.obj
+    method event : GObj.event_ops
     method set_metric : Tags.metric_type -> unit
     method set_lower : float -> unit
     method set_max_size : float -> unit

@@ -1,4 +1,4 @@
-(* $Id: glade.ml,v 1.16 2003/07/09 09:59:17 furuse Exp $ *)
+(* $Id: glade.ml,v 1.17 2003/12/17 04:17:19 garrigue Exp $ *)
 
 open StdLabels
 open Gtk
@@ -40,6 +40,12 @@ external get_widget_name : [> `widget] obj -> string
     = "ml_glade_get_widget_name"
 external get_widget_tree : [> `widget] obj -> glade_xml obj
     = "ml_glade_get_widget_tree"
+
+let get_widget_msg ~name ?info xml =
+  try get_widget ~name xml
+  with Gpointer.Null ->
+    let name = match info with None -> name | Some s -> s^":"^name in
+    failwith ("Glade error: " ^ name ^ " is not accessible.")
 
 (* Signal handlers *)
 open Gobject
