@@ -75,7 +75,7 @@ install: build
 	$(MAKE) install DESTDIR=$(DESTDIR)
 
 	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
-	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/META
+	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/METAS
 
 	# This file is needed by lablgtk2-doc
 	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
