@@ -1,4 +1,4 @@
-(* $Id: gtkEdit.props,v 1.1 2003/08/15 11:08:43 garrigue Exp $ *)
+(* $Id: gtkEdit.props,v 1.5 2004/01/04 22:38:21 oandrieu Exp $ *)
 
 prefix "Gtk"
 
@@ -41,6 +41,8 @@ class Entry set wrap wrapsig : Editable {
   method append_text : "string -> unit"
   method prepend_text : "string -> unit"
   method text_length : "int"
+  method get_completion : "Gtk.entry_completion option"
+  method set_completion : "Gtk.entry_completion -> unit"
   signal activate
   signal copy_clipboard
   signal cut_clipboard
@@ -75,4 +77,33 @@ class Combo set wrap : Box {
   "enable-arrow-keys"    gboolean             : Read / Write
   "enable-arrows-always" gboolean             : Read / Write / NoSet / NoWrap
   "value-in-list"        gboolean             : Read / Write
+}
+
+class ComboBox set wrap wrapsig : Bin {
+  "active"               gint                 : Read / Write / NoSet
+  "column-span-column"   gint                 : Read / Write / NoSet / NoWrap
+  "model"                GtkTreeModel         : Read / Write / Construct Only / NoWrap
+  "row-span-column"      gint                 : Read / Write / NoSet / NoWrap
+  "wrap-width"           gint                 : Read / Write
+  signal changed
+  method get_active_iter : "Gtk.tree_iter option"
+  method set_active_iter : "Gtk.tree_iter option -> unit"
+}
+
+class ComboBoxEntry set : ComboBox {
+  "text-column"          gint                 : Read / Write / Construct Only / NoSet
+}
+
+class EntryCompletion set gobject {
+  "minimum-key-length"   gint                 : Read / Write
+  "model"                GtkTreeModel         : Read / Write
+  signal action_activated : gint
+  signal match_selected   : GtkTreeModel GtkTreeIter -> gboolean
+  method get_entry : "Gtk.entry obj option"
+  method complete
+  method insert_action_text : "int -> string -> unit"
+  method insert_action_markup : "int -> string -> unit"
+  method delete_action : "int -> unit"
+  method set_text_column : "int -> unit"
+  method set_match_func : "(string -> Gtk.tree_iter -> bool) -> unit"
 }

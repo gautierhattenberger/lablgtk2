@@ -1,4 +1,4 @@
-(* $Id: gdkPixbuf.ml,v 1.6 2003/08/06 00:12:39 oandrieu Exp $ *)
+(* $Id: gdkPixbuf.ml,v 1.7 2003/10/23 15:16:23 oandrieu Exp $ *)
 
 open Gaux
 open Gobject
@@ -34,7 +34,7 @@ external _get_pixels : pixbuf -> Obj.t * int = "ml_gdk_pixbuf_get_pixels"
 let get_pixels pixbuf =
   let obj, pos = _get_pixels pixbuf in
   let get_length (_, pixbuf) =
-    get_rowstride pixbuf * (get_height pixbuf - 1) + get_width pixbuf + pos
+    get_rowstride pixbuf * get_height pixbuf + pos
   in
   let r =
     Gpointer.unsafe_create_region ~path:[|0|] ~get_length (obj, pixbuf) in

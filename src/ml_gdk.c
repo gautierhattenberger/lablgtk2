@@ -1,4 +1,4 @@
-/* $Id: ml_gdk.c,v 1.74 2003/07/04 23:49:33 oandrieu Exp $ */
+/* $Id: ml_gdk.c,v 1.75 2004/01/08 00:54:28 oandrieu Exp $ */
 
 #include <string.h>
 #include <gdk/gdk.h>
@@ -40,6 +40,7 @@ void ml_raise_gdk (const char *errmsg)
 #include "gdk_tags.c"
 
 Make_OptFlags_val (GdkModifier_val)
+Make_Flags_val (GdkModifier_val)
 Make_Flags_val (Event_mask_val)
 
 #include <stdio.h>

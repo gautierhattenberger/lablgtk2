@@ -1,4 +1,4 @@
-(* $Id: searchpos.ml,v 1.6 2003/10/10 09:05:32 garrigue Exp $ *)
+(* $Id: searchpos.ml,v 1.8 2004/01/13 06:00:48 garrigue Exp $ *)
 
 open StdLabels
 open Parsetree
@@ -189,6 +189,8 @@ let rec search_pos_signature l ~pos ~env =
           add_found_sig (`Type, Lident "exn") ~env ~loc:pt.psig_loc
       | Psig_module (_, t) -> 
           search_pos_module t ~pos ~env
+      | Psig_recmodule decls ->
+          List.iter decls ~f:(fun (_, t) -> search_pos_module t ~pos ~env)
       | Psig_modtype (_, Pmodtype_manifest t) ->
           search_pos_module t ~pos ~env
       | Psig_modtype _ -> ()
@@ -352,7 +354,7 @@ let rec view_signature ?title ?path ?(env = !start_env) ?(detach=false) sign =
     with Not_found ->
       let tw, finish = Jg_message.formatted ~title ~maxheight:15 () in
       Gaux.may (GWindow.toplevel tw)
-        ~f:(fun w -> top_widgets := w :: !top_widgets);
+        ~f:(fun w -> top_widgets := (w :> GWindow.window) :: !top_widgets);
       tw, finish
   in
   Format.set_max_boxes 100;
@@ -643,6 +645,8 @@ let rec search_pos_structure ~pos str =
   | Tstr_exception _ -> ()
   | Tstr_exn_rebind(_, _) -> ()
   | Tstr_module (_, m) -> search_pos_module_expr m ~pos
+  | Tstr_recmodule bindings ->
+      List.iter bindings ~f:(fun (_, m) -> search_pos_module_expr m ~pos)
   | Tstr_modtype _ -> ()
   | Tstr_open _ -> ()
   | Tstr_class l ->
@@ -651,6 +655,23 @@ let rec search_pos_structure ~pos str =
   | Tstr_include (m, _) -> search_pos_module_expr m ~pos
   end
 
+and search_pos_class_structure ~pos cls =
+  List.iter cls.cl_field ~f:
+    begin function
+        Cf_inher (cl, _, _) ->
+          search_pos_class_expr cl ~pos
+      | Cf_val (_, _, exp) -> search_pos_expr exp ~pos
+      | Cf_meth (_, exp) -> search_pos_expr exp ~pos
+      | Cf_let (_, pel, iel) ->
+          List.iter pel ~f:
+            begin fun (pat, exp) ->
+              search_pos_pat pat ~pos ~env:exp.exp_env;
+              search_pos_expr exp ~pos
+            end;
+          List.iter iel ~f:(fun (_,exp) -> search_pos_expr exp ~pos)
+      | Cf_init exp -> search_pos_expr exp ~pos
+    end
+
 and search_pos_class_expr ~pos cl =
   if in_loc cl.cl_loc ~pos then begin
     begin match cl.cl_desc with
@@ -658,21 +679,7 @@ and search_pos_class_expr ~pos cl =
         add_found_str (`Class (path, cl.cl_type))
           ~env:!start_env ~loc:cl.cl_loc
     | Tclass_structure cls ->
-        List.iter cls.cl_field ~f:
-          begin function
-              Cf_inher (cl, _, _) ->
-                search_pos_class_expr cl ~pos
-            | Cf_val (_, _, exp) -> search_pos_expr exp ~pos
-            | Cf_meth (_, exp) -> search_pos_expr exp ~pos
-            | Cf_let (_, pel, iel) ->
-                List.iter pel ~f:
-                  begin fun (pat, exp) ->
-                    search_pos_pat pat ~pos ~env:exp.exp_env;
-                    search_pos_expr exp ~pos
-                  end;
-                List.iter iel ~f:(fun (_,exp) -> search_pos_expr exp ~pos)
-            | Cf_init exp -> search_pos_expr exp ~pos
-          end
+        search_pos_class_structure ~pos cls
     | Tclass_fun (pat, iel, cl, _) ->
         search_pos_pat pat ~pos ~env:pat.pat_env;
         List.iter iel ~f:(fun (_,exp) -> search_pos_expr exp ~pos);
@@ -779,6 +786,8 @@ and search_pos_expr ~pos exp =
       search_pos_expr exp ~pos
   | Texp_lazy exp ->
       search_pos_expr exp ~pos
+  | Texp_object (cls, _, _) ->
+      search_pos_class_structure ~pos cls
   end;
   add_found_str (`Exp(`Expr, exp.exp_type)) ~env:exp.exp_env ~loc:exp.exp_loc
   end

@@ -1,4 +1,4 @@
-/* $Id: ml_gtkbin.c,v 1.9 2003/07/17 09:38:43 monate Exp $ */
+/* $Id: ml_gtkbin.c,v 1.10 2003/12/10 10:49:57 oandrieu Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -30,6 +30,9 @@ CAMLprim value ml_gtkbin_init(value unit)
         gtk_scrolled_window_get_type() 
 #ifndef _WIN32
         + gtk_socket_get_type()
+#endif
+#ifdef HASGTK24
+        + gtk_expander_get_type()
 #endif
 ;
     return Val_GType(t);

@@ -1,4 +1,4 @@
-(* $Id: gobject.ml,v 1.23 2003/06/24 09:20:03 garrigue Exp $ *)
+(* $Id: gobject.ml,v 1.24 2003/12/10 10:49:56 oandrieu Exp $ *)
 
 open StdLabels
 open Gaux
@@ -65,7 +65,7 @@ module Type = struct
   external of_fundamental : fundamental_type -> g_type
       = "ml_Fundamental_type_val"
   external interface_prerequisites : g_type -> g_type list
-      = "ml_g_type_interface_prerequisites"
+      = "ml_g_type_interface_prerequisites" (** @since GTK 2.2 *)
   external register_static : g_type -> string -> g_type
       = "ml_g_type_register_static"
   let register_static ~parent ~name =

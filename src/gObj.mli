@@ -1,4 +1,4 @@
-(* $Id: gObj.mli,v 1.52 2003/09/27 13:42:19 oandrieu Exp $ *)
+(* $Id: gObj.mli,v 1.53 2003/12/22 01:42:24 oandrieu Exp $ *)
 
 open Gtk
 
@@ -61,6 +61,8 @@ class event_signals : ?after:bool -> [> widget] obj ->
     method after : 'a
     method any :
 	callback:(Gdk.Tags.event_type Gdk.event -> bool) -> GtkSignal.id
+    method after_any :
+	callback:(Gdk.Tags.event_type Gdk.event -> unit) -> GtkSignal.id
     method button_press : callback:(GdkEvent.Button.t -> bool) -> GtkSignal.id
     method button_release :
 	callback:(GdkEvent.Button.t -> bool) -> GtkSignal.id

@@ -1,4 +1,4 @@
-(* $Id: gButton.ml,v 1.26 2003/09/21 10:02:17 oandrieu Exp $ *)
+(* $Id: gButton.ml,v 1.30 2003/12/01 08:48:55 oandrieu Exp $ *)
 
 open Gaux
 open Gobject
@@ -10,10 +10,12 @@ open GObj
 open GContainer
 
 class button_skel obj = object (self)
-  inherit container obj
+  inherit bin obj
   method clicked () = Button.clicked obj
   method set_relief = set Button.P.relief obj
   method relief = get Button.P.relief obj
+  method set_label = set Button.P.label obj
+  method label = get Button.P.label obj
   method grab_default () =
     set Widget.P.can_default obj true;
     set Widget.P.has_default obj true
@@ -21,7 +23,7 @@ class button_skel obj = object (self)
 end
 
 class button_signals obj = object
-  inherit container_signals_impl obj
+  inherit container_signals_impl (obj : [> button] obj)
   inherit button_sigs
 end
 

@@ -1,4 +1,4 @@
-(* $Id: gBin.mli,v 1.13 2003/09/27 13:42:19 oandrieu Exp $ *)
+(* $Id: gBin.mli,v 1.16 2003/12/10 10:49:56 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -12,8 +12,9 @@ open GContainer
    @gtkdoc gtk GtkScrolledWindow  *)
 class scrolled_window : Gtk.scrolled_window obj ->
   object
-    inherit GContainer.container_full
+    inherit GContainer.bin
     val obj : Gtk.scrolled_window obj
+    method connect : container_signals
     method add_with_viewport : widget -> unit
     method set_hadjustment : GData.adjustment -> unit
     method set_hpolicy : Tags.policy_type -> unit
@@ -48,8 +49,9 @@ val scrolled_window :
    @gtkdoc gtk GtkEventBox *)
 class event_box : ([> Gtk.event_box] as 'a) obj ->
   object
-    inherit GContainer.container_full
+    inherit GContainer.bin
     val obj : 'a obj
+    method connect : container_signals
     method event : event_ops
   end
 
@@ -76,7 +78,7 @@ class handle_box_signals : 'a obj ->
    @gtkdoc gtk GtkHandleBox *)
 class handle_box : Gtk.handle_box obj ->
   object
-    inherit GContainer.container
+    inherit GContainer.bin
     val obj : Gtk.handle_box obj
     method event : event_ops
     method connect : handle_box_signals
@@ -102,7 +104,7 @@ val handle_box :
 
 class frame_skel : 'a obj ->
   object
-    inherit GContainer.container
+    inherit GContainer.bin
     constraint 'a = [> frame]
     val obj : 'a obj
     method set_label : string option -> unit
@@ -173,8 +175,9 @@ val aspect_frame :
 (** @gtkdoc gtk GtkViewport *)
 class viewport : Gtk.viewport obj ->
   object
-    inherit GContainer.container_full
+    inherit GContainer.bin
     val obj : Gtk.viewport obj
+    method connect : container_signals
     method event : event_ops
     method set_hadjustment : GData.adjustment -> unit
     method set_shadow_type : Tags.shadow_type -> unit
@@ -194,13 +197,15 @@ val viewport :
   ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> viewport
 
-(** {3 GtkAlignment}
-   A widget which controls the alignment and size of its child
-   @gtkdoc gtk GtkAlignment *)
+(** {3 GtkAlignment} 
+   A widget which controls the alignment and size of its child *)
+
+(** @gtkdoc gtk GtkAlignment *)
 class alignment : Gtk.alignment obj ->
   object
-    inherit GContainer.container_full
+    inherit GContainer.bin
     val obj : Gtk.alignment obj
+    method connect : container_signals
     method set_xalign : Gtk.clampf -> unit
     method set_yalign : Gtk.clampf -> unit
     method set_xscale : Gtk.clampf -> unit
@@ -223,29 +228,48 @@ val alignment :
   ?packing:(widget -> unit) -> ?show:bool -> unit -> alignment
 val alignment_cast : #widget -> alignment
 
-(** {3 GtkSocket} *)
+(** {3 GtkExpander}
+   A container which can hide its child *)
 
-(** @gtkdoc gtk GtkSocket *)
-class socket_signals : ([>Gtk.socket] as 'a) obj ->
+(** @since GTK 2.4
+    @gtkdoc gtk GtkExpander *)
+class expander_signals : ([> Gtk.expander] as 'a) Gtk.obj ->
   object
     inherit GContainer.container_signals
     val obj : 'a obj
-    method plug_added : callback:(unit -> unit) -> GtkSignal.id
-    method plug_removed : callback:(unit -> unit) -> GtkSignal.id
+    method activate : callback:(unit -> unit) -> GtkSignal.id
   end
 
-(** Container for widgets from other processes
-   @gtkdoc gtk GtkSocket *)
-class socket : Gtk.socket obj ->
+(** @since GTK 2.4
+    @gtkdoc gtk GtkExpander *)
+class expander :
+  ([> Gtk.expander ] as 'a) Gtk.obj ->
   object
-    inherit GContainer.container
-    val obj : Gtk.socket obj
-    method connect : socket_signals
-    method steal : Gdk.xid -> unit
-    method xwindow : Gdk.xid
+    inherit GContainer.bin
+    val obj : 'a Gtk.obj
+    method connect : expander_signals
+    method expanded : bool
+    method label : string
+    method label_widget : GObj.widget
+    method set_expanded : bool -> unit
+    method set_label : string -> unit
+    method set_label_widget : GObj.widget -> unit
+    method set_spacing : int -> unit
+    method set_use_underline : bool -> unit
+    method spacing : int
+    method use_underline : bool
   end
 
-(** @gtkdoc gtk GtkSocket *)
-val socket :
-  ?border_width:int -> ?width:int -> ?height:int ->
-  ?packing:(widget -> unit) -> ?show:bool -> unit -> socket
+(** @since GTK 2.4
+    @gtkdoc gtk GtkExpander *)
+val expander :
+  ?expanded:bool ->
+  ?label:string ->
+  ?spacing:int ->
+  ?use_underline:bool ->
+  ?border_width:int ->
+  ?width:int ->
+  ?height:int ->
+  ?packing:(GObj.widget -> unit) ->
+  ?show:bool ->
+  unit -> expander

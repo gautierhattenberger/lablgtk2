@@ -1,4 +1,4 @@
-(* $Id: glade.mli,v 1.9 2003/07/09 09:59:17 furuse Exp $ *)
+(* $Id: glade.mli,v 1.10 2003/12/17 04:17:19 garrigue Exp $ *)
 
 (* This module provides some low-level interfacing with libglade *)
 
@@ -30,6 +30,10 @@ external get_widget_name : [> `widget] Gtk.obj -> string
 external get_widget_tree : [> `widget] Gtk.obj -> glade_xml Gtk.obj
   = "ml_glade_get_widget_tree"
 
+val get_widget_msg :
+    name:string -> ?info:string -> [> `glade_xml] Gtk.obj -> Gtk.widget Gtk.obj
+      (* Same as get_widget, but fails with a useful message including info,
+         rather than just raising Gpointer.Null *)
 
 (* Handler bindings *)
 type handler =

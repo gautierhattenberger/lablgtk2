@@ -1,4 +1,4 @@
-/* $Id: ml_gtk.c,v 1.127 2003/07/18 08:27:22 monate Exp $ */
+/* $Id: ml_gtk.c,v 1.131 2004/01/08 00:54:28 oandrieu Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -33,7 +33,6 @@ void ml_raise_gtk (const char *errmsg)
 
 static Make_Flags_val (Dest_defaults_val)
 static Make_Flags_val (Target_flags_val)
-static Make_Flags_val (GdkModifier_val)
 
 value Val_GtkWidget_func(gpointer w)
 {
@@ -68,7 +67,7 @@ ML_1 (gtk_object_ref_and_sink, GtkObject_val, Unit)
 
 /* gtkaccelgroup.h */
 
-Make_OptFlags_val (Accel_flag_val)
+static Make_OptFlags_val (Accel_flag_val)
 
 #define Signal_name_val(val) String_val(Field(val,0))
 
@@ -85,6 +84,20 @@ ML_3 (gtk_accel_groups_activate, GObject_val, Int_val,
       OptFlags_GdkModifier_val, Val_bool)
 ML_2 (gtk_accelerator_valid, Int_val, OptFlags_GdkModifier_val, Val_bool)
 ML_1 (gtk_accelerator_set_default_mod_mask, OptFlags_GdkModifier_val, Unit)
+#define Val_GdkModifier_flags(v) ml_lookup_flags_getter(ml_table_gdkModifier,v)
+CAMLprim value ml_gtk_accelerator_parse(value acc)
+{
+  CAMLparam0();
+  CAMLlocal2(vmods, tup);
+  guint key;
+  GdkModifierType mods;
+  gtk_accelerator_parse(String_val(acc), &key, &mods);
+  vmods = mods ? Val_GdkModifier_flags(mods) : Val_emptylist;
+  tup = alloc_small(2, 0);
+  Field(tup, 0) = Val_int(key);
+  Field(tup, 1) = vmods;
+  CAMLreturn(tup);
+}
 
 ML_1(gtk_accel_map_load,String_val,Unit)
 ML_1(gtk_accel_map_save,String_val,Unit)
@@ -517,6 +530,11 @@ ML_2 (gtk_container_set_focus_vadjustment, GtkContainer_val,
 ML_2 (gtk_container_set_focus_hadjustment, GtkContainer_val,
       GtkAdjustment_val, Unit)
 
+/* gtkbin.h */
+
+#define GtkBin_val(val) check_cast(GTK_BIN,val)
+ML_1 (gtk_bin_get_child, GtkBin_val, Val_GtkWidget)
+
 /* gtkitem.h */
 
 ML_1 (gtk_item_select, GtkItem_val, Unit)
@@ -594,6 +612,9 @@ Make_Extractor (gtk_file_selection_get, GtkFileSelection_val, help_button,
 		Val_GtkWidget)
 Make_Extractor (gtk_file_selection_get, GtkFileSelection_val, file_list,
 		Val_GtkWidget)
+Make_Extractor (gtk_file_selection_get, GtkFileSelection_val, dir_list,
+		Val_GtkWidget)
+
 
 /* gtkwindow.h */
 

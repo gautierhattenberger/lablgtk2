@@ -1,4 +1,4 @@
-(* $Id: gContainer.mli,v 1.19 2003/09/27 13:42:19 oandrieu Exp $ *)
+(* $Id: gContainer.mli,v 1.21 2003/10/23 15:15:22 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -74,6 +74,24 @@ val pack_container :
   ?border_width:int ->
   ?width:int ->
   ?height:int -> ?packing:(GObj.widget -> unit) -> ?show:bool -> unit -> 'a
+
+(** {3 GtkBin} *)
+
+(** @gtkdoc gtk GtkBin *)
+class bin : ([> Gtk.bin] as 'a) obj ->
+  object
+    inherit container
+    val obj : 'a obj
+    method child : widget
+    (** @raise Gpointer.Null if the widget has no child. *)
+  end
+
+(** @gtkdoc gtk GtkBin *)
+class ['a] bin_impl :([> Gtk.bin] as 'a) obj ->
+  object
+    inherit bin
+    inherit ['a] GObj.objvar
+  end
 
 (** {3 GtkItem} *)
 

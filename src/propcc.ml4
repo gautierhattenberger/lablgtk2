@@ -1,4 +1,5 @@
-(* $Id: propcc.ml4,v 1.18 2003/08/15 11:08:43 garrigue Exp $ *)
+(* -*- caml -*- *)
+(* $Id: propcc.ml4,v 1.20 2003/12/13 16:35:55 oandrieu Exp $ *)
 
 open StdLabels
 open MoreLabels
@@ -6,15 +7,23 @@ open MoreLabels
 let caml_keywords = ["type","kind"; "class","classe"; "list", "liste"]
 let caml_modules = ["List", "Liste"]
 
+let is_not_uppercase = function
+  | 'A' .. 'Z' -> false
+  | _ -> true
 let camlize id =
   let b = Buffer.create (String.length id + 4) in
   for i = 0 to String.length id - 1 do
-    if id.[i] >= 'A' && id.[i] <= 'Z' then begin
-      if i > 0 then Buffer.add_char b '_';
-      Buffer.add_char b (Char.lowercase id.[i])
-    end
-    else if id.[i] = '-' then Buffer.add_char b '_'
-    else Buffer.add_char b id.[i]
+    match id.[i] with
+    | 'A' .. 'Z' as c ->
+	if i > 0 && 
+	  (is_not_uppercase id.[i-1] || 
+	  (i < String.length id - 1 && is_not_uppercase id.[i+1]))
+	then Buffer.add_char b '_' ;
+	Buffer.add_char b (Char.lowercase c)
+    | '-' ->
+	Buffer.add_char b '_'
+    | c ->
+	Buffer.add_char b c
   done;
   let s = Buffer.contents b in
   try List.assoc s caml_keywords with Not_found -> s
@@ -80,7 +89,7 @@ let boxeds = [
 
 let classes = [
   "Gdk", [ "Image"; "Pixmap"; "Bitmap"; "Screen"; "DragContext";];
-  "Gtk", [ "Style"; "TreeStore"; ]
+  "Gtk", [ "Style"; "TreeStore"; "TreeModel" ]
 ]
 
 let specials = [
@@ -299,6 +308,8 @@ let process_file f =
   let type_name name ~attrs =
     try List.assoc "type" attrs with Not_found ->
       if List.mem_assoc "gobject" attrs then camlize name
+      else if !prefix <> ""
+      then !prefix ^ "." ^ camlize name ^ " obj"
       else camlize name ^ " obj"
   in
   let decls = List.rev !decls in

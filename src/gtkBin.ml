@@ -1,4 +1,4 @@
-(* $Id: gtkBin.ml,v 1.18 2003/08/15 11:08:42 garrigue Exp $ *)
+(* $Id: gtkBin.ml,v 1.20 2003/12/10 10:49:57 oandrieu Exp $ *)
 
 open Gaux
 open Gtk
@@ -23,6 +23,6 @@ module Viewport = Viewport
 
 module ScrolledWindow = ScrolledWindow
 
-module Socket = Socket
-
 (* module Invisible = Invisible *)
+
+module Expander = Expander

@@ -1,4 +1,4 @@
-(* $Id: gtkData.ml,v 1.20 2003/08/15 11:08:43 garrigue Exp $ *)
+(* $Id: gtkData.ml,v 1.21 2003/12/13 16:34:03 oandrieu Exp $ *)
 
 open Gaux
 open Gobject
@@ -29,6 +29,8 @@ module AccelGroup = struct
       = "ml_gtk_accelerator_valid"
   external set_default_mod_mask : Gdk.Tags.modifier list option -> unit
       = "ml_gtk_accelerator_set_default_mod_mask"
+  external parse : string -> Gdk.keysym * Gdk.Tags.modifier list
+      = "ml_gtk_accelerator_parse"
 end
 
 module AccelMap = struct

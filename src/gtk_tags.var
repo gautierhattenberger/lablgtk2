@@ -1,4 +1,4 @@
-(* $Id: gtk_tags.var,v 1.34 2003/06/24 09:20:04 garrigue Exp $ *)
+(* $Id: gtk_tags.var,v 1.37 2004/01/08 00:54:28 oandrieu Exp $ *)
 
 package "gtk"
 
@@ -209,3 +209,9 @@ type image_type = "GTK_IMAGE_"
 
 type size_group_mode = "GTK_SIZE_GROUP_"
   [ `NONE | `HORIZONTAL | `VERTICAL | `BOTH ]
+
+type protect HASGTK24 file_chooser_action = "GTK_FILE_CHOOSER_ACTION_"
+  [ `OPEN | `SAVE ]
+
+type tree_model_flags = "GTK_TREE_MODEL_"
+  [ `ITERS_PERSIST | `LIST_ONLY ]

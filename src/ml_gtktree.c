@@ -1,4 +1,4 @@
-/* $Id: ml_gtktree.c,v 1.19 2003/06/19 16:07:48 garrigue Exp $ */
+/* $Id: ml_gtktree.c,v 1.23 2004/01/08 00:54:29 oandrieu Exp $ */
 
 /* GtkTree is obsolete, but we keep it for a while */
 
@@ -33,7 +33,12 @@ CAMLprim value ml_gtktree_init(value unit)
         gtk_cell_renderer_pixbuf_get_type() +
         gtk_cell_renderer_text_get_type() +
         gtk_cell_renderer_toggle_get_type () +
-        gtk_list_store_get_type();
+        gtk_list_store_get_type() +
+        gtk_tree_model_sort_get_type()
+#ifdef HASGTK24
+        + gtk_tree_model_filter_get_type()
+#endif
+        ;
     return Val_GType(t);
 }
 
@@ -93,7 +98,7 @@ CAMLprim value ml_alloc_GtkTreeIter(value v) {
 
 #define GtkTreeModel_val(val) check_cast(GTK_TREE_MODEL,val)
 
-Make_Val_final_pointer (GtkTreePath, Ignore, gtk_tree_path_free, 1)
+Make_Val_final_pointer_compare (GtkTreePath, Ignore, gtk_tree_path_compare, gtk_tree_path_free, 1)
 #define Val_GtkTreePath_copy(p) (Val_GtkTreePath(gtk_tree_path_copy(p)))
 #define GtkTreePath_val(val) ((GtkTreePath*)Pointer_val(val))
 
@@ -131,6 +136,8 @@ ML_1 (gtk_tree_row_reference_get_path, GtkTreeRowReference_val,
       Val_GtkTreePath) /* already copied! */
 
 /* TreeModel */
+#define Val_TreeModel_flags(f) ml_lookup_flags_getter(ml_table_tree_model_flags,f)
+ML_1 (gtk_tree_model_get_flags, GtkTreeModel_val, Val_TreeModel_flags)
 ML_1 (gtk_tree_model_get_n_columns, GtkTreeModel_val, Val_int)
 ML_2 (gtk_tree_model_get_column_type, GtkTreeModel_val, Int_val, Val_GType)
 ML_3 (gtk_tree_model_get_iter, GtkTreeModel_val, GtkTreeIter_val,
@@ -139,14 +146,38 @@ ML_2 (gtk_tree_model_get_path, GtkTreeModel_val, GtkTreeIter_val,
       Val_GtkTreePath)
 ML_4 (gtk_tree_model_get_value, GtkTreeModel_val, GtkTreeIter_val, Int_val,
       GValue_val, Unit)
+ML_2 (gtk_tree_model_get_iter_first, GtkTreeModel_val, GtkTreeIter_val, Val_bool)
 ML_2 (gtk_tree_model_iter_next, GtkTreeModel_val, GtkTreeIter_val,
       Val_bool)
-ML_3 (gtk_tree_model_iter_children, GtkTreeModel_val, GtkTreeIter_val,
-      GtkTreeIter_val, Val_bool)
+ML_2 (gtk_tree_model_iter_has_child, GtkTreeModel_val, GtkTreeIter_val, Val_bool)
 ML_2 (gtk_tree_model_iter_n_children, GtkTreeModel_val, GtkTreeIter_val,
       Val_int)
+ML_4 (gtk_tree_model_iter_nth_child, GtkTreeModel_val, GtkTreeIter_val, 
+      GtkTreeIter_val, Int_val, Val_bool)
 ML_3 (gtk_tree_model_iter_parent, GtkTreeModel_val, GtkTreeIter_val,
       GtkTreeIter_val, Val_bool)
+static gboolean model_foreach_func(GtkTreeModel *model, 
+				   GtkTreePath *path, GtkTreeIter *iter, 
+				   gpointer data)
+{
+  value *closure = data;
+  CAMLparam0();
+  CAMLlocal3(vpath, viter, vret);
+  vpath = Val_GtkTreePath_copy(path);
+  viter = Val_GtkTreeIter(iter);
+  vret = callback2_exn(*closure, vpath, viter);
+  if (Is_exception_result(vret))
+    CAMLreturn(FALSE);
+  CAMLreturn(Bool_val(vret));
+}
+CAMLprim value ml_gtk_tree_model_foreach(value m, value cb)
+{
+  CAMLparam1(cb);
+  gtk_tree_model_foreach(GtkTreeModel_val(m),
+			 model_foreach_func,
+			 &cb);
+  CAMLreturn(Val_unit);
+}
 
 /* gtktreestore.h */
 
@@ -332,14 +363,18 @@ ML_0 (gtk_cell_renderer_toggle_new, Val_GtkAny_sink)
 
 #define GtkTreeViewColumn_val(val) check_cast(GTK_TREE_VIEW_COLUMN,val)
 ML_0 (gtk_tree_view_column_new, Val_GtkWidget_sink)
+ML_1 (gtk_tree_view_column_clear, GtkTreeViewColumn_val, Unit)
 ML_3 (gtk_tree_view_column_pack_start, GtkTreeViewColumn_val,
       GtkCellRenderer_val, Int_val, Unit)
 ML_3 (gtk_tree_view_column_pack_end, GtkTreeViewColumn_val,
       GtkCellRenderer_val, Int_val, Unit)
+ML_2 (gtk_tree_view_column_clear_attributes, GtkTreeViewColumn_val, 
+      GtkCellRenderer_val, Unit)
 ML_4 (gtk_tree_view_column_add_attribute, GtkTreeViewColumn_val,
       GtkCellRenderer_val, String_val, Int_val, Unit)
 ML_2 (gtk_tree_view_column_set_sort_column_id, GtkTreeViewColumn_val,
       Int_val, Unit)
+ML_1 (gtk_tree_view_column_get_sort_column_id, GtkTreeViewColumn_val, Val_int)
 
 /* GtkTreeView */
 
@@ -421,3 +456,158 @@ CAMLprim value ml_gtk_tree_view_get_path_at_pos(value treeview,
   }
   return Val_unit;
 }
+
+/* GtkCellLayout */
+#ifdef HASGTK24
+#define GtkCellLayout_val(val) check_cast(GTK_CELL_LAYOUT,val)
+ML_3 (gtk_cell_layout_pack_start, GtkCellLayout_val, GtkCellRenderer_val, Bool_val, Unit)
+ML_3 (gtk_cell_layout_pack_end,   GtkCellLayout_val, GtkCellRenderer_val, Bool_val, Unit)
+ML_1 (gtk_cell_layout_clear, GtkCellLayout_val, Unit)
+ML_4 (gtk_cell_layout_add_attribute, GtkCellLayout_val, GtkCellRenderer_val, String_val, Int_val, Unit)
+ML_2 (gtk_cell_layout_clear_attributes, GtkCellLayout_val, GtkCellRenderer_val, Unit)
+#else
+Unsupported_24(gtk_cell_layout_pack_start)
+Unsupported_24(gtk_cell_layout_pack_end)
+Unsupported_24(gtk_cell_layout_clear)
+Unsupported_24(gtk_cell_layout_add_attribute)
+Unsupported_24(gtk_cell_layout_clear_attributes)
+#endif
+
+/* TreeModelSort */
+#define GtkTreeModelSort_val(val) check_cast(GTK_TREE_MODEL_SORT,val)
+ML_2 (gtk_tree_model_sort_convert_child_path_to_path, GtkTreeModelSort_val, GtkTreePath_val, Val_GtkTreePath)
+CAMLprim value ml_gtk_tree_model_sort_convert_child_iter_to_iter(value m, value it)
+{
+  GtkTreeIter dst_it;
+  gtk_tree_model_sort_convert_child_iter_to_iter(GtkTreeModelSort_val(m), &dst_it, GtkTreeIter_val(it));
+  return Val_GtkTreeIter(&dst_it);
+}
+ML_2 (gtk_tree_model_sort_convert_path_to_child_path, GtkTreeModelSort_val, GtkTreePath_val, Val_GtkTreePath)
+CAMLprim value ml_gtk_tree_model_sort_convert_iter_to_child_iter(value m, value it)
+{
+  GtkTreeIter dst_it;
+  gtk_tree_model_sort_convert_iter_to_child_iter(GtkTreeModelSort_val(m), &dst_it, GtkTreeIter_val(it));
+  return Val_GtkTreeIter(&dst_it);
+}
+ML_1 (gtk_tree_model_sort_reset_default_sort_func, GtkTreeModelSort_val, Unit)
+ML_2 (gtk_tree_model_sort_iter_is_valid, GtkTreeModelSort_val, GtkTreeIter_val, Val_bool)
+
+/* TreeSortable */
+#define GtkTreeSortable_val(val) check_cast(GTK_TREE_SORTABLE,val)
+ML_1 (gtk_tree_sortable_sort_column_changed, GtkTreeSortable_val, Unit)
+CAMLprim value ml_gtk_tree_sortable_get_sort_column_id(value m)
+{
+  gint sort_column_id;
+  GtkSortType order;
+  if (! gtk_tree_sortable_get_sort_column_id(GtkTreeSortable_val(m), 
+					     &sort_column_id, &order))
+    return Val_unit;
+  {
+    value vo, ret;
+    vo = Val_sort_type(order);
+    ret = alloc_small(2, 0);
+    Field(ret, 0) = Val_int(sort_column_id);
+    Field(ret, 1) = vo;
+    return ml_some(ret);
+  }
+}
+ML_3 (gtk_tree_sortable_set_sort_column_id, GtkTreeSortable_val, Int_val, Sort_type_val, Unit)
+
+static gint ml_gtk_tree_iter_compare_func(GtkTreeModel *model,
+					  GtkTreeIter  *a,
+					  GtkTreeIter  *b,
+					  gpointer      user_data)
+{
+  value *clos = user_data;
+  CAMLparam0();
+  CAMLlocal4(ret, obj, iter_a, iter_b);
+  iter_a = Val_pointer(a);
+  iter_b = Val_pointer(b);
+  obj = Val_GAnyObject(model);
+  ret = callback3_exn(*clos, obj, iter_a, iter_b);
+  if (Is_exception_result(ret))
+    CAMLreturn(0);
+  CAMLreturn(Int_val(ret));
+}
+
+CAMLprim value ml_gtk_tree_sortable_set_sort_func(value m, value id, value sort_fun)
+{
+  value *clos = ml_global_root_new(sort_fun);
+  gtk_tree_sortable_set_sort_func(GtkTreeSortable_val(m), Int_val(id), 
+				  ml_gtk_tree_iter_compare_func,
+				  clos, ml_global_root_destroy);
+  return Val_unit;
+}
+
+CAMLprim value ml_gtk_tree_sortable_set_default_sort_func(value m, value sort_fun)
+{
+  value *clos = ml_global_root_new(sort_fun);
+  gtk_tree_sortable_set_default_sort_func(GtkTreeSortable_val(m),
+					  ml_gtk_tree_iter_compare_func,
+					  clos, ml_global_root_destroy);
+  return Val_unit;
+}
+
+ML_1 (gtk_tree_sortable_has_default_sort_func, GtkTreeSortable_val, Val_bool)
+
+/* TreeModelFilter */
+#ifdef HASGTK24
+#define GtkTreeModelFilter_val(val) check_cast(GTK_TREE_MODEL_FILTER,val)
+
+static gboolean ml_gtk_tree_model_filter_visible_func(GtkTreeModel *model,
+						      GtkTreeIter  *iter,
+						      gpointer      data)
+{
+  value *clos = data;
+  CAMLparam0();
+  CAMLlocal3(ret, obj, it);
+  it  = Val_pointer(iter);
+  obj = Val_GAnyObject(model);
+  ret = callback2_exn(*clos, obj, it);
+  if (Is_exception_result(ret))
+    CAMLreturn(FALSE);
+  CAMLreturn(Bool_val(ret));
+}
+
+CAMLprim value ml_gtk_tree_model_filter_set_visible_func(value m, value f)
+{
+  gtk_tree_model_filter_set_visible_func(GtkTreeModelFilter_val(m), 
+					 ml_gtk_tree_model_filter_visible_func,
+					 ml_global_root_new(f),
+					 ml_global_root_destroy);
+  return Val_unit;
+}
+
+ML_2 (gtk_tree_model_filter_set_visible_column, GtkTreeModelFilter_val, Int_val, Unit)
+ML_1 (gtk_tree_model_filter_refilter, GtkTreeModelFilter_val, Unit)
+
+ML_2 (gtk_tree_model_filter_convert_child_path_to_path, GtkTreeModelFilter_val, 
+      GtkTreePath_val, Val_GtkTreePath)
+CAMLprim value ml_gtk_tree_model_filter_convert_child_iter_to_iter(value m, value it)
+{
+  GtkTreeIter dst_it;
+  gtk_tree_model_filter_convert_child_iter_to_iter(GtkTreeModelFilter_val(m), 
+						   &dst_it, GtkTreeIter_val(it));
+  return Val_GtkTreeIter(&dst_it);
+}
+ML_2 (gtk_tree_model_filter_convert_path_to_child_path, GtkTreeModelFilter_val, 
+      GtkTreePath_val, Val_GtkTreePath)
+CAMLprim value ml_gtk_tree_model_filter_convert_iter_to_child_iter(value m, value it)
+{
+  GtkTreeIter dst_it;
+  gtk_tree_model_filter_convert_iter_to_child_iter(GtkTreeModelFilter_val(m),
+						   &dst_it, GtkTreeIter_val(it));
+  return Val_GtkTreeIter(&dst_it);
+}
+
+#else
+
+Unsupported_24 (gtk_tree_model_filter_set_visible_func)
+Unsupported_24 (gtk_tree_model_filter_set_visible_column)
+Unsupported_24 (gtk_tree_model_filter_refilter)
+Unsupported_24 (gtk_tree_model_filter_convert_child_path_to_path)
+Unsupported_24 (gtk_tree_model_filter_convert_child_iter_to_iter)
+Unsupported_24 (gtk_tree_model_filter_convert_path_to_child_path)
+Unsupported_24 (gtk_tree_model_filter_convert_iter_to_child_iter)
+
+#endif /* HASGTK24 */
