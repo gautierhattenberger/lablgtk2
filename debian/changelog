@@ -1,3 +1,11 @@
+lablgtk (2.4.0-1) unstable; urgency=low
+
+  * New upstream release.
+  * Now lablgtk2 has been renamed to lablgtk.
+  * Build for ocaml 3.08.
+
+ -- Sven Luther <luther@debian.org>  Thu, 15 Jul 2004 15:39:06 +0200
+
 lablgtk2 (2.2.0+20040113-2) unstable; urgency=low
 
   * Forgot the findlib < 1.02 Conflict for updated META files.

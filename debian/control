@@ -1,24 +1,24 @@
-Source: lablgtk2
+Source: lablgtk
 Section: libdevel
 Priority: optional
 Maintainer: Sven Luther <luther@debian.org>
-Build-Depends: debhelper (>> 3.0.0), ocaml-3.07, libncurses5-dev, xlibs|xlib6g, debhelper, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.00-1), librsvg2-dev, libgnomecanvas2-dev, dpatch
+Build-Depends: debhelper (>> 3.0.0), ocaml-3.08, libncurses5-dev, xlibs|xlib6g, debhelper, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.00-1), librsvg2-dev, libgnomecanvas2-dev, dpatch
 Standards-Version: 3.5.8
 
-Package: liblablgtk2-ocaml
+Package: liblablgtk-ocaml
 Section: libs
 Architecture: any
-Depends: ocaml-base-3.07,  ${shlibs:Depends}
+Depends: ocaml-base-3.08,  ${shlibs:Depends}
 Description: Runtime libraries for ocaml bindings for Gtk+ version 2
  lablgtk2 contains bindings for gtk+ 2.x and ocaml.
  .
  This package include only the dynamic libraries needed for running dynamic
  bytecode executables.
 
-Package: liblablgtk2-ocaml-dev
+Package: liblablgtk-ocaml-dev
 Section: libdevel
 Architecture: any
-Depends: liblablgtk2-ocaml (= ${Source-Version}), ocaml-3.07, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.00-1)
+Depends: liblablgtk-ocaml (= ${Source-Version}), ocaml-3.08, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.00-1)
 Conflicts: findlib (<< 1.0.2)
 Description: Ocaml bindings to Gtk+ version 2
  lablgtk2 contains bindings for gtk+ 2.x and ocaml.
