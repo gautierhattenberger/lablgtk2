@@ -1,4 +1,4 @@
-(* $Id: gMisc.ml,v 1.39 2004/09/21 11:29:37 oandrieu Exp $ *)
+(* $Id: gMisc.ml,v 1.40 2004/11/24 23:30:51 oandrieu Exp $ *)
 
 open Gaux
 open Gobject
@@ -26,14 +26,17 @@ class statusbar_context obj ctx = object (self)
 end
 
 class statusbar obj = object
-  inherit GContainer.container_full (obj : Gtk.statusbar obj)
+  inherit GPack.box (obj : Gtk.statusbar obj)
+  method has_resize_grip = Statusbar.get_has_resize_grip obj
+  method set_has_resize_grip v = Statusbar.set_has_resize_grip obj v
   method new_context ~name =
     new statusbar_context obj (Statusbar.get_context_id obj name)
 end
 
 let statusbar =
-  GContainer.pack_container [] ~create:
-    (fun p -> new statusbar (Statusbar.create p))
+  Statusbar.make_params [] ~cont:
+    (GContainer.pack_container ~create:
+       (fun p -> new statusbar (Statusbar.create p)))
 
 class calendar_signals obj = object
   inherit widget_signals_impl obj

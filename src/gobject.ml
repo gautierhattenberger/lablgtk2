@@ -1,4 +1,4 @@
-(* $Id: gobject.ml,v 1.29 2004/09/18 05:27:54 garrigue Exp $ *)
+(* $Id: gobject.ml,v 1.31 2004/12/10 02:06:03 garrigue Exp $ *)
 
 open StdLabels
 open Gaux
@@ -265,6 +265,8 @@ module Data = struct
              | `OBJECT None -> raise Gpointer.Null
              | _ -> failwith "Gobject.get_object");
       inj = (fun c -> `OBJECT (Some (unsafe_cast c))) }
+  let gobject_by_name name =
+    { gobject with kind = `OTHER (Type.from_name name) }
   let caml =
     { kind = `OTHER Type.caml;
       proj = (function `CAML v -> Obj.obj v
@@ -340,7 +342,7 @@ module Property = struct
 
   let check obj prop =
     let tp obj = Type.name (get_object_type obj) in
-    let data =
+    let _data =
       try get_dyn obj prop.name
       with
         Not_found -> failwith (tp obj ^ " has no property " ^ prop.name)

@@ -1,4 +1,4 @@
-/* $Id: ml_gtkfile.c,v 1.6 2004/06/07 08:45:00 oandrieu Exp $ */
+/* $Id: ml_gtkfile.c,v 1.7 2004/12/05 13:18:34 oandrieu Exp $ */
 
 #include <gtk/gtk.h>
 #include <caml/mlvalues.h>
@@ -18,8 +18,12 @@ CAMLprim value ml_gtkfile_init(value unit)
 {
 #ifdef HASGTK24
   GType t =
+#ifdef HASGTK26
+    gtk_file_chooser_button_get_type () +
+#endif
     gtk_file_chooser_dialog_get_type () +
     gtk_file_chooser_widget_get_type ();
+
   ml_register_exn_map (GTK_FILE_CHOOSER_ERROR, 
 		       "gtk_file_chooser_error");
   return Val_GType(t);

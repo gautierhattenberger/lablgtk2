@@ -1,4 +1,4 @@
-(* $Id: gTree.mli,v 1.52 2004/11/10 19:54:03 oandrieu Exp $ *)
+(* $Id: gTree.mli,v 1.57 2005/02/07 09:29:16 oandrieu Exp $ *)
 
 open Gobject
 open Gtk
@@ -197,7 +197,7 @@ module Path : sig
   val append_index : Gtk.tree_path -> int -> unit
   val prepend_index : Gtk.tree_path -> int -> unit
   val next : Gtk.tree_path -> unit
-  val prev : Gtk.tree_path -> unit
+  val prev : Gtk.tree_path -> bool
   val up : Gtk.tree_path -> bool
   val down : Gtk.tree_path -> unit
 end
@@ -398,6 +398,12 @@ class view : tree_view obj ->
     method set_search_column : int -> unit
     method set_vadjustment : GData.adjustment -> unit
     method vadjustment : GData.adjustment
+
+    method hover_expand : bool (** @since GTK 2.6 *)
+    method set_hover_expand : bool -> unit (** @since GTK 2.6 *)
+    method hover_selection : bool (** @since GTK 2.6 *)
+    method set_hover_selection : bool -> unit (** @since GTK 2.6 *)
+    method set_row_separator_func : (model -> tree_iter -> bool) option -> unit (** @since GTK 2.6 *)
   end
 
 (** @gtkdoc gtk GtkTreeView *)
@@ -476,6 +482,15 @@ type cell_properties_toggle =
   | `ACTIVE of bool
   | `INCONSISTENT of bool
   | `RADIO of bool ]
+type cell_properties_progress =
+  [ cell_properties 
+  | `VALUE of int
+  | `TEXT of string option ]
+type cell_properties_combo =
+  [ cell_properties_text
+  | `MODEL of model option
+  | `TEXT_COLUMN of string column
+  | `HAS_ENTRY of bool ]
 
 (** @gtkdoc gtk GtkCellRenderer *)
 class type ['a, 'b] cell_renderer_skel =
@@ -530,6 +545,23 @@ class cell_renderer_toggle : Gtk.cell_renderer_toggle obj ->
     method connect : cell_renderer_toggle_signals
   end
 
+(** @since GTK 2.6
+    @gtkdoc gtk GtkCellRendererProgress *)
+class cell_renderer_progress : Gtk.cell_renderer_progress obj ->
+  object
+    inherit[Gtk.cell_renderer_progress,cell_properties_progress] cell_renderer_skel
+    method connect : GObj.gtkobj_signals_impl
+  end
+
+(** @since GTK 2.6
+    @gtkdoc gtk GtkCellRendererCombo *)
+class cell_renderer_combo : Gtk.cell_renderer_combo obj ->
+  object
+    inherit[Gtk.cell_renderer_combo,cell_properties_combo] cell_renderer_skel
+    method connect : cell_renderer_text_signals
+    method set_fixed_height_from_font : int -> unit
+  end
+
 (** @gtkdoc gtk GtkCellRendererPixbuf *)
 val cell_renderer_pixbuf : cell_properties_pixbuf list -> cell_renderer_pixbuf
 
@@ -538,3 +570,71 @@ val cell_renderer_text : cell_properties_text list -> cell_renderer_text
 
 (** @gtkdoc gtk GtkCellRendererToggle *)
 val cell_renderer_toggle : cell_properties_toggle list -> cell_renderer_toggle
+
+(** @since GTK 2.6 
+    @gtkdoc gtk GtkCellRendererProgress *)
+val cell_renderer_progress : cell_properties_progress list -> cell_renderer_progress
+
+(** @since GTK 2.6 
+    @gtkdoc gtk GtkCellRendererCombo *)
+val cell_renderer_combo : cell_properties_combo list -> cell_renderer_combo
+
+(** {3 GtkIconView} *)
+
+(** @gtkdoc gtk GtkIconView
+    @since GTK 2.6 *)
+class icon_view_signals : [> Gtk.icon_view] Gtk.obj ->
+  object
+    inherit GContainer.container_signals
+    method item_activated : callback:(Gtk.tree_path -> unit) -> GtkSignal.id
+    method selection_changed : callback:(unit -> unit) -> GtkSignal.id
+  end
+
+(** A widget which displays a list of icons in a grid
+    @gtkdoc gtk GtkIconView
+    @since GTK 2.6 *)
+class icon_view :
+  ([> Gtk.icon_view] as 'a) Gtk.obj ->
+  object
+    inherit GContainer.container
+    val obj : 'a Gtk.obj
+    method connect : icon_view_signals
+    method event : GObj.event_ops
+
+    (** Properties *)
+
+    method model : model
+    method set_model : model option -> unit
+    method set_markup_column : string column -> unit
+    method set_pixbuf_column : GdkPixbuf.pixbuf column -> unit
+    method set_text_column : string column -> unit
+    method orientation : GtkEnums.orientation
+    method set_orientation : GtkEnums.orientation -> unit
+    method selection_mode : GtkEnums.selection_mode
+    method set_selection_mode : GtkEnums.selection_mode -> unit
+
+    method get_path_at_pos : int -> int -> Gtk.tree_path
+    method selected_foreach : (Gtk.tree_path -> unit) -> unit
+    method get_selected_items : Gtk.tree_path list
+    method path_is_selected : Gtk.tree_path -> bool
+    method select_path : Gtk.tree_path -> unit
+    method unselect_path : Gtk.tree_path -> unit
+    method select_all : unit -> unit
+    method unselect_all : unit -> unit
+
+    method item_activated : Gtk.tree_path -> unit
+  end
+
+(** A widget which displays a list of icons in a grid
+    @gtkdoc gtk GtkIconView
+    @since GTK 2.6 *)
+val icon_view :
+  ?model:#model ->
+  ?orientation:GtkEnums.orientation ->
+  ?selection_mode:GtkEnums.selection_mode ->
+  ?border_width:int ->
+  ?width:int ->
+  ?height:int ->
+  ?packing:(GObj.widget -> unit) ->
+  ?show:bool ->
+  unit -> icon_view

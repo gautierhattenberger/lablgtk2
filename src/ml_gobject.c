@@ -1,4 +1,4 @@
-/* $Id: ml_gobject.c,v 1.28 2004/09/21 11:29:37 oandrieu Exp $ */
+/* $Id: ml_gobject.c,v 1.29 2004/11/22 23:49:10 oandrieu Exp $ */
 #include <stdio.h>
 #include <glib.h>
 #include <glib-object.h>
@@ -18,7 +18,7 @@
 /* gobject.h */
 
 Make_Val_final_pointer(GObject, g_object_ref, g_object_unref, 0)
-Make_Val_final_pointer_ext (GObject, _new, G_OBJECT, g_object_unref, 20)
+Make_Val_final_pointer_ext (GObject, _new, Ignore, g_object_unref, 20)
 ML_1 (G_TYPE_FROM_INSTANCE, GObject_val, Val_int)
 // ML_1 (g_object_ref, GObject_val, Unit)
 CAMLprim value ml_g_object_unref (value val)

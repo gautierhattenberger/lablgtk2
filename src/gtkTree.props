@@ -1,4 +1,4 @@
-(* $Id: gtkTree.props,v 1.12 2004/11/10 19:54:03 oandrieu Exp $ *)
+(* $Id: gtkTree.props,v 1.16 2005/01/04 00:19:05 oandrieu Exp $ *)
 
 prefix "Gtk"
 
@@ -31,6 +31,9 @@ class TreeView set wrap wrapsig : Container {
   "rules-hint"           gboolean             : Read / Write
   "search-column"        gint                 : Read / Write
   "vadjustment"          GtkAdjustment        : Read / Write
+  (* new properties in GTK+ 2.6 *)
+  "hover-expand"         gboolean              : Read / Write / NoSet
+  "hover-selection"      gboolean              : Read / Write / NoSet
   signal columns_changed
   signal cursor_changed
   signal expand_collapse_cursor_row :
@@ -123,6 +126,17 @@ class CellRendererToggle vset : CellRenderer {
   signal toggled : GtkTreePathString
 }
 
+class CellRendererProgress vset : CellRenderer {
+  "value"                gint                 : Read / Write
+  "text"                 gchararray_opt       : Read / Write
+}
+
+class CellRendererCombo : CellRendererText {
+  "model"                GtkTreeModel_opt     : Read / Write / NoWrap
+  "text_column"          gint                 : Read / Write / NoWrap
+  "has_entry"            gboolean             : Read / Write
+}
+
 class CellLayout abstract : Object {
   method pack_start : "Gtk.cell_renderer Gtk.obj -> expand:bool -> unit"
   method pack_end   : "Gtk.cell_renderer Gtk.obj -> expand:bool -> unit"
@@ -197,4 +211,28 @@ class TreeModelFilter : GObject {
   method convert_iter_to_child_iter : "Gtk.tree_iter -> Gtk.tree_iter"
   method refilter
   (* method clear_cache *)
+}
+
+
+class IconView set wrap wrapsig : Container {
+  "markup-column"        gint                  : Read / Write / NoWrap / NoSet
+  "model"                GtkTreeModel_opt      : Read / Write / NoWrap
+  "orientation"          GtkOrientation        : Read / Write
+  "pixbuf-column"        gint                  : Read / Write / NoWrap / NoSet
+  "selection-mode"       GtkSelectionMode      : Read / Write
+  "text-column"          gint                  : Read / Write / NoWrap / NoSet
+
+  signal item_activated : GtkTreePath
+  signal selection_changed
+  (* signal set_scroll_adjustments : GtkAdjustment GtkAdjustment *)
+
+  method get_path_at_pos : "int -> int -> Gtk.tree_path"
+  method selected_foreach : "(Gtk.tree_path -> unit) -> unit"
+  method select_path : "Gtk.tree_path -> unit"
+  method unselect_path : "Gtk.tree_path -> unit"
+  method path_is_selected : "Gtk.tree_path -> bool"
+  method get_selected_items : "Gtk.tree_path list"
+  method select_all
+  method unselect_all
+  method item_activated : "Gtk.tree_path -> unit"
 }

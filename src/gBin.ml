@@ -1,4 +1,4 @@
-(* $Id: gBin.ml,v 1.23 2004/09/03 17:40:35 oandrieu Exp $ *)
+(* $Id: gBin.ml,v 1.24 2004/12/02 02:44:43 garrigue Exp $ *)
 
 open Gaux
 open Gtk
@@ -13,8 +13,8 @@ let param = Gobject.param
 
 class scrolled_window obj = object
   inherit [Gtk.scrolled_window] bin_impl obj
-  method connect = new container_signals_impl obj
   inherit scrolled_window_props
+  method connect = new container_signals_impl obj
   method add_with_viewport w =
     ScrolledWindow.add_with_viewport obj (as_widget w)
 end

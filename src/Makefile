@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.158 2004/11/17 10:24:57 garrigue Exp $
+# $Id: Makefile,v 1.162 2005/02/17 07:39:29 garrigue Exp $
 # Makefile for lablgtk.
 
 COMPILER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS) -w s -c
@@ -33,14 +33,19 @@ GTKCFLAGS += -DLOG_DOMAIN=\"LablGTK\"
 
 ifdef DEBUG
 CFLAGS = -g $(GTKCFLAGS)
-MLLINK = -custom
+CUSTOM = -custom
 #MLLINK += -cclib -lcamlrund
 MLBYTEFLAGS = -g
 else
 CFLAGS = -O -DG_DISABLE_ASSERT -DG_DISABLE_CAST_CHECKS $(GTKCFLAGS)
 endif
 
+ifeq ($(THREADS_LIB),system)
 THFLAGS = -thread
+else
+THFLAGS = -vmthread
+CUSTOM = -custom
+endif
 THLINK = unix.cma threads.cma
 
 ifdef USE_CC
@@ -168,13 +173,17 @@ ALLOBJS = $(MLXOBJS) $(GLMLOBJS) $(GNOMEMLOBJS) $(GLADEMLOBJS) \
 	$(RSVGMLOBJS) $(GNOMECANVASMLOBJS) $(GNOMEUIMLOBJS) $(PANELMLOBJS) $(GTKSPELLMLOBJS) \
 	$(INITOBJS)
 ALLTHOBJS = $(THOBJS) $(THINITOBJS)
+PROPOBJS = $(GTKPROPS:%.props=%Props.cmo) $(GTKPROPS:%.props=o%Props.cmo)
 
 # Targets
 byte: $(TARGETS) $(INITOBJS)
 opt:  $(TARGETS) lablgtkopt
 
-depend: $(ENUMOBJS:.cmo=.ml) $(GTKPROPS:%.props=%Props.ml) $(GTKPROPS:%.props=o%Props.ml)
-	ocamldep $(ALLOBJS:.cmo=.ml) $(ALLTHOBJS:.cmo=.ml) *.mli > .depend
+depend:
+	$(MAKE) real-depend USE_GL=1 USE_GLADE=1 USE_RSVG=1 \
+	  USE_GNOMECANVAS=1 USE_GNOMEUI=1 USE_PANEL=1 USE_GTKSPELL=1
+real-depend: $(ENUMOBJS:.cmo=.ml) $(PROPOBJS:.cmo=.ml)
+	ocamldep $(ALLOBJS:.cmo=.ml) $(PROPOBJS:.cmo=.ml) $(ALLTHOBJS:.cmo=.ml) *.mli > .depend
 
 ifeq ($(THREADS_LIB),no)
 lablgtktop$(XE): $(MLLIBS)
@@ -189,7 +198,7 @@ lablgtk2: Makefile $(CONFIG) lablgtk2.in
 	sed -e "s|@INSTALLDIR@|$(INSTALLDIR)|g" \
 	    -e "s|@LABLGLDIR@|$(LABLGLDIR)|g" \
 	    -e "s|@LIBDIR@|$(LIBDIR)|g" \
-	    -e "s|@MLLIBS@|$(MLLINK:-custom=) $(MLLIBS)|g" \
+	    -e "s|@MLLIBS@|$(MLLINK) $(MLLIBS)|g" \
 	    -e "s|@INITOBJS@|$(INITOBJS)|g" \
 	    -e "s|@THOBJS@|$(THOBJS)|g" \
 	    -e "s|@THINITOBJS@|$(THINITOBJS)|g" \

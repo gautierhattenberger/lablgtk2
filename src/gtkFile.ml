@@ -1,4 +1,4 @@
-(* $Id: gtkFile.ml,v 1.5 2004/06/07 08:45:00 oandrieu Exp $ *)
+(* $Id: gtkFile.ml,v 1.6 2004/12/05 13:18:34 oandrieu Exp $ *)
 
 external _gtkfile_init : unit -> unit = "ml_gtkfile_init"
 let () = _gtkfile_init ()
@@ -95,3 +95,5 @@ module FileChooser = struct
   let dialog_create pl : [Gtk.dialog|Gtk.file_chooser] Gtk.obj = GtkObject.make "GtkFileChooserDialog" pl
   let widget_create pl : [Gtk.widget|Gtk.file_chooser] Gtk.obj = GtkObject.make "GtkFileChooserWidget" pl
 end
+
+module FileChooserButton = GtkFileProps.FileChooserButton

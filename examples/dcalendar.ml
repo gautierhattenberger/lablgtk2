@@ -1,4 +1,4 @@
-(* $Id: dcalendar.ml,v 1.9 2004/07/15 08:43:35 garrigue Exp $ *)
+(* $Id: dcalendar.ml,v 1.11 2004/11/29 02:18:32 garrigue Exp $ *)
 
 (* A small calendar *)
 (* Needs Unix module, so use with lablgtk_t *)
@@ -131,7 +131,7 @@ let create_GUI () =
     GWindow.window ~title: "Camlendar" ~show: true
       ~allow_shrink: false ~allow_grow: false () in
   win#event#connect#delete
-    ~callback: (fun _ -> GMain.Main.quit (); exit 0; false);
+    ~callback: (fun _ -> GMain.Main.quit (); false);
 
   let style = win#misc#style#copy in
   styles.(s_normal) <- style;

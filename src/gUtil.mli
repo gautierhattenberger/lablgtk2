@@ -1,4 +1,4 @@
-(* $Id: gUtil.mli,v 1.12 2004/06/02 20:41:40 oandrieu Exp $ *)
+(* $Id: gUtil.mli,v 1.13 2004/12/03 22:55:57 garrigue Exp $ *)
 
 open GObj
 
@@ -13,7 +13,7 @@ val print_widget : Format.formatter -> #widget -> unit
 
 class ['a] memo : unit ->
   object
-    constraint 'a = <get_oid: int>
+    constraint 'a = <get_oid: int; ..>
     val tbl : (int, 'a) Hashtbl.t
     method add : 'a -> unit
     method find : widget -> 'a

@@ -1,4 +1,4 @@
-(* $Id: gtkWindow.ml,v 1.38 2004/08/24 08:03:33 oandrieu Exp $ *)
+(* $Id: gtkWindow.ml,v 1.39 2004/12/02 21:58:49 oandrieu Exp $ *)
 
 open Gaux
 open Gobject
@@ -94,6 +94,11 @@ module MessageDialog = struct
       buttons:Gtk.Tags.buttons -> message:string -> unit -> message_dialog obj
       = "ml_gtk_message_dialog_new"
   external set_markup : [>`messagedialog] obj -> string -> unit = "ml_gtk_message_dialog_set_markup"
+end
+
+module AboutDialog = struct
+  include AboutDialog
+  external create : unit -> Gtk.about_dialog obj = "ml_gtk_about_dialog_new"
 end
 
 module FileSelection = struct

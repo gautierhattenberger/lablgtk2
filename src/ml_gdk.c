@@ -1,4 +1,4 @@
-/* $Id: ml_gdk.c,v 1.81 2004/09/17 00:19:31 garrigue Exp $ */
+/* $Id: ml_gdk.c,v 1.82 2004/12/02 02:44:43 garrigue Exp $ */
 
 #include <string.h>
 #include <gdk/gdk.h>
@@ -825,8 +825,10 @@ Make_Extractor (GdkEventWindowState, GdkEvent_arg(WindowState),
 /* DnD */
 Make_Flags_val (GdkDragAction_val)
 #define GdkDragAction_optval(v) Option_val(v,GdkDragAction_val,0)
-ML_3 (gdk_drag_status, GdkDragContext_val, GdkDragAction_optval, copy_int32, Unit)
-Make_Extractor (GdkDragContext, GdkDragContext_val, suggested_action, Val_gdkDragAction)
+ML_3 (gdk_drag_status, GdkDragContext_val, GdkDragAction_optval, Int32_val,
+      Unit)
+Make_Extractor (GdkDragContext, GdkDragContext_val, suggested_action,
+                Val_gdkDragAction)
 value val_int(gpointer i)
 {
   return Val_int (GPOINTER_TO_INT(i));

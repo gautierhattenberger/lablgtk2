@@ -1,4 +1,51 @@
-$Id: CHANGES,v 1.297 2004/11/17 10:26:03 garrigue Exp $
+$Id: CHANGES,v 1.312 2005/02/18 04:21:30 garrigue Exp $
+
+In lablgtk2-20050218:
+2005.02.18 [Jacques]
+  * add GObj.event_signals#scroll and other missing wevents (Hendrik Tews)
+
+2005.02.17 [Jacques]
+  * allow using vmthreads
+
+2005.02.07 [Olivier]
+  * GTree.Path.is_prev now returns bool (T. Kurt Bond)
+
+2005.01.08 [Olivier]
+  * add a use_markup optional argument to GEdit.combo_box_text.
+
+2005.01.04 [Olivier] (2.6)
+  * new stock items
+  * add PangoEllipsizeMode for PangoLayout
+  * new GtkLabel properties
+  * new GtkProgressbar::ellipsize property 
+  * new GtkTreeView properties and separator rows
+
+2005.01.02 [Olivier]
+  * 2.6 improvements to GtkComboBox (separators and a couple of new
+    properties)
+
+2004.12.05 [Olivier]
+  * add GtkFileChooserButton (2.6)
+
+2004.12.04 [Jacques]
+  * fix constraint in GUtil.memo
+
+2004.12.02 [Olivier]
+  * add GtkAboutDialog (2.6)
+
+2004.12.02 [Jacques]
+  * fix Michael Furr's bug reports
+
+2004.11.24 [Olivier]
+  * add GMisc.statusbar#has_resize_grip and #set_has_resize_grip
+    GMisc.statusbar now inherits from GPack.box
+  * add GtkIconView (2.6)
+
+2004.11.22 [Olivier]
+  * add GtkCellRendererCombo (2.6)
+  * add GtkCellRendererProgress (2.6)
+
+In lablgtk2-20041119:
 
 2004.11.17 [Jacques]
   * fix make depend

@@ -1,4 +1,4 @@
-(* $Id: gTree.ml,v 1.56 2004/11/10 19:54:03 oandrieu Exp $ *)
+(* $Id: gTree.ml,v 1.60 2005/01/04 00:19:05 oandrieu Exp $ *)
 
 open StdLabels
 open Gaux
@@ -383,6 +383,9 @@ class view obj = object
     match TreeView.get_path_at_pos obj ~x ~y with
       Some (p, c, x, y) -> Some (p, new view_column c, x, y)
     | None -> None
+  method set_row_separator_func fo =
+    TreeView.set_row_separator_func obj 
+      (Gaux.may_map (fun f m -> f (new model m)) fo)
 end
 let view ?model ?hadjustment ?vadjustment =
   let model = may_map (fun m -> m#as_model) model in
@@ -446,6 +449,15 @@ type cell_properties_toggle_only =
   | `INCONSISTENT of bool
   | `RADIO of bool ]
 type cell_properties_toggle = [ cell_properties | cell_properties_toggle_only ]
+type cell_properties_progress_only =
+  [ `VALUE of int
+  | `TEXT of string option ]
+type cell_properties_progress = [ cell_properties | cell_properties_progress_only ]
+type cell_properties_combo_only =
+  [ `MODEL of model option
+  | `TEXT_COLUMN of string column
+  | `HAS_ENTRY of bool ]
+type cell_properties_combo = [ cell_properties_text | cell_properties_combo_only ]
 
 let cell_renderer_pixbuf_param' = function
   | #cell_properties_pixbuf_only as x -> cell_renderer_pixbuf_param x
@@ -458,6 +470,15 @@ let cell_renderer_text_param' = function
 let cell_renderer_toggle_param' = function
   | #cell_properties_toggle_only as x -> cell_renderer_toggle_param x
   | #cell_properties as x -> cell_renderer_param x
+let cell_renderer_progress_param' = function
+  | #cell_properties_progress_only as x -> cell_renderer_progress_param x
+  | #cell_properties as x -> cell_renderer_param x
+let cell_renderer_combo_param' = function
+  | `MODEL None -> Gobject.param CellRendererCombo.P.model None
+  | `MODEL (Some m : model option) -> Gobject.param CellRendererCombo.P.model (Some m#as_model)
+  | `TEXT_COLUMN c -> Gobject.param CellRendererCombo.P.text_column c.index
+  | `HAS_ENTRY b -> Gobject.param CellRendererCombo.P.has_entry b
+  | #cell_properties_text as x -> cell_renderer_text_param' x
 
 class type ['a, 'b] cell_renderer_skel =
   object
@@ -504,6 +525,22 @@ class cell_renderer_toggle obj = object
   method connect = new cell_renderer_toggle_signals obj
 end
 
+class cell_renderer_progress obj = object
+  inherit [Gtk.cell_renderer_progress,cell_properties_progress]
+      cell_renderer_impl obj
+  method private param = cell_renderer_progress_param'
+  method connect = new gtkobj_signals_impl obj
+end
+
+class cell_renderer_combo obj = object
+  inherit [Gtk.cell_renderer_combo,cell_properties_combo]
+      cell_renderer_impl obj
+  method private param = cell_renderer_combo_param'
+  method set_fixed_height_from_font =
+    CellRendererText.set_fixed_height_from_font obj
+  method connect = new cell_renderer_text_signals (obj :> Gtk.cell_renderer_text Gtk.obj)
+end
+
 let cell_renderer_pixbuf l =
   new cell_renderer_pixbuf
     (CellRendererPixbuf.create (List.map cell_renderer_pixbuf_param' l))
@@ -513,3 +550,49 @@ let cell_renderer_text l =
 let cell_renderer_toggle l =
   new cell_renderer_toggle
     (CellRendererToggle.create (List.map cell_renderer_toggle_param' l))
+let cell_renderer_progress l =
+  new cell_renderer_progress
+    (CellRendererProgress.create (List.map cell_renderer_progress_param' l))
+let cell_renderer_combo l =
+  new cell_renderer_combo
+    (CellRendererCombo.create (List.map cell_renderer_combo_param' l))
+
+
+class icon_view_signals obj = object (self)
+  inherit container_signals_impl obj
+  inherit OgtkTreeProps.icon_view_sigs
+end
+
+class icon_view obj = object
+  inherit [[> Gtk.icon_view]] GContainer.container_impl obj
+  inherit OgtkTreeProps.icon_view_props
+
+  method connect = new icon_view_signals obj
+  method event = new GObj.event_ops obj
+
+  method model =
+    new model (Gobject.Property.get_some obj IconView.P.model)
+  method set_model (m : model option) =
+    Gobject.set IconView.P.model obj (Gaux.may_map (fun m -> m#as_model) m)
+  method set_markup_column (c : string column) =
+    Gobject.set IconView.P.markup_column obj c.index
+  method set_text_column (c : string column) =
+    Gobject.set IconView.P.text_column obj c.index
+  method set_pixbuf_column (c : GdkPixbuf.pixbuf column) =
+    Gobject.set IconView.P.pixbuf_column obj c.index
+
+  method get_path_at_pos = IconView.get_path_at_pos obj
+  method selected_foreach = IconView.selected_foreach obj
+  method select_path = IconView.select_path obj
+  method unselect_path = IconView.unselect_path obj
+  method path_is_selected = IconView.path_is_selected obj
+  method get_selected_items = IconView.get_selected_items obj
+  method select_all () = IconView.select_all obj
+  method unselect_all () = IconView.unselect_all obj
+  method item_activated = IconView.item_activated obj
+end
+
+let icon_view ?model =
+  let model = Gaux.may_map (fun m -> m#as_model) model in
+  IconView.make_params ?model [] ~cont:(
+  GContainer.pack_container ~create:(fun p -> new icon_view (IconView.create p)))

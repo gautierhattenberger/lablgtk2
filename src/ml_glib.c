@@ -1,4 +1,4 @@
-/* $Id: ml_glib.c,v 1.47 2004/11/10 21:08:26 oandrieu Exp $ */
+/* $Id: ml_glib.c,v 1.48 2004/12/02 02:44:43 garrigue Exp $ */
 
 #include <string.h>
 #include <locale.h>
@@ -182,7 +182,7 @@ CAMLprim value ml_g_log_set_handler (value domain, value levels, value clos)
     CAMLparam1(domain);
     value ret = alloc_small(3,0);
     Field(ret,0) = domain;
-    Field(ret,1) = Int_val(id);
+    Field(ret,1) = Val_int(id);
     Field(ret,2) = (value)clos_p;
     CAMLreturn(ret);
 }
