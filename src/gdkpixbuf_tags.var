@@ -1,0 +1,5 @@
+(* $Id: gdkpixbuf_tags.var,v 1.1 2002/07/01 08:31:13 garrigue Exp $ *)
+
+type colorspace = "GDK_COLORSPACE_" [ `RGB ]
+type alpha_mode = "GDK_PIXBUF_ALPHA_" [ `BILEVEL | `FULL ]
+type interpolation = "GDK_INTERP_" [ `NEAREST | `TILES | `BILINEAR | `HYPER ]

@@ -1,0 +1,4 @@
+(* $Id: glib_tags.var,v 1.1 2002/07/06 03:02:31 garrigue Exp $ *)
+
+type io_condition = "G_IO_"
+   [ `IN | `OUT | `PRI | `ERR | `HUP | `NVAL ]
