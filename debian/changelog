@@ -1,3 +1,9 @@
+lablgtk (1.2.6-2) unstable; urgency=low
+
+  * Forgot dpatch build dependency.
+
+ -- Sven Luther <luther@debian.org>  Fri,  3 Oct 2003 14:24:44 +0200
+
 lablgtk (1.2.6-1) unstable; urgency=low
 
   * New upstream release.
