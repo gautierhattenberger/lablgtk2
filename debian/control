@@ -2,7 +2,7 @@ Source: lablgtk
 Section: libs
 Priority: optional
 Maintainer: Sven Luther <luther@debian.org>
-Build-Depends: debhelper (>> 3.0.0), ocaml-3.07, libncurses5-dev, xlibs|xlib6g, liblablgl-ocaml-dev (>= 0.99-16), libgtk1.2-dev, libglib1.2-dev, gtkglarea5-dev, libglade-gnome0-dev, libgtkxmhtml-dev, libgdk-pixbuf-dev
+Build-Depends: debhelper (>> 3.0.0), ocaml-3.07, libncurses5-dev, xlibs|xlib6g, liblablgl-ocaml-dev (>= 0.99-16), libgtk1.2-dev, libglib1.2-dev, gtkglarea5-dev, libglade-gnome0-dev, libgtkxmhtml-dev, libgdk-pixbuf-dev, dpatch
 Standards-Version: 3.6.0
 
 Package: liblablgtk-ocaml
