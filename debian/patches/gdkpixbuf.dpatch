@@ -10,8 +10,8 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 case "$1" in
-    -patch) patch -f --no-backup-if-mismatch -p0 < $0;;
-    -unpatch) patch -f --no-backup-if-mismatch -R -p0 < $0;;	
+    -patch) patch -f --no-backup-if-mismatch -p1 < $0;;
+    -unpatch) patch -f --no-backup-if-mismatch -R -p1 < $0;;	
     *)
 	echo "`basename $0`: script expects -patch|-unpatch as argument" >&2
 	exit 1;;
@@ -19,8 +19,9 @@ esac
 
 exit 0
 @DPATCH@
---- gdkPixbuf.ml.~1.9.~ 2004-03-24 01:49:00.000000000 +0100
-+++ gdkPixbuf.ml        2004-08-03 16:51:38.592970653 +0200
+diff -ur lablgtk-2.4.0.orig/src/gdkPixbuf.ml lablgtk-2.4.0/src/gdkPixbuf.ml
+--- lablgtk-2.4.0.orig/src/gdkPixbuf.ml	2004-03-24 01:49:00.000000000 +0100
++++ lablgtk-2.4.0/src/gdkPixbuf.ml	2004-08-03 22:13:49.557124048 +0200
 @@ -67,7 +67,7 @@
    let nc = if has_alpha then 4 else 3 in
    let rowstride = match rowstride with None -> width * nc | Some r -> r in
@@ -28,4 +29,5 @@ exit 0
 -  || Gpointer.length data < (rowstride * (height - 1) + width) * nc
 +  || Gpointer.length data < rowstride * (height - 1) + width * nc
    then invalid_arg "GdkPixbuf.from_data";
-
+   _from_data data ~has_alpha ~bits ~width ~height ~rowstride
+ 
