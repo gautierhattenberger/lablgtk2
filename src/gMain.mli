@@ -1,20 +1,32 @@
-(* $Id: gMain.mli,v 1.4.2.1 2003/05/15 14:19:03 furuse Exp $ *)
+(* $Id: gMain.mli,v 1.9 2003/09/27 13:42:19 oandrieu Exp $ *)
 
+(** Library initialization, main event loop, and events *)
+
+(** @gtkdoc gtk gtk-General *)
 module Main : sig
   val init : ?setlocale:bool -> unit -> string
-    (* [init] returns the locale name *)
-    (* Set [~setlocale] to [true] if your program needs a non-C locale *)
+    (** [init] also sets the locale and returns its name.
+       Either set [~setlocale] to [false] or GTK_SETLOCALE to "0"
+       if you don't want to the locale to be set *)
   val main : unit -> unit
-    (* [main] runs the main loop, until [quit] is called. *)
-    (* Do not use in multi-threaded programs. *)
+    (** [main] runs the main loop, until [quit] is called.
+       {e Do not use in multi-threaded programs.} *)
   val quit : unit -> unit
-    (* quit the main loop *)
+    (** quit the main loop *)
   val version : int * int * int
-    (* [major, minor, micro] *)
+    (** [major, minor, micro] *)
 end
 
-val main : unit -> unit (* cf. [Main.main] *)
-val quit : unit -> unit (* cf. [Main.quit] *)
+(** Direct access to functions of [GMain.Main] *)
+
+val init : ?setlocale:bool -> unit -> string
+val main : unit -> unit
+val quit : unit -> unit
+
+(** Global structures *)
+
+val selection : GData.clipboard
+val clipboard : GData.clipboard
 
 module Grab : sig
   val add : #GObj.widget -> unit
@@ -27,18 +39,21 @@ module Rc : sig
 end
 
 module Timeout : sig
-  type id = GtkMain.Timeout.id
+  type id = Glib.Timeout.id
   val add : ms:int -> callback:(unit -> bool) -> id
   val remove : id -> unit
 end
 
+module Idle : sig
+  type id = Glib.Idle.id
+  val add : callback:(unit -> bool) -> id
+  val remove : id -> unit
+end
+
 module Io : sig
-  type event_source
   type channel = Glib.Io.channel
   type condition = [ `IN | `OUT | `PRI | `ERR | `HUP | `NVAL ]
   val channel_of_descr : Unix.file_descr -> channel (* Unix only *)
-  val remove_source : event_source -> bool
   val add_watch :
-    cond:condition -> callback:(unit -> bool) -> ?prio:int -> channel -> event_source
-	
+    cond:condition -> callback:(unit -> bool) -> ?prio:int -> channel -> unit
 end

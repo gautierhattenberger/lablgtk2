@@ -1,24 +1,26 @@
-(* $Id: gtkList.ml,v 1.23.2.1 2003/05/15 14:18:21 furuse Exp $ *)
+(* $Id: gtkList.ml,v 1.29 2003/08/15 11:08:43 garrigue Exp $ *)
 
 open StdLabels
 open Gaux
 open Gtk
 open Tags
+open GtkListProps
 open GtkBase
 
+external _gtklist_init : unit -> unit = "ml_gtklist_init"
+let () = _gtklist_init ()
+
 module ListItem = struct
-  let cast w : list_item obj = Object.try_cast w "GtkListItem"
-  external create : unit -> list_item obj = "ml_gtk_list_item_new"
+  include ListItem
   external create_with_label : string -> list_item obj
       = "ml_gtk_list_item_new_with_label"
   let create ?label () =
-    match label with None -> create ()
+    match label with None -> create []
     | Some label -> create_with_label label
 end
 
 module Liste = struct
-  let cast w : liste obj = Object.try_cast w "GtkList"
-  external create : unit -> liste obj = "ml_gtk_list_new"
+  include Liste
   external insert_item :
       [>`list] obj -> [>`listitem] obj -> pos:int -> unit
       = "ml_gtk_list_insert_item"
@@ -39,23 +41,10 @@ module Liste = struct
       = "ml_gtk_list_unselect_child"
   external child_position : [>`list] obj -> [>`listitem] obj -> int
       = "ml_gtk_list_child_position"
-  external set_selection_mode : [>`list] obj -> selection_mode -> unit
-      = "ml_gtk_list_set_selection_mode"
-  module Signals = struct
-    open GtkSignal
-    let selection_changed =
-      { name = "selection_changed"; classe = `list; marshaller = marshal_unit }
-    let select_child =
-      { name = "select_child"; classe = `list;
-        marshaller = Widget.Signals.marshal }
-    let unselect_child =
-      { name = "unselect_child"; classe = `list;
-        marshaller = Widget.Signals.marshal }
-  end
 end
 
 module CList = struct
-  let cast w : clist obj = Object.try_cast w "GtkCList"
+  include Clist
   external create : cols:int -> clist obj = "ml_gtk_clist_new"
   external create_with_titles : string array -> clist obj
       = "ml_gtk_clist_new_with_titles"
@@ -149,10 +138,10 @@ module CList = struct
       string -> int -> Gdk.pixmap -> Gdk.bitmap Gpointer.optboxed -> unit
       = "ml_gtk_clist_set_pixtext_bc" "ml_gtk_clist_set_pixtext"
   external set_foreground :
-      [>`clist] obj -> row:int -> Gdk.Color.t Gpointer.optboxed -> unit
+      [>`clist] obj -> row:int -> Gdk.color Gpointer.optboxed -> unit
       = "ml_gtk_clist_set_foreground"
   external set_background :
-      [>`clist] obj -> row:int -> Gdk.Color.t Gpointer.optboxed -> unit
+      [>`clist] obj -> row:int -> Gdk.color Gpointer.optboxed -> unit
       = "ml_gtk_clist_set_background"
   external get_cell_style : [>`clist] obj -> int -> int -> Gtk.style
       = "ml_gtk_clist_get_cell_style"
@@ -207,28 +196,20 @@ module CList = struct
       = "ml_gtk_clist_sort"
   external set_auto_sort : [>`clist] obj -> bool -> unit
       = "ml_gtk_clist_set_auto_sort"
-  external selection : [>`clist] obj -> int list
-      = "ml_gtk_clist_selection"
   let set_titles_show w = function
       true -> column_titles_show w
     | false -> column_titles_hide w
   let set_titles_active w = function
       true -> column_titles_active w
     | false -> column_titles_passive w
-  let set ?hadjustment ?vadjustment ?shadow_type
-      ?(button_actions=[]) ?selection_mode ?reorderable
-      ?use_drag_icons ?row_height ?titles_show ?titles_active w =
-    let may_set f param = may param ~f:(f w) in
-    may_set set_hadjustment hadjustment;
-    may_set set_vadjustment vadjustment;
-    may_set set_shadow_type shadow_type;
-    List.iter button_actions ~f:(fun (n,act) -> set_button_actions w n act);
-    may_set set_selection_mode selection_mode;
-    may_set set_reorderable reorderable;
-    may_set set_use_drag_icons use_drag_icons;
-    may_set set_row_height row_height;
-    may_set set_titles_show titles_show;
-    may_set set_titles_active titles_active
+  let setter ~cont ?hadjustment ?vadjustment ?(button_actions=[])
+      ?titles_show =
+    cont (fun w ->
+      let may_set f param = may param ~f:(f w) in
+      may_set set_hadjustment hadjustment;
+      may_set set_vadjustment vadjustment;
+      List.iter button_actions ~f:(fun (n,act) -> set_button_actions w n act);
+      may_set set_titles_show titles_show)
   let set_sort w ?auto ?column ?dir:sort_type () =
     may auto ~f:(set_auto_sort w);
     may column ~f:(set_sort_column w);
@@ -271,37 +252,9 @@ module CList = struct
       [>`clist] obj -> int -> Gtk.Tags.state_type
 	  = "ml_gtk_clist_get_row_state"
 
-
-  module Signals = struct
-    open GtkArgv
-    open GtkSignal
-    let marshal_select f argv = function
-      | INT row :: INT column :: POINTER p :: _ ->
-          let event : GdkEvent.Button.t option =
-	    may_map ~f:GdkEvent.unsafe_copy p
-          in
-          f ~row ~column ~event
-      | _ -> invalid_arg "GtkList.CList.Signals.marshal_select"
-    let select_row =
-      { name = "select_row"; classe = `clist; marshaller = marshal_select }
-    let unselect_row =
-      { name = "unselect_row"; classe = `clist; marshaller = marshal_select }
-    let click_column =
-      { name = "click_column"; classe = `clist; marshaller = marshal_int }
-    external val_scroll_type : int -> scroll_type = "ml_Val_scroll_type"
-    let marshal_scroll f argv = function
-      | INT st :: FLOAT (pos : clampf) :: _ ->
-          f (val_scroll_type st) ~pos
-      | _ -> invalid_arg "GtkList.CList.Signals.marshal_scroll"
-    let scroll_horizontal =
-      { name = "scroll_horizontal"; classe = `clist;
-        marshaller = marshal_scroll }
-    let scroll_vertical =
-      { name = "scroll_vertical"; classe = `clist;
-        marshaller = marshal_scroll }
-    external emit_scroll :
-        'a obj -> name:string -> Tags.scroll_type -> pos:clampf -> unit
-        = "ml_gtk_signal_emit_scroll"
-    let emit_scroll = emit ~emitter:emit_scroll
-  end
+  let emit_scroll =
+    GtkSignal.emit ~conv:ignore ~emitter:
+      (fun ~cont t ~(pos:clampf) ->
+        cont [|`INT(Gpointer.encode_variant GtkEnums.scroll_type t);
+               `FLOAT pos|])
 end

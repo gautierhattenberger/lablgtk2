@@ -1,4 +1,4 @@
-(* $Id: kaimono.ml,v 1.8 2001/09/06 08:47:55 garrigue Exp $ *)
+(* $Id: kaimono.ml,v 1.11 2003/07/05 09:52:45 garrigue Exp $ *)
 
 open StdLabels
 open GMain
@@ -9,7 +9,7 @@ let file_dialog ~title ~callback ?filename () =
   sel#cancel_button#connect#clicked ~callback:sel#destroy;
   sel#ok_button#connect#clicked ~callback:
     begin fun () ->
-      let name = sel#get_filename in
+      let name = sel#filename in
       sel#destroy ();
       callback name
     end;
@@ -47,8 +47,9 @@ let add_entry () =
 
 let _ =
   List.iter2 ["Number";"Name";"Count";"Price"] [40;200;40;60] ~f:
-    begin fun text width ->
-      ignore (GButton.button ~label:text ~width ~packing:add_to_table ())
+    begin fun label width ->
+      let b = GButton.button ~label ~packing:add_to_table () in
+      b#misc#set_size_request ~width ()
     end;
   for i = 1 to 9 do add_entry () done
 

@@ -1,10 +1,11 @@
-(* $Id: gDraw.ml,v 1.17 2002/06/19 10:09:53 garrigue Exp $ *)
+(* $Id: gDraw.ml,v 1.20 2003/07/05 09:52:45 garrigue Exp $ *)
 
 open Gaux
+open Gobject
 open Gdk
 
 type color = [
-  | `COLOR of Color.t
+  | `COLOR of Gdk.color
   | `WHITE
   | `BLACK
   | `NAME of string
@@ -18,8 +19,14 @@ let color ?(colormap = default_colormap ()) (c : color) =
   | `COLOR col -> col
   | #Gdk.Color.spec as def -> Color.alloc ~colormap def
 
+let conv_color : color data_conv =
+  { kind = `POINTER;
+    proj = (function `POINTER (Some c) -> `COLOR (Obj.magic c)
+           | _ -> failwith "GDraw.get_color");
+    inj = (fun c -> `POINTER (Some (Obj.magic (color c : Gdk.color)))) }
+
 type optcolor = [
-  | `COLOR of Color.t
+  | `COLOR of Gdk.color
   | `WHITE
   | `BLACK
   | `NAME of string
@@ -32,15 +39,22 @@ let optcolor ?colormap (c : optcolor) =
   | `DEFAULT -> None
   | #color as c -> Some (color ?colormap c)
 
-class ['a] drawable ?(colormap = default_colormap ()) w =
-object (self)
+let conv_optcolor : optcolor data_conv =
+  { kind = `POINTER;
+    proj = (function `POINTER (Some c) -> `COLOR (Obj.magic c)
+           | `POINTER None -> `DEFAULT
+           | _ -> failwith "GDraw.get_color");
+    inj = (fun c -> `POINTER (Obj.magic (optcolor c : Gdk.color option))) }
+
+class drawable ?(colormap = default_colormap ()) w = object (self)
   val colormap = colormap
   val gc = GC.create w
-  val w : 'a Gdk.drawable = w
+  val w = w
   method color = color ~colormap
   method set_foreground col = GC.set_foreground gc (self#color col)
   method set_background col = GC.set_background gc (self#color col)
-  method size = Window.get_size w
+  method size = Drawable.get_size w
+  method depth = Drawable.get_depth w
   method gc_values = GC.get_values gc
   method set_clip_region = GC.set_clip_region gc
   method set_clip_origin = GC.set_clip_origin gc
@@ -68,7 +82,7 @@ object (self)
 end
 
 class pixmap ?colormap ?mask pm = object
-  inherit [[`pixmap]] drawable ?colormap pm as pixmap
+  inherit drawable ?colormap pm as pixmap
   val bitmap = may_map mask ~f:
       begin fun x ->
         let mask = new drawable x in
@@ -76,7 +90,7 @@ class pixmap ?colormap ?mask pm = object
         mask
       end
   val mask : Gdk.bitmap option = mask
-  method pixmap = w
+  method pixmap : Gdk.pixmap = w
   method mask = mask
   method set_line_attributes ?width ?style ?cap ?join () =
     pixmap#set_line_attributes ?width ?style ?cap ?join ();
@@ -106,23 +120,8 @@ class pixmap ?colormap ?mask pm = object
 end
 
 class type misc_ops = object
-  method allocation : Gtk.rectangle
   method colormap : colormap
-  method draw : Rectangle.t option -> unit
-  method hide : unit -> unit
-  method hide_all : unit -> unit
-  method intersect : Rectangle.t -> Rectangle.t option
-  method pointer : int * int
   method realize : unit -> unit
-  method set_app_paintable : bool -> unit
-  method set_geometry :
-    ?x:int -> ?y:int -> ?width:int -> ?height:int -> unit -> unit
-  method show : unit -> unit
-  method unmap : unit -> unit
-  method unparent : unit -> unit
-  method unrealize : unit -> unit
-  method visible : bool
-  method visual : visual
   method visual_depth : int
   method window : window
 end
@@ -179,7 +178,7 @@ let pixmap_from_xpm_d ~data ?window ?colormap ?transparent () =
 
 class drag_context context = object
   val context = context
-  method status ?(time=0) act = DnD.drag_status context act ~time
+  method status ?(time=Int32.zero) act = DnD.drag_status context act ~time
   method suggested_action = DnD.drag_context_suggested_action context
   method targets = List.map Gdk.Atom.name (DnD.drag_context_targets context)
 end

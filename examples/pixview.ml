@@ -1,8 +1,13 @@
-(* $Id: pixview.ml,v 1.2 2002/10/25 10:07:46 garrigue Exp $ *)
+(* $Id: pixview.ml,v 1.3 2003/02/20 06:47:48 garrigue Exp $ *)
 
 (* An image viewer, supporting all formats allowed by GdkPixbuf *)
 
-let pb = GdkPixbuf.from_file Sys.argv.(1)
+let pb =
+  if Array.length Sys.argv < 2 then begin
+    Printf.eprintf "usage : %s <file>\n" Sys.argv.(0);
+    exit 2;
+  end;
+  GdkPixbuf.from_file Sys.argv.(1)
 
 let pm, _ = GdkPixbuf.create_pixmap pb
 

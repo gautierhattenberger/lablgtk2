@@ -1,13 +1,24 @@
-(* $Id: gdkPixbuf.ml,v 1.3.2.1 2003/06/11 08:30:05 garrigue Exp $ *)
+(* $Id: gdkPixbuf.ml,v 1.6 2003/08/06 00:12:39 oandrieu Exp $ *)
 
 open Gaux
+open Gobject
 open Gdk
 
-type pixbuf
+type pixbuf = [`pixbuf] obj
 type colorspace = [ `RGB ]
 type alpha_mode = [ `BILEVEL | `FULL ]
 type interpolation = [ `NEAREST | `TILES | `BILINEAR | `HYPER ]
 type uint8 = int
+
+type gdkpixbuferror =
+  | ERROR_CORRUPT_IMAGE
+  | ERROR_INSUFFICIENT_MEMORY
+  | ERROR_BAD_OPTION
+  | ERROR_UNKNOWN_TYPE
+  | ERROR_UNSUPPORTED_OPERATION
+  | ERROR_FAILED
+exception GdkPixbufError of gdkpixbuferror * string
+let () = Callback.register_exception "gdk_pixbuf_error" (GdkPixbufError (ERROR_CORRUPT_IMAGE, ""))
 
 (* Accessors *)
 
@@ -38,7 +49,11 @@ external _create :
 let create ~width ~height ?(bits=8) ?(colorspace=`RGB) ?(has_alpha=false) () =
   _create ~colorspace ~has_alpha ~bits ~width ~height
 
+let cast o : pixbuf = Gobject.try_cast o "GdkPixbuf"
+
 external copy : pixbuf -> pixbuf = "ml_gdk_pixbuf_copy" 
+external subpixbuf : pixbuf -> src_x:int -> src_y:int -> width:int -> height:int -> pixbuf 
+  = "ml_gdk_pixbuf_new_subpixbuf"
 external from_file : string -> pixbuf = "ml_gdk_pixbuf_new_from_file"
 external from_xpm_data : string array -> pixbuf
   = "ml_gdk_pixbuf_new_from_xpm_data"
@@ -56,12 +71,12 @@ let from_data ~width ~height ?(bits=8) ?rowstride ?(has_alpha=false) data =
   _from_data data ~has_alpha ~bits ~width ~height ~rowstride
 
 external _get_from_drawable :
-  pixbuf -> 'a drawable -> colormap -> src_x:int -> src_y:int ->
+  pixbuf -> [>`drawable] obj -> colormap -> src_x:int -> src_y:int ->
   dest_x:int -> dest_y:int -> width:int -> height:int -> unit
   = "ml_gdk_pixbuf_get_from_drawable_bc" "ml_gdk_pixbuf_get_from_drawable"
 let get_from_drawable ~dest ?(dest_x=0) ?(dest_y=0) ?width ?height
     ?(src_x=0) ?(src_y=0) ?(colormap=Gdk.Rgb.get_cmap()) src =
-  let dw, dh = Gdk.Window.get_size src in
+  let dw, dh = Gdk.Drawable.get_size src in
   let mw = min (dw - src_x) (get_width dest - dest_x)
   and mh = min (dh - src_y) (get_height dest - dest_y) in
   let width = default mw ~opt:width and height = default mh ~opt:height in
@@ -85,7 +100,7 @@ let render_alpha bm ?(dest_x=0) ?(dest_y=0) ?width ?height ?(threshold=128)
   _render_alpha ~src bm ~src_x ~src_y ~dest_x ~dest_y ~width ~height ~threshold
 
 external _render_to_drawable :
-  src:pixbuf -> 'a drawable -> gc -> src_x:int -> src_y:int ->
+  src:pixbuf -> [>`drawable] obj -> gc -> src_x:int -> src_y:int ->
   dest_x:int -> dest_y:int -> width:int -> height:int ->
   dither:Tags.rgb_dither -> x_dither:int -> y_dither:int -> unit
   = "ml_gdk_pixbuf_render_to_drawable_bc"
@@ -99,7 +114,7 @@ let render_to_drawable dw ?(gc=Gdk.GC.create dw) ?(dest_x=0) ?(dest_y=0)
     ~dither ~x_dither ~y_dither
 
 external _render_to_drawable_alpha :
-  src:pixbuf -> 'a drawable -> src_x:int -> src_y:int ->
+  src:pixbuf -> [>`drawable] obj -> src_x:int -> src_y:int ->
   dest_x:int -> dest_y:int -> width:int -> height:int ->
   alpha:alpha_mode -> threshold:int ->
   dither:Tags.rgb_dither -> x_dither:int -> y_dither:int -> unit
@@ -124,6 +139,12 @@ external _add_alpha : pixbuf -> subst:bool -> r:int -> g:int -> b:int -> pixbuf
 let add_alpha ?transparent pb =
   match transparent with None -> _add_alpha pb ~subst:false ~r:0 ~g:0 ~b:0
   | Some (r, g, b) -> _add_alpha pb ~subst:true ~r ~g ~b
+
+external fill : pixbuf -> int32 -> unit = "ml_gdk_pixbuf_fill"
+external _saturate_and_pixelate : pixbuf -> dest:pixbuf -> saturation:float -> pixelate:bool -> unit
+    = "ml_gdk_pixbuf_saturate_and_pixelate"
+let saturate_and_pixelate ~dest ~saturation ~pixelate src =
+  _saturate_and_pixelate src ~dest ~saturation ~pixelate
 
 external _copy_area :
   src:pixbuf -> src_x:int -> src_y:int -> width:int -> height:int ->
@@ -180,3 +201,8 @@ let composite ~dest ~alpha ?(dest_x=0) ?(dest_y=0) ?width ?height
   in
   _composite ~src ~dest ~dest_x ~dest_y ~width ~height ~ofs_x ~ofs_y ~scale_x
     ~scale_y ~interp ~alpha
+
+(* Saving *)
+
+external save : filename:string -> typ:string -> ?options:(string * string) list -> pixbuf -> unit
+    = "ml_gdk_pixbuf_save"

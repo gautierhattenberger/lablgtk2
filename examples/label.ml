@@ -1,4 +1,4 @@
-(* $Id: label.ml,v 1.5 2000/04/24 09:53:58 garrigue Exp $ *)
+(* $Id: label.ml,v 1.7 2003/07/09 01:59:40 garrigue Exp $ *)
 
 (* Embedding xpm data into an ML file *)
 

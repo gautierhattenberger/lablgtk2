@@ -1,4 +1,4 @@
-(* $Id: planet.ml,v 1.6 2001/09/06 08:47:55 garrigue Exp $ *)
+(* $Id: planet.ml,v 1.7 2003/02/20 06:47:48 garrigue Exp $ *)
 
 open StdLabels
 

@@ -1,14 +1,17 @@
-(* $Id: gPack.mli,v 1.20 2002/05/30 05:49:09 garrigue Exp $ *)
+(* $Id: gPack.mli,v 1.28 2003/09/27 13:42:19 oandrieu Exp $ *)
 
 open Gtk
 open GObj
 open GContainer
 
-class box_skel :
-  'a obj ->
+(** Several container widgets *)
+
+(** {3 Boxes} *)
+
+(** @gtkdoc gtk GtkBox *)
+class box_skel : ([> box] as 'a) obj ->
   object
-    inherit container
-    constraint 'a = [> box]
+    inherit GContainer.container
     val obj : 'a obj
     method pack :
       ?from:Tags.pack_type ->
@@ -20,15 +23,17 @@ class box_skel :
     method set_homogeneous : bool -> unit
     method set_spacing : int -> unit
   end
-class box :
-  'a obj ->
+
+(** A base class for box containers
+   @gtkdoc gtk GtkBox *)
+class box : ([> Gtk.box] as 'a) obj ->
   object
     inherit box_skel
-    constraint 'a = [> Gtk.box]
     val obj : 'a obj
     method connect : GContainer.container_signals
   end
 
+(** @gtkdoc gtk GtkBox *)
 val box :
   Tags.orientation ->
   ?homogeneous:bool ->
@@ -49,11 +54,11 @@ val hbox :
   ?width:int ->
   ?height:int -> ?packing:(widget -> unit) -> ?show:bool -> unit -> box
 
-class button_box :
-  Gtk.button_box obj ->
+(** @gtkdoc gtk GtkButtonBox *)
+class button_box : ([> Gtk.button_box] as 'a) obj ->
   object
-    inherit container_full
-    val obj : Gtk.button_box obj
+    inherit GContainer.container_full
+    val obj : 'a obj
     method pack :
       ?from:Tags.pack_type ->
       ?expand:bool -> ?fill:bool -> ?padding:int -> widget -> unit
@@ -65,8 +70,11 @@ class button_box :
     method set_child_size : ?width:int -> ?height:int -> unit -> unit
     method set_homogeneous : bool -> unit
     method set_layout : GtkPack.BBox.bbox_style -> unit
+    method layout : GtkPack.BBox.bbox_style
     method set_spacing : int -> unit
   end
+
+(** @gtkdoc gtk GtkButtonBox *)
 val button_box :
   Tags.orientation ->
   ?spacing:int ->
@@ -80,10 +88,14 @@ val button_box :
   ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> button_box
 
+(** {3 GtkTable} *)
+
+(** Pack widgets in regular patterns
+   @gtkdoc gtk GtkTable *)
 class table :
   Gtk.table obj ->
   object
-    inherit container_full
+    inherit GContainer.container_full
     val obj : Gtk.table obj
     method attach :
       left:int ->
@@ -94,15 +106,24 @@ class table :
       ?fill:Tags.expand_type ->
       ?shrink:Tags.expand_type ->
       ?xpadding:int -> ?ypadding:int -> widget -> unit
+    method col_spacings : int
+    method columns : int
+    method homogeneous : bool
+    method row_spacings : int
+    method rows : int
     method set_col_spacing : int -> int -> unit
     method set_col_spacings : int -> unit
+    method set_columns : int -> unit
     method set_homogeneous : bool -> unit
     method set_row_spacing : int -> int -> unit
     method set_row_spacings : int -> unit
+    method set_rows : int -> unit
   end
+
+(** @gtkdoc gtk GtkTable *)
 val table :
-  rows:int ->
-  columns:int ->
+  ?columns:int ->
+  ?rows:int ->
   ?homogeneous:bool ->
   ?row_spacings:int ->
   ?col_spacings:int ->
@@ -111,26 +132,40 @@ val table :
   ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> table
 
+(** {3 GtkFixed} *)
+
+(** A container which allows you to position widgets at fixed coordinates
+   @gtkdoc gtk GtkFixed *)
 class fixed :
   Gtk.fixed obj ->
   object
-    inherit container_full
+    inherit GContainer.container_full
     val obj : Gtk.fixed obj
     method event : event_ops
     method move : widget -> x:int -> y:int -> unit
     method put : widget -> x:int -> y:int -> unit
+    method set_has_window : bool -> unit
+    method has_window : bool
   end
+
+(** @gtkdoc gtk GtkFixed *)
 val fixed :
+  ?has_window: bool ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> fixed
 
+(** {3 GtkLayout} *)
+
+(** Infinite scrollable area containing child widgets and/or custom drawing
+   @gtkdoc gtk GtkLayout *)
 class layout :
-  Gtk.layout obj ->
+  'a obj ->
   object
-    inherit container_full
-    val obj : Gtk.layout obj
+    inherit GContainer.container_full
+    constraint 'a = [> Gtk.layout]
+    val obj : 'a obj
     method event : event_ops
     method freeze : unit -> unit
     method hadjustment : GData.adjustment
@@ -145,6 +180,8 @@ class layout :
     method vadjustment : GData.adjustment
     method width : int
   end
+
+(** @gtkdoc gtk GtkLayout *)
 val layout :
   ?hadjustment:GData.adjustment ->
   ?vadjustment:GData.adjustment ->
@@ -155,18 +192,21 @@ val layout :
   ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> layout
 
-class notebook_signals : 'a obj ->
+(** {3 GtkNotebook} *)
+
+(** @gtkdoc gtk GtkNotebook *)
+class notebook_signals : [> Gtk.notebook] obj ->
   object
-    inherit container_signals
-    constraint 'a = [> Gtk.notebook]
-    val obj : 'a obj
+    inherit GContainer.container_signals
     method switch_page : callback:(int -> unit) -> GtkSignal.id
   end
 
-class notebook : ([> Gtk.notebook] as 'a) obj ->
+(** A tabbed notebook container
+   @gtkdoc gtk GtkNotebook *)
+class notebook : Gtk.notebook obj ->
   object
-    inherit container
-    val obj : 'a obj
+    inherit GContainer.container
+    val obj : Gtk.notebook obj
     method event : event_ops
     method append_page :
       ?tab_label:widget -> ?menu_label:widget -> widget -> unit
@@ -184,68 +224,49 @@ class notebook : ([> Gtk.notebook] as 'a) obj ->
       ?tab_label:widget -> ?menu_label:widget -> widget -> unit
     method previous_page : unit -> unit
     method remove_page : int -> unit
+    method set_enable_popup : bool -> unit
     method set_homogeneous_tabs : bool -> unit
     method set_page :
       ?tab_label:widget -> ?menu_label:widget -> widget -> unit
-    method set_popup : bool -> unit
     method set_scrollable : bool -> unit
     method set_show_border : bool -> unit
     method set_show_tabs : bool -> unit
     method set_tab_border : int -> unit
+    method set_tab_hborder : int -> unit
+    method set_tab_vborder : int -> unit
     method set_tab_pos : Tags.position -> unit
+    method enable_popup : bool
+    method homogeneous_tabs : bool
+    method scrollable : bool
+    method show_border : bool
+    method show_tabs : bool
+    method tab_hborder : int
+    method tab_pos : GtkEnums.position_type
+    method tab_vborder : int
   end
+
+(** @gtkdoc gtk GtkNotebook *)
 val notebook :
-  ?tab_pos:Tags.position ->
-  ?tab_border:int ->
-  ?show_tabs:bool ->
+  ?enable_popup:bool ->
   ?homogeneous_tabs:bool ->
-  ?show_border:bool ->
   ?scrollable:bool ->
-  ?popup:bool ->
+  ?show_border:bool ->
+  ?show_tabs:bool ->
+  ?tab_border:int ->
+  ?tab_pos:Tags.position ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> notebook
 
-class packer :
-  Gtk.packer obj ->
-  object
-    inherit container_full
-    val obj : Gtk.packer obj
-    method pack :
-      ?side:Tags.side_type ->
-      ?anchor:Tags.anchor_type ->
-      ?expand:bool ->
-      ?fill:Tags.expand_type ->
-      ?border_width:int ->
-      ?pad_x:int ->
-      ?pad_y:int -> ?i_pad_x:int -> ?i_pad_y:int -> widget -> unit
-    method reorder_child : widget -> pos:int -> unit
-    method set_child_packing :
-      ?side:Tags.side_type ->
-      ?anchor:Tags.anchor_type ->
-      ?expand:bool ->
-      ?fill:Tags.expand_type ->
-      ?border_width:int ->
-      ?pad_x:int ->
-      ?pad_y:int -> ?i_pad_x:int -> ?i_pad_y:int -> widget -> unit
-    method set_defaults :
-      ?border_width:int ->
-      ?pad_x:int ->
-      ?pad_y:int -> ?i_pad_x:int -> ?i_pad_y:int -> unit -> unit
-    method set_spacing : int -> unit
-  end
-val packer :
-  ?spacing:int ->
-  ?border_width:int ->
-  ?width:int ->
-  ?height:int ->
-  ?packing:(widget -> unit) -> ?show:bool -> unit -> packer
+(** {3 GtkPaned} *)
 
+(** Base class for widgets with two adjustable panes
+   @gtkdoc gtk GtkPaned *)
 class paned :
   Gtk.paned obj ->
   object
-    inherit container_full
+    inherit GContainer.container_full
     val obj : Gtk.paned obj
     method event : event_ops
     method add1 : widget -> unit
@@ -254,13 +275,12 @@ class paned :
     method pack2 : ?resize:bool -> ?shrink:bool -> widget -> unit
     method child1 : widget
     method child2 : widget
-    method handle_size : int
-    method set_handle_size : int -> unit
     method set_position : int -> unit
   end
+
+(** @gtkdoc gtk GtkPaned *)
 val paned :
   Tags.orientation ->
-  ?handle_size:int ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->

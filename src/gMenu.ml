@@ -1,19 +1,21 @@
-(* $Id: gMenu.ml,v 1.19 2002/05/30 02:47:50 garrigue Exp $ *)
+(* $Id: gMenu.ml,v 1.29 2003/09/10 16:59:19 monate Exp $ *)
 
 open Gaux
+open Gobject
 open Gtk
 open GtkData
 open GtkBase
 open GtkMenu
+open OgtkBaseProps
+open OgtkMenuProps
 open GObj
 open GContainer
 
 (* Menu type *)
 
-class menu_shell_signals obj = object
-  inherit container_signals obj
-  method deactivate =
-    GtkSignal.connect ~sgn:MenuShell.Signals.deactivate obj ~after
+class menu_shell_signals obj = object (self)
+  inherit container_signals_impl obj
+  method deactivate = self#connect MenuShell.S.deactivate
 end
 
 class type virtual ['a] pre_menu = object
@@ -22,16 +24,18 @@ class type virtual ['a] pre_menu = object
   method deactivate : unit -> unit
   method connect : menu_shell_signals
   method event : event_ops
-  method popup : button:int -> time:int -> unit
+  method popup : button:int -> time:int32 -> unit
   method popdown : unit -> unit
   method set_accel_group : accel_group -> unit
+  method set_accel_path : string -> unit
 end
 
 (* Menu items *)
 
-class menu_item_signals obj = object
-  inherit item_signals obj
-  method activate = GtkSignal.connect ~sgn:MenuItem.Signals.activate obj
+class menu_item_signals obj = object (self)
+  inherit container_signals_impl (obj : [>menu_item] obj)
+  inherit item_sigs
+  method activate = self#connect MenuItem.S.activate
 end
 
 
@@ -40,11 +44,16 @@ class ['a] pre_menu_item_skel obj = object
   method as_item = (obj :> Gtk.menu_item obj)
   method set_submenu (w : 'a pre_menu) = MenuItem.set_submenu obj w#as_menu
   method remove_submenu () = MenuItem.remove_submenu obj
-  method configure = MenuItem.configure obj
+  method get_submenu = match MenuItem.get_submenu obj with 
+    | None -> None
+    | Some w -> Some (new GObj.widget w)
   method activate () = MenuItem.activate obj
-  method right_justify () = MenuItem.right_justify obj
+  method select () = MenuItem.select obj
+  method deselect () = MenuItem.deselect obj
+  method set_right_justified = MenuItem.set_right_justified obj
+  method right_justified = MenuItem.get_right_justified obj
   method add_accelerator ~group ?modi:m ?flags key=
-    Widget.add_accelerator obj ~sgn:MenuItem.Signals.activate group ?flags
+    Widget.add_accelerator obj ~sgn:MenuItem.S.activate group ?flags
       ?modi:m ~key
 end
 
@@ -61,37 +70,57 @@ let pack_item self ~packing ~show =
   if show <> Some false then self#misc#show ();
   self
 
-let menu_item ?label ?border_width ?width ?height ?packing ?show () =
-  let w = MenuItem.create ?label () in
-  Container.set w ?border_width ?width ?height;
+let menu_item ?use_mnemonic ?label ?right_justified ?packing ?show () =
+  let w = MenuItem.create ?use_mnemonic ?label () in
+  may right_justified ~f:(MenuItem.set_right_justified w);
   pack_item (new menu_item w) ?packing ?show
 
-let tearoff_item ?border_width ?width ?height ?packing ?show () =
+let tearoff_item ?packing ?show () =
   let w = MenuItem.tearoff_create () in
-  Container.set w ?border_width ?width ?height;
   pack_item (new menu_item w) ?packing ?show
 
-class check_menu_item_signals obj = object
+let separator_item ?packing ?show () =
+  let w = MenuItem.separator_create () in
+  pack_item (new menu_item w) ?packing ?show
+
+
+class image_menu_item obj = object
+  inherit menu_item_skel (obj : Gtk.image_menu_item obj)
+  method set_image w = set ImageMenuItem.P.image obj (as_widget w)
+  method image = new widget (get ImageMenuItem.P.image obj)
+  method connect = new menu_item_signals obj
+  method event = new GObj.event_ops obj
+end
+
+let image_menu_item 
+  ?image ?label ?(use_mnemonic=false) ?stock ?right_justified
+  ?packing ?show () =
+  let w = ImageMenuItem.create ?label ?stock ~use_mnemonic () in
+  may right_justified ~f:(MenuItem.set_right_justified w);
+  may image ~f:(fun im -> set ImageMenuItem.P.image w im#as_widget);
+  pack_item (new image_menu_item w) ?packing ?show
+
+class check_menu_item_signals obj = object (self)
   inherit menu_item_signals obj
-  method toggled =
-    GtkSignal.connect ~sgn:CheckMenuItem.Signals.toggled obj ~after
+  method toggled = self#connect CheckMenuItem.S.toggled
 end
 
 class check_menu_item obj = object
   inherit menu_item_skel obj
-  method set_active = CheckMenuItem.set_active obj
+  method set_active = set CheckMenuItem.P.active obj
+  method set_inconsistent = set CheckMenuItem.P.inconsistent obj
+  method inconsistent = get CheckMenuItem.P.inconsistent obj
   method set_show_toggle = CheckMenuItem.set_show_toggle obj
-  method active = CheckMenuItem.get_active obj
+  method active = get CheckMenuItem.P.active obj
   method toggled () = CheckMenuItem.toggled obj
   method connect = new check_menu_item_signals obj
   method event = new GObj.event_ops obj
 end
 
-let check_menu_item ?label ?active ?show_toggle
-    ?border_width ?width ?height ?packing ?show () =
-  let w = CheckMenuItem.create ?label () in
-  CheckMenuItem.set w ?active ?show_toggle;
-  Container.set w ?border_width ?width ?height;
+let check_menu_item ?label ?use_mnemonic ?active ?show_toggle ?right_justified
+    ?packing ?show () =
+  let w = CheckMenuItem.create ?use_mnemonic ?label () in
+  CheckMenuItem.set w ?active ?show_toggle ?right_justified;
   pack_item (new check_menu_item w) ?packing ?show
 
 class radio_menu_item obj = object
@@ -100,11 +129,10 @@ class radio_menu_item obj = object
   method set_group = RadioMenuItem.set_group obj
 end
 
-let radio_menu_item ?group ?label ?active ?show_toggle
-    ?border_width ?width ?height ?packing ?show () =
-  let w = RadioMenuItem.create ?group ?label () in
-  CheckMenuItem.set w ?active ?show_toggle;
-  Container.set w ?border_width ?width ?height;
+let radio_menu_item ?group ?label ?use_mnemonic ?active ?show_toggle 
+  ?right_justified ?packing ?show () =
+  let w = RadioMenuItem.create ?use_mnemonic ?group ?label () in
+  CheckMenuItem.set w ?active ?show_toggle ?right_justified;
   pack_item (new radio_menu_item w) ?packing ?show
 
 (* Menus *)
@@ -124,11 +152,13 @@ class menu obj = object
   method popdown () = Menu.popdown obj
   method as_menu : Gtk.menu obj = obj
   method set_accel_group = Menu.set_accel_group obj
+  method set_accel_path = Menu.set_accel_path obj
 end
 
-let menu ?border_width ?packing ?show () =
-  let w = Menu.create () in
-  may border_width ~f:(Container.set_border_width w);
+let menu ?accel_path ?border_width ?packing ?show () =
+  let w = Menu.create [] in
+  may border_width ~f:(set Container.P.border_width w);
+  may accel_path ~f:(fun ap -> Menu.set_accel_path w ap);
   let self = new menu w in
   may packing ~f:(fun f -> (f self : unit));
   if show <> Some false then self#misc#show ();
@@ -140,60 +170,103 @@ class option_menu obj = object
   inherit GButton.button_skel obj
   method connect = new GButton.button_signals obj
   method event = new GObj.event_ops obj
-  method set_menu (menu : menu) = OptionMenu.set_menu obj menu#as_menu
-  method get_menu = new menu (OptionMenu.get_menu obj)
+  method set_menu (menu : menu) = set OptionMenu.P.menu obj menu#as_menu
+  method get_menu = new menu (get OptionMenu.P.menu obj)
   method remove_menu () = OptionMenu.remove_menu obj
   method set_history = OptionMenu.set_history obj
 end
 
-let option_menu ?border_width ?width ?height ?packing ?show () =
-  let w = OptionMenu.create () in
-  Container.set w ?border_width ?width ?height;
-  pack_return (new option_menu w) ~packing ~show
+let option_menu ?menu =
+  let pl =
+    match menu with None -> []
+    | Some m -> [Gobject.param OptionMenu.P.menu m#as_menu] in
+  GContainer.pack_container pl ~create:
+    (fun pl -> new option_menu (OptionMenu.create pl))
 
 (* Menu Bar *)
 
-let menu_bar ?border_width ?width ?height ?packing ?show () =
-  let w = MenuBar.create () in
-  Container.set w ?border_width ?width ?height;
-  pack_return (new menu_shell w) ~packing ~show
+let menu_bar =
+  pack_container [] ~create:(fun p -> new menu_shell (MenuBar.create p))
 
 (* Menu Factory *)
 
 class ['a] factory
     ?(accel_group=AccelGroup.create ())
+    ?(accel_path="<DEFAULT ROOT>/")
     ?(accel_modi=[`CONTROL])
     ?(accel_flags=[`VISIBLE]) (menu_shell : 'a) =
   object (self)
     val menu_shell : #menu_shell = menu_shell
     val group = accel_group
     val m = accel_modi
-    val flags = accel_flags
+    val flags = (accel_flags:Gtk.Tags.accel_flag list)
+    val accel_path = accel_path
     method menu = menu_shell
     method accel_group = group
-    method private bind ?key ?callback (item : menu_item) =
+    method private bind ?(modi=m) ?key ?callback (item : menu_item) label =
       menu_shell#append item;
-      may key ~f:(item#add_accelerator ~group ~modi:m ~flags);
+      let accel_path = accel_path ^ label ^ "/" in
+      (* Default accel path value *)
+      GtkData.AccelMap.add_entry accel_path ?key ~modi:m;
+      (* Register this accel path *)
+      GtkBase.Widget.set_accel_path item#as_widget accel_path accel_group;
+      (* Already set by add_entry !
+	may key ~f:
+	(function key -> 
+	   item#add_accelerator ~group ~modi:m ~flags key;
+	);
+      *)
       may callback ~f:(fun callback -> item#connect#activate ~callback)
     method add_item ?key ?callback ?submenu label =
-      let item = menu_item ~label () in
-      self#bind item ?key ?callback;
+      let item = menu_item  ~use_mnemonic:true ~label () in
+      self#bind item ?key ?callback label;
       may (submenu : menu option) ~f:item#set_submenu;
       item
+    method add_image_item ?(image : widget option)
+        ?key ?callback ?stock ?label () =
+      let item = image_menu_item ~use_mnemonic:true ?image ?label ?stock () in
+      match stock  with 
+      | None -> 
+	  (match label with 
+	  | None -> 	      
+	      self#bind (item : image_menu_item :> menu_item) ?key
+	      ?callback "<NoLabel>/";
+	  | Some label ->
+	      self#bind (item : image_menu_item :> menu_item) ?key
+	      ?callback label);
+	  item
+      | Some s -> 
+	  try let st = GtkStock.Item.lookup s in
+	  (match label with 
+	   | None -> 
+	       self#bind (item : image_menu_item :> menu_item) 
+	      ?key:(if st.GtkStock.keyval=0 then key else 
+		      None)
+	      ?callback "<StockItem>/"
+	  | Some l -> 
+	      self#bind (item : image_menu_item :> menu_item) 
+	      ?key:(if st.GtkStock.keyval=0 then key else None)
+	      ?callback l
+	  ); item
+	  with Not_found -> item
+
     method add_check_item ?active ?key ?callback label =
-      let item = check_menu_item ~label ?active () in
+      let item = check_menu_item ~label ~use_mnemonic:true ?active () in
       self#bind (item : check_menu_item :> menu_item) ?key
-	?callback:(may_map callback ~f:(fun f () -> f item#active));
+	?callback:(may_map callback ~f:(fun f () -> f item#active)) label;
       item
     method add_radio_item ?group ?active ?key ?callback label =
-      let item = radio_menu_item ~label ?group ?active () in
+      let item = radio_menu_item ~label ~use_mnemonic:true ?group ?active () in
       self#bind (item : radio_menu_item :> menu_item) ?key
-	?callback:(may_map callback ~f:(fun f () -> f item#active));
+	?callback:(may_map callback ~f:(fun f () -> f item#active))
+	label;
       item
-    method add_separator () = menu_item ~packing:menu_shell#append ()
+    method add_separator () = 
+      let m = separator_item ~packing:menu_shell#append () in
+      m
     method add_submenu ?key label =
-      let item = menu_item ~label () in
-      self#bind item ?key;
-      menu ~packing:item#set_submenu ();
+      let item = menu_item ~use_mnemonic:true ~label () in
+      self#bind item ?key label;
+      menu ~packing:item#set_submenu ()
     method add_tearoff () = tearoff_item ~packing:menu_shell#append ()
 end

@@ -1,4 +1,4 @@
-(* $Id: gtkXmHTML.ml,v 1.3 2002/05/30 05:49:09 garrigue Exp $ *)
+(* $Id: gtkXmHTML.ml,v 1.4 2003/02/20 06:47:53 garrigue Exp $ *)
 
 open Gtk
 

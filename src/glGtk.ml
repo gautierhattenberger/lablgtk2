@@ -1,4 +1,4 @@
-(* $Id: glGtk.ml,v 1.15 2002/06/19 10:09:53 garrigue Exp $ *)
+(* $Id: glGtk.ml,v 1.19 2003/07/02 03:04:12 garrigue Exp $ *)
 
 open Gaux
 open Gtk
@@ -21,7 +21,7 @@ type visual_options = [
   | `ACCUM_ALPHA_SIZE of int
 ]
 
-type gl_area = [Gtk.widget|`drawing|`glarea]
+type gl_area = [Gtk.drawing_area|`glarea]
 
 module GtkRaw = struct
   external create :
@@ -29,7 +29,7 @@ module GtkRaw = struct
     = "ml_gtk_gl_area_new"
 
   external swap_buffers : [>`glarea] obj -> unit
-    = "ml_gtk_gl_area_swapbuffers"
+    = "ml_gtk_gl_area_swap_buffers"
 
   external make_current : [>`glarea] obj -> bool
     = "ml_gtk_gl_area_make_current"
@@ -37,7 +37,7 @@ end
 
 class area_signals obj =
 object (connect)
-  inherit GObj.widget_signals (obj : [> gl_area] obj)
+  inherit GObj.widget_signals_impl (obj : [> gl_area] obj)
   method display ~callback =
     (new GObj.event_signals ~after obj)#expose ~callback:
       begin fun ev ->

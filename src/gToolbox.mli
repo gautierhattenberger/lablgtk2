@@ -1,4 +1,4 @@
-(* $Id: gToolbox.mli,v 1.3 2002/10/30 09:51:54 guesdon Exp $ *)
+(* $Id: gToolbox.mli,v 1.5 2003/04/11 15:01:56 guesdon Exp $ *)
 
 (** Useful functions for LablGTK. *)
 
@@ -17,7 +17,7 @@ val build_menu : GMenu.menu -> entries: menu_entry list -> unit
 
 (** Popup a menu created from the given list of 
    labels and functions. *)
-val popup_menu : entries: menu_entry list -> button: int -> time: int -> unit
+val popup_menu : entries: menu_entry list -> button: int -> time: int32 -> unit
 
 (** {2 Parametrized dialog windows} *)
 
@@ -67,12 +67,13 @@ val input_string :
    @param title the title of the dialog
    @param ok the text for the confirmation button (default is "Ok")
    @param cancel the text for the cancel button (default is "Cancel")
-   @param text the default text displayed in the entry widget
+   @param text the default text displayed in the entry widget (utf8)
    @param message the text to display
 *)
- val input_text :
+val input_text :
     title:string ->
-    ?ok:string -> ?cancel:string -> ?text:string -> string -> string option
+      ?ok:string -> ?cancel:string -> ?text:string -> string -> string option
+
 
 (**This function allows the user to select a file and returns the
    selected file name.
@@ -88,7 +89,7 @@ type 'a tree = [ `L of 'a | `N of 'a * 'a tree list]
 (** A class to make the user select a node in a tree.
    @param tree is the tree to display.
    @param label gives a label from the data of a node.
-   @param info gives a string from the data of a node,
+   @param info gives a (Utf8) string from the data of a node,
           to give more information to the user when he selects
           a node.
    @param width is the width of the tree widget
@@ -105,7 +106,7 @@ class ['a] tree_selection :
     val mutable selection : 'a option
     method clear_selection : unit -> unit
     method selection : 'a option
-    method wtext : GEdit.text
+    method wview : GText.view
     method wtree : GTree.tree
   end
 

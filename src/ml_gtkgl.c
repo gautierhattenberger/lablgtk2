@@ -1,4 +1,4 @@
-/* $Id: ml_gtkgl.c,v 1.3 2002/07/15 03:43:29 garrigue Exp $ */
+/* $Id: ml_gtkgl.c,v 1.5 2003/07/02 03:04:12 garrigue Exp $ */
 
 #include <gtk/gtk.h>
 #include <gtkgl/gtkglarea.h>
@@ -10,6 +10,7 @@
 
 #include "wrappers.h"
 #include "ml_glib.h"
+#include "ml_gobject.h"
 #include "ml_gdk.h"
 #include "ml_gtk.h"
 #include "gtkgl_tags.h"
@@ -17,7 +18,7 @@
 /* Conversion functions */
 #include "gtkgl_tags.c"
 
-#define GtkGLArea_val(val) ((GtkGLArea*)GtkObject_val(val))
+#define GtkGLArea_val(val) check_cast(GTK_GL_AREA,val)
 
 CAMLprim value ml_gtk_gl_area_new (value list, value share)
 {
@@ -44,11 +45,11 @@ CAMLprim value ml_gtk_gl_area_new (value list, value share)
     }
     attrs[i] = GDK_GL_NONE;
 
-    res = Val_GtkObject
+    res = Val_GtkObject_sink
 	((GtkObject*)gtk_gl_area_share_new(attrs,GtkGLArea_val(share)));
     stat_free(attrs);
     return res;
 }
 
 ML_1 (gtk_gl_area_make_current, GtkGLArea_val, Val_bool)
-ML_1 (gtk_gl_area_swapbuffers, GtkGLArea_val, Unit)
+ML_1 (gtk_gl_area_swap_buffers, GtkGLArea_val, Unit)

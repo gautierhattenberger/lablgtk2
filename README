@@ -1,41 +1,66 @@
 
-             LablGTK 1.2.6 : an interface to the GIMP Tool Kit
+             LablGTK2 : an interface to the GIMP Tool Kit
 
 Needed:
-	ocaml-3.06 or ocaml-3.07
-	gtk-1.2.x
+	ocaml-3.07
+	gtk+-2.x (preferably gtk+-2.2.x)
 	GNU make (there is no standard for conditionals)
 
 Info/upgrades:
         http://wwwfun.kurims.kyoto-u.ac.jp/soft/olabl/lablgtk.html
 
+Status:
+  LablGtk2 is now pretty stable, but it has not been as thoroughly
+  tested as LablGtk.
+  
+  Support for the old text widget has been dropped, but it is
+  replaced by a new one, much more powerful (thanks to Benjamin
+  Monate).
+
+  Another important change in gtk-2 is the use of unicode (utf8) for
+  all strings. If you use non-ascii strings, you must imperatively
+  convert them to unicode. This can be done with the
+  [Glib.Convert.locale_to_utf8] function. If your input is already in
+  utf8, it is still a good idea to validate it with
+  Glib.Utf8.validate, as malformed utf8 strings may cause segmentation
+  faults.
+  Note that setlocale is now always called (except if you set
+  GTK_SETLOCALE to 0 in the environment), but LC_NUMERIC is reverted
+  to "C" to avoid problems with floating point conversion in Caml.
+
+  There are of course many other changes and additions.
+
 How to compile:
 
-	You should normally not need to modify Makefiles.
-	First type "make configure <options>".
-	Options are
-                USE_DOTOPT=1    to use ocaml.opt and ocamlopt.opt
-		USE_CC=1	to use $(CC) rather than gcc
-		USE_GL=1	to compile with OpenGL support (see lower)
-		USE_GNOME=1	to compile GdkPixbuf and GtkXmHTML support
-                USE_GLADE=1     to compile libglade support
-        The following variables will also be remembered if passed as options
-                BINDIR INSTALLDIR DLLDIR DEBUG CC
-                CAMLC CAMLOPT CAMLMKTOP CAMLMKLIB CAMLP40
-        or you may directly edit config.make.
-        Note that if you change DLLDIR, you should add the new directory
-        either to OCAMLLIB/ld.conf or to CAML_LD_LIBRARY_PATH before
-	running programs.
-        If gtk-config has a different name, you can set the GTK_CONFIG
-        variable  to it (e.g. FreeBSD).
+  You should normally not need to modify Makefiles.
+  
+  In case you are using the CVS version first type "aclocal && autoconf".
+  
+  Type "./configure && make world && make install" to compile 
+  with all supported options enabled (libgl, libglade, libgnomecanvas, 
+  librsvg, native compilation, thread support).
+  
+  You may use "./configure --help" to check for the different 
+  configuration options.
 
-	Then just type "make" to build the library and toplevels.
+  Lablgtk2 specific options are:
 
-        If you are using the windows precompiled version, you must
-        first obtain gtk-win32-dlls.zip from the above location,
-        and then copy bin\lablgtk.bat, lib\stublibs\dlllablgtk.dll and
-        lib\lablgtk to their respective locations in the OCaml
-        distribution.
+	--with-libdir=/path: install libs in /path/lablgtk2 
+			     and /path/stublibs
+	--with-gl --without-gl: override autodetected GtkGLArea support. 
+				Requires LablGL
+	--with-glade --without-glade: override autodetected libglade support
+	--with-rsvg --without-rsvg: override autodetected librsvg support
+	--with-gnomecanvas --without-gnomecanvas: 
+		override autodetected libgnomecanvas support
+	--enable-debug: enable debug mode
+
+  "make install DESTDIR=..." prefixes the installation
+  directories with DESTDIR.
+
+  A META file for findlib is provided, but it only handles the
+  base library: I have no idea on how to avoid a combinatorial
+  explosion with the various extensions.
 
 Contents:
 
@@ -45,25 +70,18 @@ Contents:
 	g[A-Z]*.ml	object-oriented interface to GTK
 	gdkObj.ml	object-oriented interface to GDK
 
-	lablgtk		toplevel
-        lablgladecc     glade compiler
+	lablgtk2	toplevel
 
 	examples/*.ml	various examples
-	applications/*	applications using the library
-                camlirc         an IRC (chat) client
-                                (by Nobuaki Yoshida)
-		radtest		a very experimental RAD for lablgtk
-				(by Hubert Fauque)
-		browser		the begin of a port of OCamlBrowser
-				(by Jacques Garrigue)
-                unison          a frontend for the Unison file synchronizer
-                                see the README for details.
+
+        applications/browser    an ongoing port of ocamlbrowser
+        applications/unison     a patch for unison-2.9.45
 
 How to run the examples:
   In the examples directory just type:
-	lablgtk ???.ml
+	lablgtk2 ???.ml
 
-  Before installing lablgtk you have to be more explicit:
+  Before installing lablgtk2 you have to be more explicit:
         setenv CAML_LD_LIBRARY_PATH ../src  (or export CAML..PATH=../src)
 	../src/lablgtktop -w s -I ../src ???.ml
 
@@ -72,11 +90,11 @@ How to link them:
         let locale = GtkMain.Main.init ()
   You must either add this line, or add this module to your link,
   before calling any Gtk function.
-  ocamlc -I CAMLLIB/lablgtk -w s lablgtk.cma gtkInit.cmo ???.ml -o ???
+  ocamlc -I +lablgtk2 -w s lablgtk.cma gtkInit.cmo ???.ml -o ???
 
 How to use the threaded toplevel:
 
-	% lablgtk -thread           (or ./lablgtktop_t before installing)
+	% lablgtk2 -thread           (or ./lablgtktop_t before installing)
 	        Objective Caml version 3.06
 	
 	# let w = GWindow.window ~show:true ();;
@@ -97,35 +115,6 @@ How to use the threaded toplevel:
   When using threads in a stand-alone application, you must link with
   gtkThread.cmo and call GtkThread.main in place of GMain.main.
 
-Locale or not locale ?
-  Until version 1.2.0, lablgtk called setlocale automatically on
-  intitialization. Unfortunately, this appears to have side effects
-  in some cases, paritcularly when the locale defines a numeric
-  format different from the standard one.
-  Since locale must be set before initialization, you may do it in two
-  ways:
-    * set the GTK_SETLOCALE environment variable to a non-0 value
-    * use the ~setlocale parameter to GMain.Main.init (if you do not link
-      gtkInit.cmo)
-  Note that GTK_SETLOCALE, when set, overrides ~setlocale.
-  On some systems you may also need to link libxpg4.so for the locale to
-  work.
-
-Upgrading from lablgtk-1.00:
-  There are a few incompatibilities between 1.00 and 1.2.x releases.
-  We do not describe them all, since usually a type error message will
-  inform you.
-  * all signals are no longer under #connect. #connect#event changed
-    to #event#connect, and some signals are under #misc#connect or
-    #grab#connect. See lower for a description of the new widget
-    structure.
-  * some defaults changed. In particular GPack.box#pack have now all
-    its parameters defaulting to false rather than true. See lower for
-    the new default policy. Beware that this does not cause type
-    errors, just changes in the aspect.
-  * coerce functions disappeared from Gtk*.ml. You can now coerce with
-    (w :> Gtk.mywidget Gtk.obj), thanks to variance annotations.
-
 Structure of the (raw) Gtk* modules:
 
   These modules are composed of one submodule for each class.
@@ -137,6 +126,7 @@ Structure of the G[A-Z]* modules:
   These modules provide classes to wrap the raw function calls.
   Here are the widget classes contained in each module:
 
+  GPango        Pango font handling
   GDraw         Gdk pixmaps, etc...
   GObj		gtkobj, widget, style
   GData		data, adjustment, tooltips
@@ -151,10 +141,11 @@ Structure of the G[A-Z]* modules:
   GMisc		separator, statusbar, calendar, drawing_area,
 		misc, arrow, image, pixmap, label, tips_query,
                 color_selection, font_selection
-  GTree		tree_item, tree
+  GTree		tree_item, tree, view (also tree/list_store, model)
   GList		list_item, liste, clist
-  GEdit		editable, entry, spin_button, combo, text
+  GEdit		editable, entry, spin_button, combo
   GRange	progress, progress_bar, range, scale, scrollbar
+  GText		view (also buffer, iter, mark, tag, tagtable)
 
   While subtyping follows the Gtk widget hierarchy, you cannot always
   use width subtyping (i.e. #super is not unifiable with all the
@@ -165,20 +156,23 @@ Structure of the G[A-Z]* modules:
   Practically, each widget class is composed of:
   * a coerce method, returning the object coerced to the type widget.
   * an as_widget method, returning the raw Gtk widget used for packing, etc...
+  * a destroy method, sending the destroy signal to the object.
+  * a get_oid method, the equivalent of Oo.id for Gtk objects.
   * a connect sub-object, allowing one to widget specific
     signals (this is what prevents width subtyping in subclasses.)
   * a misc sub-object, giving access to miscellanous functionality of
     the basic gtkwidget class, and a misc#connect sub-object.
   * an event sub-object, for Xevent related functions (only if the widget
     has an Xwindow), and an event#connect sub-object.
-  * a grab sub-object, containing drag and drop functions,
-    and a grab#connect sub-object.
+  * a drag  sub-object, containing drag and drop functions,
+    and a drag#connect sub-object.
   * widget specific methods.
 
   Here is a diagram of the structure (- for methods, + for sub-objects)
         - coerce : widget
         - as_widget : Gtk.widget obj
         - destroy : unit -> unit
+        - get_oid : int
         - ...
         + connect : mywidget_signals
         |   - after
@@ -186,12 +180,12 @@ Structure of the G[A-Z]* modules:
         + misc : misc_ops
         |   - show, hide, disconnect, ...
         |   + connect : misc_signals
+        + drag : drag_ops
+        |   - ...
+        |   + connect : drag_signals
         + event : event_ops
         |   - add, ...
         |   + connect : event_signals
-        + grab : grab_ops
-        |   - ...
-        |   + connect : grab_signals
 
   You create a widget by [<Module>.<widget name> options ... ()].
   Many optional arguments are admitted. The last two of them, packing:
@@ -228,6 +222,11 @@ ML-side signals:
   develop complex applications, abstracting the plumbing between
   various components. Explanations are provided in GUtil.mli.
 
+Comments on some widgets:
+  GText has changed a lot since the alpha release. In particular, most
+  movements with GText.iter are now functional. You can still modify
+  destructively by using the #nocopy interface.
+
 Contributed components:
 
   The GToolbox module contains contributed components to help you build
@@ -249,6 +248,13 @@ Memory management:
   its last container is destroyed. For this reason you need only
   destroy toplevel widgets.
 
+  IMPORTANT: Some Gtk data structures are allocated in the Caml heap,
+  and there use in signals (Gtk functions internally cally callbacks)
+  relies on their address being stable during a function call. For
+  this reason automatic compation is disabled in GtkMain. If you need
+  it, you may use compaction through Gc.compact where it is safe
+  (timeouts, other threads...), but do not enable automatic compaction.
+
 LibGlade support:
 
   There is support for Glade generated XML UI description files, using
@@ -259,84 +265,58 @@ LibGlade support:
   object corresponding to the intended layout, and access individual
   widgets through its methods. Example:
 
-        % lablgladecc project1.glade > project1.ml
-        % lablgtk -thread
+        % lablgladecc2 project1.glade > project1.ml
+        % lablgtk2 -thread
         # #use "project1.ml" ;;
         class window1 : ...
         # let w1 = new window1 () ;;
         # w1#bind ~name:"on_paste1_activate"
             ~callback:(fun () -> w1#text1#insert "some text\n");;
 
-  See lablgladecc -help for other features (tracing and source
+  See lablgladecc2 -help for other features (tracing and source
   embedding).
-  The xecutable must be linked with lablglade.cma.
+  The executable must be linked with lablglade.cma.
 
-External prototyping tools:
-  Two other tools are available for GUI prototyping
-
-  MLglade compiles a glade description file to lablgtk source code,
-  rather than the dynamic interpretation of lablglade.
-        http://www.lri.fr/~monate/mlglade
-
-  Zoggy is GUI builder writte in OCaml, which also generates lablgtk
-  source code. It is much more advanced than radtest, which is only
-  left as code sample.
-        http://pauillac.inria.fr/~guesdon/Tools/zoggy/zoggy.html
-  
 GL extension:
 
   You can use lablgtk in combination with LablGL
 
-  * get and install lablGL 0.98 from
+  * get and install lablGL 0.99 from
     http://wwwfun.kurims.kyoto-u.ac.jp/soft/olabl/lablgl.html
-  * get and install gtkglarea-1.2.x.tar.gz from
+  * get and install gtkglarea-1.99.x.tar.gz from
     http://www.student.oulu.fi/~jlof/gtkglarea/index.html
   * reconfigure: "make configure USE_GL=1"
-      You can also set the GLLIBS variable to the libraries you must
-      link with. The default is "-lGLU -lGL". Due to a bug in ld.so,
-      this should be empty on some systems, including Solaris 8.
 
   You can then use the widget GlGtk.gl_area as an OpenGL window.
   Some examples are in examples/GL, but basically any LablGL example
   can be easily ported.
-  The executable must be linked with both lablgl.cma and lablgtkgl.cma.
+  The executable must be linked with both lablgl.cma and
+  lablgtkgl.cma.
 
-Gnome support
+SVG support:
 
-  There is no real gnome support, but there is support for the
-  gdk-pixbuf and GtkXmHtml libraries. See the GdkPixpuf and GHtml
-  modules for details. you will need to link with lablgnome.cma.
+  This binding was contributed by Olivier Andrieu.
+  It requires librsvg-2.x (preferably 2.2.x).
+  See an example in examples/rsvg.
+  The executable must be linked with lablrsvg.cma.
+
+GnomeCanvas support:
+
+  This binding was also contributed by Olivier Andrieu.
+  It requires libgnomecanvas-2.x.
+  See examples in examples/canvas.
+  The executable must be linked with lablgnomecanvas.cma.
 
 Windows port
 
-  A Win32 port is provided. A binary version for use with the
-  precompiled version of Objective Caml on Windows is avilable on the
-  LablGTK web site.
-  If you want to compile it yourself, you will need to get and unpack
-  libiconv-*.zip, libintl-*.zip, glib-*.zip and gtk+-1.3.0-*.zip from
-        http://www.gimp.org/~tml/gimp/win32/
-  Do not forget to get all the -dev- packages.
-  The file include/gdk/win32/gdkwin32-private.h seems to be missing
-  from the above distribution, so I included it in this
-  package. Please copy it to its right location.
+  Windows is not explicitely supported in this release, but some kind
+  souls seem to have made it work anyway. It should work pretty much
+  like on Unix.
+	
+  See README.win32 for detailed information on installation.
 
-  Edit config.make.nt, then, using Visual C++ with cygwin tools,
-        cd src
-        make -f Makefile.nt
-        make -f Makefile.nt opt        (if you have an MS Assembler)
-  Then install with
-        make -f Makefile.nt install
-
-  Since the link is dynamic you will also need to have in your path:
-  libintl-1.dll (extralibs), iconv.dll (iconv), libglib-2.0-0.dll and
-  libgmodule-2.0-0.dll (glib), libgdk-0.dll and libgtk-0.dll (gtk+).
-
-  I checked with the 2002-07-03 version of these libraries.
-  Everything seems OK. In particular, you can run all examples, and build
-  applications/unison as usual.
-
-  However, if you want to use threads, you must be aware of windows
-  specific restrictions; see for instance:
+  If you want to use threads, you must be aware of windows specific
+  restrictions; see for instance:
      http://groups.yahoo.com/group/gimpwin-dev/message/1828
   I.e. all GTK related calls must occur in the same thread, the one
   that runs the main loop. If you want to call them from other threads
@@ -353,7 +333,7 @@ Windows port
   in them. Also, non-graphical operations are thread-safe.
   Here is an example using the lablgtk toplevel with threads:
 	% lablgtk -thread
-	        Objective Caml version 3.03
+	        Objective Caml version 3.06
 
         # open GtkThread;;	
 	# let w = sync (GWindow.window ~show:true) ();;
@@ -362,11 +342,14 @@ Windows port
 
 Authors:
 	Jacques Garrigue <garrigue@kurims.kyoto-u.ac.jp>
+	Benjamin Monate  <monate@lix.polytechnique.fr>
+        Olivier Andrieu  <oandrieu@nerim.net>
+	Jun Furuse       <Jun.Furuse@inria.fr>
+  For lablgtk1:
 	Hubert Fauque  <hubert.fauque@wanadoo.fr>
-	Jun Furuse     <Jun.Furuse@inria.fr>
 	Koji Kagawa    <kagawa@eng.kagawa-u.ac.jp>
 				   
 Bug reports:
 	Jacques Garrigue <garrigue@kurims.kyoto-u.ac.jp>
 
-$Id: README,v 1.64.2.1 2003/10/03 10:02:29 garrigue Exp $
+$Id: README,v 1.75 2003/10/10 06:27:52 garrigue Exp $

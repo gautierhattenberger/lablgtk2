@@ -1,10 +1,11 @@
-(* $Id: gList.ml,v 1.29.2.1 2003/05/15 14:18:21 furuse Exp $ *)
+(* $Id: gList.ml,v 1.34 2003/08/15 11:08:42 garrigue Exp $ *)
 
 open StdLabels
 open Gaux
 open Gtk
 open GtkBase
 open GtkList
+open OgtkListProps
 open GObj
 open GContainer
 
@@ -18,28 +19,28 @@ class list_item obj = object
   method connect = new item_signals obj
 end
 
-let list_item ?label ?border_width ?width ?height ?packing ?(show=true) () =
+let list_item ?label ?packing ?(show=true) () =
   let w = ListItem.create ?label () in
-  Container.set w ?border_width ?width ?height;
   let item = new list_item w in
   may packing ~f:(fun f -> (f item : unit));
   if show then item#misc#show ();
   item
 
-class liste_signals obj = object
-  inherit container_signals (obj : Gtk.liste obj)
-  method selection_changed =
-    GtkSignal.connect obj ~sgn:Liste.Signals.selection_changed ~after
+class liste_signals obj = object (self)
+  inherit container_signals_impl (obj : Gtk.liste obj)
+  method selection_changed = self#connect Liste.S.selection_changed
   method select_child ~callback =
-    GtkSignal.connect obj ~sgn:Liste.Signals.select_child ~after
+    self#connect Liste.S.select_child
       ~callback:(fun w -> callback (new list_item (ListItem.cast w))) 
   method unselect_child ~callback =
-    GtkSignal.connect obj ~sgn:Liste.Signals.unselect_child ~after
+    self#connect Liste.S.unselect_child
       ~callback:(fun w -> callback (new list_item (ListItem.cast w))) 
 end
 
 class liste obj = object
   inherit [list_item] item_container (obj : Gtk.liste obj)
+  method private obj = obj
+  inherit liste_props
   method private wrap w = new list_item (ListItem.cast w)
   method connect = new liste_signals obj
   method insert w = Liste.insert_item obj w#as_item
@@ -49,32 +50,20 @@ class liste obj = object
   method child_position (w : list_item) = Liste.child_position obj w#as_item
 end
 
-let liste ?selection_mode ?border_width ?width ?height
-    ?packing ?show () =
-  let w = Liste.create () in
-  may selection_mode ~f:(Liste.set_selection_mode w);
-  Container.set w ?border_width ?width ?height;
-  pack_return (new liste w) ~packing ~show
+let liste =
+  Liste.make_params [] ~cont:(
+  GContainer.pack_container ~create:(fun p -> new liste (Liste.create p)))
 
 (* Cell lists *)
 
 class clist_signals obj = object
-  inherit container_signals obj
-  method click_column =
-    GtkSignal.connect ~sgn:CList.Signals.click_column obj ~after
-  method select_row =
-    GtkSignal.connect ~sgn:CList.Signals.select_row obj ~after
-  method unselect_row =
-    GtkSignal.connect ~sgn:CList.Signals.unselect_row obj ~after
-  method scroll_vertical =
-    GtkSignal.connect ~sgn:CList.Signals.scroll_vertical obj ~after
-  method scroll_horizontal =
-    GtkSignal.connect ~sgn:CList.Signals.scroll_horizontal obj ~after
+  inherit container_signals_impl (obj : [> Gtk.clist] obj)
+  inherit clist_sigs
 end
 
 class ['a] clist obj = object (self)
   inherit widget (obj : Gtk.clist obj)
-  method set_border_width = Container.set_border_width obj
+  method set_border_width = Gobject.set Container.P.border_width obj
   method event = new GObj.event_ops obj
   method connect = new clist_signals obj
   method rows = CList.get_rows obj
@@ -152,29 +141,24 @@ class ['a] clist obj = object (self)
     CList.set_row_data obj ~row:n (Obj.repr (data : 'a))
   method get_row_data n : 'a = Obj.obj (CList.get_row_data obj ~row:n)
   method scroll_vertical =
-    CList.Signals.emit_scroll obj ~sgn:CList.Signals.scroll_vertical
+    CList.emit_scroll obj ~sgn:CList.S.scroll_vertical
   method scroll_horizontal =
-    CList.Signals.emit_scroll obj ~sgn:CList.Signals.scroll_horizontal
+    CList.emit_scroll obj ~sgn:CList.S.scroll_horizontal
   method get_row_state row = CList.get_row_state obj row
-  method selection = CList.selection obj
 end
 
-let clist_poly ?(columns=1) ?titles ?hadjustment ?vadjustment
-    ?shadow_type ?button_actions ?selection_mode
-    ?reorderable ?use_drag_icons ?row_height
-    ?titles_show ?titles_active ?auto_sort ?sort_column ?sort_type
-    ?border_width ?width ?height ?packing ?show () =
-  let w =
-    match titles with None -> CList.create ~cols:columns
-    | Some titles -> CList.create_with_titles (Array.of_list titles)
-  in
-  CList.set w 
-    ?hadjustment:(may_map ~f:GData.as_adjustment hadjustment)
-    ?vadjustment:(may_map ~f:GData.as_adjustment vadjustment)
-    ?shadow_type ?button_actions ?selection_mode ?reorderable
-    ?use_drag_icons ?row_height ?titles_show ?titles_active;
-  CList.set_sort w ?auto:auto_sort ?column:sort_column ?dir:sort_type ();
-  Container.set w ?border_width ?width ?height;
-  pack_return (new clist w) ~packing ~show
+let clist_poly ?(columns=1) ?hadjustment ?vadjustment ?titles =
+  CList.setter ?hadjustment:(may_map GData.as_adjustment hadjustment)
+    ?vadjustment:(may_map GData.as_adjustment vadjustment) ~cont:(
+  fun f  ?auto_sort ?sort_column ->
+    CList.make_params [] ~cont:(
+    GContainer.pack_container ~create:(fun p ->
+      let w =
+        match titles with None -> CList.create ~cols:columns
+        | Some titles -> CList.create_with_titles (Array.of_list titles)
+      in
+      Gobject.set_params w p; f w;
+      CList.set_sort w ?auto:auto_sort ?column:sort_column ();
+      new clist w)))
 
 let clist = clist_poly

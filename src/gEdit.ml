@@ -1,40 +1,19 @@
-(* $Id: gEdit.ml,v 1.21.10.1 2003/05/13 07:52:43 garrigue Exp $ *)
+(* $Id: gEdit.ml,v 1.26 2003/08/15 11:08:42 garrigue Exp $ *)
 
 open Gaux
 open Gtk
 open GtkBase
 open GtkEdit
+open OgtkEditProps
 open GObj
 
 class editable_signals obj = object
-  inherit widget_signals obj
-  method activate = GtkSignal.connect ~sgn:Editable.Signals.activate obj ~after
-  method changed = GtkSignal.connect ~sgn:Editable.Signals.changed obj ~after
-  method insert_text =
-    GtkSignal.connect ~sgn:Editable.Signals.insert_text obj ~after
-  method delete_text =
-    GtkSignal.connect ~sgn:Editable.Signals.delete_text obj ~after
-  method copy_clipboard = 
-    GtkSignal.connect ~sgn:Editable.Signals.copy_clipboard obj ~after
-  method cut_clipboard = 
-    GtkSignal.connect ~sgn:Editable.Signals.cut_clipboard obj ~after
-  method paste_clipboard = 
-    GtkSignal.connect ~sgn:Editable.Signals.paste_clipboard obj ~after
-  method move_cursor = 
-    GtkSignal.connect ~sgn:Editable.Signals.move_cursor obj ~after
-  method move_page = 
-    GtkSignal.connect ~sgn:Editable.Signals.move_page obj ~after
-  method move_word = 
-    GtkSignal.connect ~sgn:Editable.Signals.move_word obj ~after
-  method move_to_row = 
-    GtkSignal.connect ~sgn:Editable.Signals.move_to_row obj ~after
-  method move_to_column = 
-    GtkSignal.connect ~sgn:Editable.Signals.move_to_column obj ~after
+  inherit widget_signals_impl (obj : [>editable] obj)
+  inherit editable_sigs
 end
 
 class editable obj = object
-  inherit widget obj
-  method connect = new editable_signals obj
+  inherit ['a] widget_impl obj
   method select_region = Editable.select_region obj
   method insert_text = Editable.insert_text obj
   method delete_text = Editable.delete_text obj
@@ -45,91 +24,74 @@ class editable obj = object
   method delete_selection () = Editable.delete_selection obj
   method set_position = Editable.set_position obj
   method position = Editable.get_position obj
-  method set_editable = Editable.set_editable obj
-  method selection =
-    if Editable.has_selection obj then
-      Some (Editable.selection_start_pos obj, Editable.selection_end_pos obj)
-    else None
-  method move_cursor = Editable.emit_move_cursor obj
-  method move_page = Editable.emit_move_page obj
-  method move_word = Editable.emit_move_word obj
-  method move_to_row = Editable.emit_move_to_row obj
-  method move_to_column = Editable.emit_move_to_column obj
+  method selection = Editable.get_selection_bounds obj
+end
+
+class entry_signals obj = object (self)
+  inherit editable_signals obj
+  inherit entry_sigs
+  method populate_popup ~callback =
+    self#connect Entry.S.populate_popup ~callback:
+      (fun m -> callback (new GMenu.menu m))
 end
 
 class entry obj = object
   inherit editable obj
+  method connect = new entry_signals obj
+  inherit entry_props
   method event = new GObj.event_ops obj
-  method set_text = Entry.set_text obj
   method append_text = Entry.append_text obj
   method prepend_text = Entry.prepend_text obj
-  method set_visibility = Entry.set_visibility obj
-  method set_max_length = Entry.set_max_length obj
-  method text = Entry.get_text obj
   method text_length = Entry.text_length obj
 end
 
-let set_editable ?editable ?(width = -2) ?(height = -2) w =
-  may editable ~f:(Editable.set_editable w);
-  if width <> -2 || height <> -2 then Widget.set_usize w ~width ~height
+let pack_sized ~create pl =
+  Widget.size_params pl ~cont:
+    (fun pl ?packing ?show () -> pack_return (create pl) ~packing ~show)
 
-let entry ?max_length ?text ?visibility ?editable
-    ?width ?height ?packing ?show () =
-  let w = Entry.create ?max_length () in
-  Entry.set w ?text ?visibility;
-  set_editable w ?editable ?width ?height;
-  pack_return (new entry w) ~packing ~show
+let entry =
+  Entry.make_params [] ~cont:(
+  pack_sized ~create:(fun pl -> new entry (Entry.create pl)))
+
+class spin_button_signals obj = object
+  inherit entry_signals obj
+  inherit spin_button_sigs
+end
 
 class spin_button obj = object
-  inherit entry (obj : Gtk.spin_button obj)
-  method adjustment =  new GData.adjustment (SpinButton.get_adjustment obj)
-  method value = SpinButton.get_value obj
+  inherit [Gtk.spin_button] widget_impl obj
+  method connect = new spin_button_signals obj
+  method event = new event_ops obj
+  inherit spin_button_props
   method value_as_int = SpinButton.get_value_as_int obj
   method spin = SpinButton.spin obj
   method update = SpinButton.update obj
-  method set_adjustment adj =
-    SpinButton.set_adjustment obj (GData.as_adjustment adj)
-  method set_digits = SpinButton.set_digits obj
-  method set_value = SpinButton.set_value obj
-  method set_update_policy = SpinButton.set_update_policy obj
-  method set_numeric = SpinButton.set_numeric obj
-  method set_wrap = SpinButton.set_wrap obj
-  method set_shadow_type = SpinButton.set_shadow_type obj
-  method set_snap_to_ticks = SpinButton.set_snap_to_ticks obj
 end
 
-let spin_button ?adjustment ?rate ?digits ?value ?update_policy
-    ?numeric ?wrap ?shadow_type ?snap_to_ticks
-    ?width ?height ?packing ?show () =
-  let w = SpinButton.create ?rate ?digits
-      ?adjustment:(may_map ~f:GData.as_adjustment adjustment) () in
-  SpinButton.set w ?value ?update_policy
-    ?numeric ?wrap ?shadow_type ?snap_to_ticks;
-  set_editable w ?width ?height;
-  pack_return (new spin_button w) ~packing ~show
+let spin_button ?adjustment =
+  SpinButton.make_params []
+    ?adjustment:(may_map ~f:GData.as_adjustment adjustment) ~cont:(
+  pack_sized ~create:(fun pl -> new spin_button (SpinButton.create pl)))
 
 class combo obj = object
-  inherit GObj.widget (obj : Gtk.combo obj)
+  inherit [Gtk.combo] widget_impl obj
+  inherit combo_props
   method entry = new entry (Combo.entry obj)
   method list = new GList.liste (Combo.list obj)
   method set_popdown_strings = Combo.set_popdown_strings obj
-  method set_use_arrows = Combo.set_use_arrows' obj
-  method set_case_sensitive = Combo.set_case_sensitive obj
-  method set_value_in_list = Combo.set_value_in_list obj
   method disable_activate () = Combo.disable_activate obj
   method set_item_string (item : GList.list_item) =
     Combo.set_item_string obj item#as_item
 end
 
-let combo ?popdown_strings ?use_arrows
-    ?case_sensitive ?value_in_list ?ok_if_empty
-    ?border_width ?width ?height ?packing ?show () =
-  let w = Combo.create () in
-  Combo.set w ?popdown_strings ?use_arrows
-    ?case_sensitive ?value_in_list ?ok_if_empty;
-  Container.set w ?border_width ?width ?height;
-  pack_return (new combo w) ~packing ~show
+let combo ?popdown_strings =
+  Combo.make_params [] ~cont:(
+  GContainer.pack_container ~create:(fun pl ->
+    let w = Combo.create pl in
+    may (Combo.set_popdown_strings w) popdown_strings;
+    new combo w))
 
+(*
 class text obj = object (self)
   inherit editable (obj : Gtk.text obj) as super
   method get_chars ~start ~stop:e =
@@ -155,8 +117,6 @@ class text obj = object (self)
     Text.insert obj text ?font
       ?foreground:(may_map foreground ~f:(GDraw.color ?colormap))
       ?background:(may_map background ~f:(GDraw.color ?colormap))
-  method forward_delete  = Text.forward_delete  obj
-  method backward_delete = Text.backward_delete obj
 end
 
 let text ?hadjustment ?vadjustment ?editable
@@ -168,3 +128,4 @@ let text ?hadjustment ?vadjustment ?editable
   may line_wrap ~f:(Text.set_line_wrap w);
   set_editable w ?editable ?width ?height;
   pack_return (new text w) ~packing ~show
+*)

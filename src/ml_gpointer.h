@@ -1,4 +1,4 @@
-/* $Id: ml_gpointer.h,v 1.1 2002/06/19 10:09:54 garrigue Exp $ */
+/* $Id: ml_gpointer.h,v 1.2 2003/02/20 06:47:53 garrigue Exp $ */
 
 #define RegData_val(val) (Field(val,0))
 #define RegPath_val(val) (Field(val,1))

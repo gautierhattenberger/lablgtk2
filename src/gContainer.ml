@@ -1,67 +1,72 @@
-(* $Id: gContainer.ml,v 1.15 2002/05/30 05:49:09 garrigue Exp $ *)
+(* $Id: gContainer.ml,v 1.23 2003/08/15 11:08:42 garrigue Exp $ *)
 
 open StdLabels
 open Gaux
+open Gobject
 open Gtk
 open GtkBase
+open OgtkBaseProps
 open GObj
 open GData
 
+open Container
+
 class focus obj = object
   val obj = obj
-  method circulate = Container.focus obj
+  (* method circulate = focus obj *)
   method set (child : widget option) =
     let child = may_map child ~f:(fun x -> x#as_widget) in
-    Container.set_focus_child obj (Gpointer.optboxed child)
+    set_focus_child obj (Gpointer.optboxed child)
   method set_hadjustment adj =
-    Container.set_focus_hadjustment obj
+    set_focus_hadjustment obj
       (Gpointer.optboxed (may_map adj ~f:as_adjustment))
   method set_vadjustment adj =
-    Container.set_focus_vadjustment obj
+    set_focus_vadjustment obj
       (Gpointer.optboxed (may_map adj ~f:as_adjustment))
 end
 
-class container obj = object (self)
-  inherit widget obj
-  method add w =
-    (* Hack to avoid creating a bin class *)
-    if GtkBase.Object.is_a obj "GtkBin" && Container.children obj <> [] then
-      raise (Gtk.Error "GContainer.container#add: already full");
-    Container.add obj (as_widget w)
-  method remove w = Container.remove obj (as_widget w)
-  method children = List.map ~f:(new widget) (Container.children obj)
-  method set_border_width = Container.set_border_width obj
+class ['a] container_impl obj = object (self)
+  inherit ['a] widget_impl obj
+  inherit container_props
+  method add w = add obj (as_widget w)
+  method remove w = remove obj (as_widget w)
+  method children = List.map ~f:(new widget) (children obj)
   method focus = new focus obj
 end
 
-class container_signals obj = object
-  inherit widget_signals obj
-  method add ~callback =
-    GtkSignal.connect ~sgn:Container.Signals.add obj ~after
-      ~callback:(fun w -> callback (new widget w))
-  method remove ~callback =
-    GtkSignal.connect ~sgn:Container.Signals.remove obj ~after
-      ~callback:(fun w -> callback (new widget w))
+class container = ['a] container_impl
+
+class container_signals_impl obj = object
+  inherit widget_signals_impl obj
+  inherit container_sigs
 end
+
+class type container_signals = container_signals_impl
 
 class container_full obj = object
   inherit container obj
-  method connect = new container_signals obj
+  method connect = new container_signals_impl obj
 end
 
 let cast_container (w : widget) =
-  new container_full (GtkBase.Container.cast w#as_widget)
+  new container_full (cast w#as_widget)
+
+let pack_container ~create =
+  Container.make_params ~cont:
+    (fun p ?packing ?show () -> pack_return (create p) ~packing ~show)
+
 
 class virtual ['a] item_container obj = object (self)
-  inherit widget obj
+  inherit ['b] widget_impl obj
+  inherit container_props
   method add (w : 'a) =
-    Container.add obj w#as_item
+    add obj w#as_item
   method remove (w : 'a) =
-    Container.remove obj w#as_item
+    remove obj w#as_item
   method private virtual wrap : Gtk.widget obj -> 'a
   method children : 'a list =
-    List.map ~f:self#wrap (Container.children obj)
-  method set_border_width = Container.set_border_width obj
+    List.map ~f:self#wrap (children obj)
+  method set_border_width = set Container.P.border_width obj
   method focus = new focus obj
   method virtual insert : 'a -> pos:int -> unit
   method append (w : 'a) = self#insert w ~pos:(-1)
@@ -69,8 +74,6 @@ class virtual ['a] item_container obj = object (self)
 end
 
 class item_signals obj = object
-  inherit container_signals (obj : [> Gtk.item] obj)
-  method select = GtkSignal.connect ~sgn:Item.Signals.select obj ~after
-  method deselect = GtkSignal.connect ~sgn:Item.Signals.deselect obj ~after
-  method toggle = GtkSignal.connect ~sgn:Item.Signals.toggle obj ~after
+  inherit container_signals_impl (obj : [> Gtk.item] obj)
+  inherit item_sigs
 end

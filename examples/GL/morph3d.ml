@@ -1,4 +1,4 @@
-(* $Id: morph3d.ml,v 1.10.4.1 2003/04/14 06:24:30 garrigue Exp $ *)
+(* $Id: morph3d.ml,v 1.11 2003/02/20 06:47:48 garrigue Exp $ *)
 
 open StdLabels
 

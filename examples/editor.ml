@@ -1,4 +1,6 @@
-(* $Id: editor.ml,v 1.22 2001/09/06 08:47:55 garrigue Exp $ *)
+(* $Id: editor.ml,v 1.24 2003/06/18 10:04:51 garrigue Exp $ *)
+
+(* This example does not work with lablgtk2, see editor2.ml *)
 
 open StdLabels
 open GMain
@@ -9,7 +11,7 @@ let file_dialog ~title ~callback ?filename () =
   sel#cancel_button#connect#clicked ~callback:sel#destroy;
   sel#ok_button#connect#clicked ~callback:
     begin fun () ->
-      let name = sel#get_filename in
+      let name = sel#filename in
       sel#destroy ();
       callback name
     end;

@@ -1,4 +1,4 @@
-/* $Id: wrappers.c,v 1.17 2002/10/31 03:27:38 garrigue Exp $ */
+/* $Id: wrappers.c,v 1.23 2003/04/08 10:21:36 garrigue Exp $ */
 
 #include <string.h>
 #include <caml/mlvalues.h>
@@ -12,11 +12,18 @@
 
 value copy_memblock_indirected (void *src, asize_t size)
 {
-    value ret = alloc (Wosize_asize(size)+2, Abstract_tag);
+    mlsize_t i, wosize = Wosize_asize(size);
+    value ret = alloc_shr (wosize+2, Abstract_tag);
     if (!src) ml_raise_null_pointer ();
-    
     Field(ret,1) = 2;
-    memcpy (&Field(ret,2), src, size);
+    for (i=0; i < wosize; i++) Field(ret,i+2) = ((value*)src)[i];
+    return ret;
+}
+
+value alloc_memblock_indirected (asize_t size)
+{
+    value ret = alloc_shr (Wosize_asize(size)+2, Abstract_tag);
+    Field(ret,1) = 2;
     return ret;
 }
 
@@ -55,13 +62,6 @@ value copy_string_or_null (const char*str)
     return copy_string (str ? (char*) str : "");
 }
 
-value copy_string_g_free (char *str)
-{
-    value ret = copy_string (str);
-    g_free (str);
-    return ret;
-}
-
 value *ml_global_root_new (value v)
 {
     value *p = stat_alloc(sizeof(value));
@@ -87,7 +87,6 @@ value ml_lookup_from_c (lookup_info *table, int data)
 int ml_lookup_to_c (lookup_info *table, value key)
 {
     int first = 1, last = table[0].data, current;
-
     while (first < last) {
 	current = (first+last)/2;
 	if (table[current].key >= key) last = current;
@@ -96,3 +95,6 @@ int ml_lookup_to_c (lookup_info *table, value key)
     if (table[first].key == key) return table[first].data;
     invalid_argument ("ml_lookup_to_c");
 }
+
+ML_2 (ml_lookup_from_c, (lookup_info*), Int_val, 0+)
+ML_2 (ml_lookup_to_c, (lookup_info*), 0+, Val_int)

@@ -1,0 +1,30 @@
+(* $Id: pango_tags.var,v 1.3 2003/06/15 11:30:39 garrigue Exp $ *)
+
+package "pango"
+prefix "pango_"
+
+type style = "PANGO_STYLE_"
+  [ `NORMAL | `OBLIQUE | `ITALIC ]
+
+type weight = "PANGO_WEIGHT_"
+  [ `ULTRALIGHT | `LIGHT | `NORMAL |`BOLD | `ULTRABOLD |`HEAVY ]
+
+type variant = "PANGO_VARIANT_"
+  [ `NORMAL | `SMALL_CAPS ]
+
+type stretch = "PANGO_STRETCH_"
+ [ `ULTRA_CONDENSED | `EXTRA_CONDENSED | 
+`CONDENSED | 
+`SEMI_CONDENSED | 
+`NORMAL | 
+`SEMI_EXPANDED | 
+`EXPANDED | 
+`EXTRA_EXPANDED | 
+`ULTRA_EXPANDED ]
+
+type noconv scale = "PANGO_SCALE_"
+  [ `XX_SMALL | `X_SMALL | `SMALL | `MEDIUM 
+  | `LARGE | `X_LARGE | `XX_LARGE | `CUSTOM ]
+
+type underline = "PANGO_UNDERLINE_"
+  [ `NONE | `SINGLE | `DOUBLE | `LOW ]

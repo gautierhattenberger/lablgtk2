@@ -1,41 +1,45 @@
-(* $Id: gtkData.ml,v 1.15 2002/06/20 00:17:08 garrigue Exp $ *)
+(* $Id: gtkData.ml,v 1.20 2003/08/15 11:08:43 garrigue Exp $ *)
 
 open Gaux
+open Gobject
+open GtkBaseProps
 open Gtk
 open Tags
 
 module AccelGroup = struct
   external create : unit -> accel_group = "ml_gtk_accel_group_new"
-  external activate :
-      accel_group -> key:Gdk.keysym -> ?modi:Gdk.Tags.modifier list -> bool
-      = "ml_gtk_accel_group_activate"
-  external groups_activate :
-      'a obj -> key:Gdk.keysym -> ?modi:Gdk.Tags.modifier list -> bool
-      = "ml_gtk_accel_groups_activate"
-  external attach : accel_group -> 'a obj -> unit
-      = "ml_gtk_accel_group_attach"
-  external detach : accel_group -> 'a obj -> unit
-      = "ml_gtk_accel_group_detach"
   external lock : accel_group -> unit
       = "ml_gtk_accel_group_lock"
   external unlock : accel_group -> unit
       = "ml_gtk_accel_group_unlock"
-  external lock_entry :
-      accel_group -> key:Gdk.keysym -> ?modi:Gdk.Tags.modifier list -> bool
-      = "ml_gtk_accel_group_lock_entry"
-  external add :
+  external connect_ :
       accel_group -> key:Gdk.keysym -> ?modi:Gdk.Tags.modifier list ->
-      ?flags:accel_flag list ->
-      call:'a obj -> sgn:('a,unit->unit) GtkSignal.t -> unit
-      = "ml_gtk_accel_group_add_bc" "ml_gtk_accel_group_add"
-  external remove :
-      accel_group ->
-      key:Gdk.keysym -> ?modi:Gdk.Tags.modifier list -> call:'a obj -> unit
-      = "ml_gtk_accel_group_remove"
+      ?flags:accel_flag list ->  callback:g_closure -> unit
+      = "ml_gtk_accel_group_connect"
+  let connect ~key ?modi ?flags ~callback g =
+    connect_ g ~key ?modi ?flags
+      ~callback:(Closure.create (fun _ -> callback ()))
+  external disconnect :
+      accel_group -> key:Gdk.keysym -> ?modi:Gdk.Tags.modifier list -> bool
+      = "ml_gtk_accel_group_disconnect_key"
+  external groups_activate :
+      'a obj -> key:Gdk.keysym -> ?modi:Gdk.Tags.modifier list -> bool
+      = "ml_gtk_accel_groups_activate"
   external valid : key:Gdk.keysym -> ?modi:Gdk.Tags.modifier list -> bool
       = "ml_gtk_accelerator_valid"
   external set_default_mod_mask : Gdk.Tags.modifier list option -> unit
       = "ml_gtk_accelerator_set_default_mod_mask"
+end
+
+module AccelMap = struct
+  external load : string -> unit = "ml_gtk_accel_map_load"
+  external save : string -> unit = "ml_gtk_accel_map_save"
+  external add_entry : 
+    string -> 
+    key:Gdk.keysym -> 
+    ?modi:Gdk.Tags.modifier list ->
+    unit = "ml_gtk_accel_map_add_entry"
+  let add_entry  ?(key=0) ?modi s = add_entry s ~key ?modi	     
 end
 
 module Style = struct
@@ -51,33 +55,33 @@ module Style = struct
   external draw_vline :
       style -> Gdk.window -> state_type -> y:int -> y:int -> x:int -> unit
       = "ml_gtk_draw_vline_bc" "ml_gtk_draw_vline"
-  external get_bg : style -> state_type -> Gdk.Color.t
+  external get_bg : style -> state_type -> Gdk.color
       = "ml_gtk_style_get_bg"
-  external set_bg : style -> state_type -> Gdk.Color.t -> unit
+  external set_bg : style -> state_type -> Gdk.color -> unit
       = "ml_gtk_style_set_bg"
-  external get_fg : style -> state_type -> Gdk.Color.t
+  external get_fg : style -> state_type -> Gdk.color
       = "ml_gtk_style_get_fg"
-  external set_fg : style -> state_type -> Gdk.Color.t -> unit
+  external set_fg : style -> state_type -> Gdk.color -> unit
       = "ml_gtk_style_set_fg"
-  external get_light : style -> state_type -> Gdk.Color.t
+  external get_light : style -> state_type -> Gdk.color
       = "ml_gtk_style_get_light"
-  external set_light : style -> state_type -> Gdk.Color.t -> unit
+  external set_light : style -> state_type -> Gdk.color -> unit
       = "ml_gtk_style_set_light"
-  external get_dark : style -> state_type -> Gdk.Color.t
+  external get_dark : style -> state_type -> Gdk.color
       = "ml_gtk_style_get_dark"
-  external set_dark : style -> state_type -> Gdk.Color.t -> unit
+  external set_dark : style -> state_type -> Gdk.color -> unit
       = "ml_gtk_style_set_dark"
-  external get_mid : style -> state_type -> Gdk.Color.t
+  external get_mid : style -> state_type -> Gdk.color
       = "ml_gtk_style_get_mid"
-  external set_mid : style -> state_type -> Gdk.Color.t -> unit
+  external set_mid : style -> state_type -> Gdk.color -> unit
       = "ml_gtk_style_set_mid"
-  external get_base : style -> state_type -> Gdk.Color.t
+  external get_base : style -> state_type -> Gdk.color
       = "ml_gtk_style_get_base"
-  external set_base : style -> state_type -> Gdk.Color.t -> unit
+  external set_base : style -> state_type -> Gdk.color -> unit
       = "ml_gtk_style_set_base"
-  external get_text : style -> state_type -> Gdk.Color.t
+  external get_text : style -> state_type -> Gdk.color
       = "ml_gtk_style_get_text"
-  external set_text : style -> state_type -> Gdk.Color.t -> unit
+  external set_text : style -> state_type -> Gdk.color -> unit
       = "ml_gtk_style_set_text"
   external get_colormap : style -> Gdk.colormap = "ml_gtk_style_get_colormap"
   external get_font : style -> Gdk.font = "ml_gtk_style_get_font"
@@ -92,15 +96,8 @@ module Style = struct
     may_set set_font font *)
 end
 
-module Data = struct
-  module Signals = struct
-    open GtkSignal
-    let disconnect =
-      { name = "disconnect"; classe = `data; marshaller = marshal_unit }
-  end
-end
-
 module Adjustment = struct
+  include Adjustment
   external create :
       value:float -> lower:float -> upper:float ->
       step_incr:float -> page_incr:float -> page_size:float -> adjustment obj
@@ -125,17 +122,9 @@ module Adjustment = struct
   external set : ?lower:float -> ?upper:float -> ?step_incr:float ->
       ?page_incr:float -> ?page_size:float -> [>`adjustment] obj -> unit
       =  "ml_gtk_adjustment_set_bc" "ml_gtk_adjustment_set"
-  module Signals = struct
-    open GtkSignal
-    let changed =
-      { name = "changed"; classe = `adjustment; marshaller = marshal_unit }
-    let value_changed =
-      { name = "value_changed"; classe = `adjustment;
-        marshaller = marshal_unit }
-  end
   let set_bounds adj ?lower ?upper ?step_incr ?page_incr ?page_size () =
     set adj ?lower ?upper ?step_incr ?page_incr ?page_size;
-    GtkSignal.emit_unit adj ~sgn:Signals.changed;
+    GtkSignal.emit_unit adj ~sgn:S.changed;
     set_value adj (get_value adj)
 end
 
@@ -149,12 +138,4 @@ module Tooltips = struct
       [>`tooltips] obj ->
       [>`widget] obj -> ?text:string -> ?privat:string -> unit
       = "ml_gtk_tooltips_set_tip"
-  external set_colors :
-      [>`tooltips] obj ->
-      ?foreground:Gdk.Color.t -> ?background:Gdk.Color.t -> unit -> unit
-      = "ml_gtk_tooltips_set_colors"
-  let set ?delay ?foreground ?background tt =
-    may ~f:(set_delay tt) delay;
-    if foreground <> None || background <> None then
-      set_colors tt ?foreground ?background ()
 end

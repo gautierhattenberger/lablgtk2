@@ -1,4 +1,4 @@
-(* $Id: gMain.ml,v 1.10 2002/07/06 03:02:31 garrigue Exp $ *)
+(* $Id: gMain.ml,v 1.14 2003/06/24 09:20:02 garrigue Exp $ *)
 
 open Gtk
 open GtkMain
@@ -15,10 +15,16 @@ end
 
 module Rc = Rc
 
-module Timeout = Timeout
+module Timeout = Glib.Timeout
+
+module Idle = Glib.Idle
 
 module Io = Glib.Io
 
 open Main
 let main = main
 let quit = quit
+let init = init
+
+let selection = GData.clipboard Gdk.Atom.primary
+let clipboard = GData.clipboard Gdk.Atom.clipboard

@@ -1,4 +1,4 @@
-(* $Id: glGtk.mli,v 1.9 2002/06/19 10:09:53 garrigue Exp $ *)
+(* $Id: glGtk.mli,v 1.13 2003/09/23 08:10:59 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -20,7 +20,7 @@ type visual_options = [
   | `ACCUM_GREEN_SIZE of int
   | `ACCUM_ALPHA_SIZE of int
 ]
-type gl_area = [Gtk.widget|`drawing|`glarea]
+type gl_area = [Gtk.drawing_area|`glarea]
 
 module GtkRaw :
   sig
@@ -28,14 +28,14 @@ module GtkRaw :
       visual_options list -> share:[>`glarea] optobj -> gl_area obj
       = "ml_gtk_gl_area_new"
     external swap_buffers : [>`glarea] obj -> unit
-      = "ml_gtk_gl_area_swapbuffers"
+      = "ml_gtk_gl_area_swap_buffers"
     external make_current : [>`glarea] obj -> bool
       = "ml_gtk_gl_area_make_current"
   end
 
 class area_signals : 'a obj ->
   object
-    inherit widget_signals
+    inherit GObj.widget_signals
     constraint 'a = [> gl_area]
     val obj : 'a obj
     method display : callback:(unit -> unit) -> GtkSignal.id
@@ -46,7 +46,7 @@ class area_signals : 'a obj ->
 
 class area : gl_area obj ->
   object
-    inherit widget
+    inherit GObj.widget
     val obj : gl_area obj
     method event : event_ops
     method as_area : gl_area obj
