@@ -1,39 +1,39 @@
-version="2.2.0"
+version="2.40"
 requires(mt) = "threads"
 requires(mt,mt_vm) = "threads.vm"
 requires(mt,mt_posix) = "threads.posix"
-directory="+lablgtk2"
+directory="+lablgtk"
 archive(byte) = "lablgtk.cma"
 archive(native) = "lablgtk.cmxa"
 archive(byte,mt) += "gtkThread.cmo"
 archive(native,mt) += "gtkThread.cmx"
 
 package "init" (
-  requires = "lablgtk2"
+  requires = "lablgtk"
   archive(byte) = "gtkInit.cmo"
   archive(native) = "gtkInit.cmx"
 )
 
 package "glade" (
-  requires = "lablgtk2"
+  requires = "lablgtk"
   archive(byte)	= "lablglade.cma"
   archive(native) = "lablglade.cmxa"
 )
 
 package "gnomecanvas" (
-  requires = "lablgtk2"
+  requires = "lablgtk"
   archive(byte)	= "lablgnomecanvas.cma"
   archive(native) = "lablgnomecanvas.cmxa"
 )
 
 package "gtkgl" (
-  requires = "lablgtk2 lablgl"
+  requires = "lablgtk lablgl"
   archive(byte)	= "lablgtkgl.cma"
   archive(native) = "lablgtkgl.cmxa"
 )
 
 package "rsvg" (
-  requires = "lablgtk2"
+  requires = "lablgtk"
   archive(byte)	= "lablrsvg.cma"
   archive(native) = "labrsvg.cmxa"
 )
