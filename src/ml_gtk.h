@@ -1,4 +1,4 @@
-/* $Id: ml_gtk.h,v 1.9 2003/02/20 06:47:54 garrigue Exp $ */
+/* $Id: ml_gtk.h,v 1.11 2004/05/09 14:39:14 oandrieu Exp $ */
 
 /* GObjects */
 
@@ -23,10 +23,6 @@ value Val_GtkWidget_func(gpointer w);
 #define GtkWidget_val(val) check_cast(GTK_WIDGET,val)
 #define GtkAdjustment_val(val) check_cast(GTK_ADJUSTMENT,val)
 #define GtkItem_val(val) check_cast(GTK_ITEM,val)
+#define GtkTooltips_val(val) check_cast(GTK_TOOLTIPS,val)
 
 #define GtkClipboard_val(val) ((GtkClipboard*)Pointer_val(val))
-
-/* Compatibility */
-#if GTK_CHECK_VERSION(2,2,0) && !defined(DISABLE_GTK22)
-#define HASGTK22
-#endif

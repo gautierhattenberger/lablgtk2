@@ -1,4 +1,4 @@
-(* $Id: gobject.mli,v 1.13 2003/06/24 09:20:03 garrigue Exp $ *)
+(* $Id: gobject.mli,v 1.15 2004/03/15 05:12:16 garrigue Exp $ *)
 
 type -'a obj
 type g_type
@@ -7,6 +7,7 @@ type g_value
 type g_closure
 type basic =
   [ `BOOL of bool
+  | `CAML of Obj.t
   | `CHAR of char
   | `FLOAT of float
   | `INT of int
@@ -20,6 +21,7 @@ type 'a data_set =
 
 type base_data =
   [ `BOOLEAN
+  | `CAML
   | `CHAR
   | `UCHAR
   | `INT
@@ -66,6 +68,10 @@ val param : ('a,'b) property -> 'b -> 'a param
 
 val unsafe_create : classe:string -> 'a param list -> 'a obj
     (* This type is NOT safe *)
+val unsafe_unref : 'a obj -> unit
+    (* Creates a NULL pointer; many places do not check for them! *)
+val get_ref_count : 'a obj -> int
+    (* Number of references to an object (for debugging) *)
 
 val set : ('a, 'b) property -> 'a obj -> 'b -> unit
 val get : ('a, 'b) property -> 'a obj -> 'b
@@ -86,6 +92,8 @@ module Type :
       (* [Benjamin] Experimental stub: the new class has the same size as 
       its parent. No init functions right now. *)
     val register_static : parent:g_type -> name:string -> g_type
+
+    val caml : g_type
   end
 
 module Value :
@@ -154,6 +162,8 @@ module Data :
     val unsafe_boxed_option : 'a option data_conv
     val gobject : 'a obj data_conv
     val gobject_option : 'a obj option data_conv
+    val caml : 'a data_conv
+    val caml_option : 'a option data_conv
     val of_value : 'a data_conv -> g_value -> 'a
     val to_value : 'a data_conv -> 'a -> g_value
     val get_fundamental : 'a data_conv -> fundamental_type

@@ -1,6 +1,9 @@
-(* $Id: gUtil.mli,v 1.10 2000/07/27 08:47:47 garrigue Exp $ *)
+(* $Id: gUtil.mli,v 1.12 2004/06/02 20:41:40 oandrieu Exp $ *)
 
 open GObj
+
+(* A nice function to use with [#install_printer] *)
+val print_widget : Format.formatter -> #widget -> unit
 
 (* The memo class provides an easy way to remember the real class of
    a widget.
@@ -10,7 +13,7 @@ open GObj
 
 class ['a] memo : unit ->
   object
-    constraint 'a = #widget
+    constraint 'a = <get_oid: int>
     val tbl : (int, 'a) Hashtbl.t
     method add : 'a -> unit
     method find : widget -> 'a

@@ -1,4 +1,6 @@
-/* $Id: ml_gdkpixbuf.h,v 1.2 2003/02/20 06:47:53 garrigue Exp $ */
+/* $Id: ml_gdkpixbuf.h,v 1.3 2004/06/28 21:51:59 oandrieu Exp $ */
 
-#define GdkPixbuf_val(val) ((GdkPixbuf*)GObject_val(val))
-#define Val_GdkPixbuf(val) (Val_GObject((GObject*)(val)))
+#define GdkPixbuf_val(val)       (check_cast(GDK_PIXBUF, val))
+#define Val_GdkPixbuf(val)       (Val_GObject(G_OBJECT(val)))
+#define Val_GdkPixbuf_new(val)   (Val_GObject_new(G_OBJECT(val)))
+

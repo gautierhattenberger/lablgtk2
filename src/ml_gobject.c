@@ -1,4 +1,4 @@
-/* $Id: ml_gobject.c,v 1.19 2003/06/24 09:20:04 garrigue Exp $ */
+/* $Id: ml_gobject.c,v 1.23 2004/06/15 21:42:30 oandrieu Exp $ */
 #include <stdio.h>
 #include <glib.h>
 #include <glib-object.h>
@@ -11,6 +11,7 @@
 #include "wrappers.h"
 #include "ml_glib.h"
 #include "ml_gobject.h"
+#include "ml_gvaluecaml.h"
 #include "gobject_tags.h"
 #include "gobject_tags.c"
 
@@ -19,8 +20,14 @@
 Make_Val_final_pointer(GObject, g_object_ref, g_object_unref, 0)
 Make_Val_final_pointer_ext (GObject, _new, G_OBJECT, g_object_unref, 20)
 ML_1 (G_TYPE_FROM_INSTANCE, GObject_val, Val_int)
-ML_1 (g_object_ref, GObject_val, Unit)
-ML_1 (g_object_unref, GObject_val, Unit)
+// ML_1 (g_object_ref, GObject_val, Unit)
+CAMLprim value ml_g_object_unref (value val)
+{
+    if (Field(val,1)) g_object_unref (GObject_val(val));
+    Field(val,1) = 0;
+    return Val_unit;
+}
+Make_Extractor(g_object, GObject_val, ref_count, Val_int)
     
 ML_1 (g_object_freeze_notify, GObject_val, Unit)
 ML_1 (g_object_thaw_notify, GObject_val, Unit)
@@ -46,7 +53,16 @@ ML_1 (g_type_parent, GType_val, Val_GType)
 ML_1 (g_type_depth, GType_val, Val_int)
 ML_2 (g_type_is_a, GType_val, GType_val, Val_bool)
 ML_1 (G_TYPE_FUNDAMENTAL, GType_val, Val_fundamental_type)
-ML_1 (Fundamental_type_val, ID, Val_GType)
+CAMLprim value ml_Fundamental_type_val(value fund)
+{
+  /* G_TYPE_CAML is not a constant, it's a function call, so it can't
+     be in the lookup_table.
+     It's not a true fundamental type because Gtk{Tree,List}Store won't
+     accept unknown fundamental types. */
+  if (fund == MLTAG_CAML)
+    return Val_GType(G_TYPE_CAML);
+  return Val_GType(Fundamental_type_val(fund));
+}
 
 #ifdef HASGTK22
 CAMLprim value  ml_g_type_interface_prerequisites(value type)
@@ -86,7 +102,8 @@ CAMLprim value ml_g_type_register_static(value parent_type,value type_name)
       NULL, /* class_data */
       query.instance_size,
       0,    /* n_preallocs */
-      NULL, /*(GInstanceInitFunc) tictactoe_init*/}; 
+      NULL, /*(GInstanceInitFunc) tictactoe_init*/
+      NULL }; 
 
   res = Val_GType
     (g_type_register_static(GType_val(parent_type),
@@ -166,7 +183,7 @@ value Val_GValue_copy(GValue *gv)
 CAMLprim value ml_g_value_release(value val)
 {
     ml_final_GValue (val);
-    Pointer_val(val) = NULL;
+    Store_pointer(val,NULL);
     return Val_unit;
 }
 
@@ -203,14 +220,14 @@ static struct custom_operations ml_custom_gboxed =
 value Val_gboxed(GType t, gpointer p)
 {
     value ret = alloc_custom(&ml_custom_gboxed, 2*sizeof(value), 10, 1000);
-    Pointer_val(ret) = g_boxed_copy (t,p);
+    Store_pointer(ret, g_boxed_copy (t,p));
     Field(ret,2) = t;
     return ret;
 }
 value Val_gboxed_new(GType t, gpointer p)
 {
     value ret = alloc_custom(&ml_custom_gboxed, 2*sizeof(value), 10, 1000);
-    Pointer_val(ret) = p;
+    Store_pointer(ret, p);
     Field(ret,2) = t;
     return ret;
 }
@@ -224,68 +241,78 @@ value g_value_get_variant (GValue *val)
     CAMLparam0();
     CAMLlocal1(tmp);
     value ret = MLTAG_NONE;
-    GType type = G_VALUE_TYPE(val);
-    int tag;
+    GType type;
+    int tag = -1;
 
-    if (!g_type_check_value_holds(val,type))
-        invalid_argument("Gobject.Value.get");
+    if (! G_IS_VALUE(val))
+      invalid_argument("Gobject.Value.get");
+
+    type = G_VALUE_TYPE(val);
+
     switch (G_TYPE_FUNDAMENTAL(type)) {
-        /* This is such a pain that we access the data directly :-( */
-        /* We do like in gvaluetypes.c */
+      /* This is such a pain that we access the data directly :-( */
+      /* We do like in gvaluetypes.c */
     case G_TYPE_CHAR:
     case G_TYPE_UCHAR:
-        tag = MLTAG_CHAR;
-        tmp = Val_int(DATA.v_int);
-        break;
+      tag = MLTAG_CHAR;
+      tmp = Val_int(DATA.v_int);
+      break;
     case G_TYPE_BOOLEAN:
-        tag = MLTAG_BOOL;
-        tmp = Val_bool(DATA.v_int);
-        break;
+      tag = MLTAG_BOOL;
+      tmp = Val_bool(DATA.v_int);
+      break;
     case G_TYPE_INT:
     case G_TYPE_UINT:
-        tag = MLTAG_INT;
-        tmp = Val_int (DATA.v_int);
-        break;
+      tag = MLTAG_INT;
+      tmp = Val_int (DATA.v_int);
+      break;
     case G_TYPE_LONG:
     case G_TYPE_ULONG:
     case G_TYPE_ENUM:
     case G_TYPE_FLAGS:
-        tag = MLTAG_INT;
-        tmp = Val_long (DATA.v_long);
-        break;
+      tag = MLTAG_INT;
+      tmp = Val_long (DATA.v_long);
+      break;
     case G_TYPE_FLOAT:
-        tag = MLTAG_FLOAT;
-        tmp = copy_double ((double)DATA.v_float);
-        break;
+      tag = MLTAG_FLOAT;
+      tmp = copy_double ((double)DATA.v_float);
+      break;
     case G_TYPE_DOUBLE:
-        tag = MLTAG_FLOAT;
-        tmp = copy_double (DATA.v_double);
-        break;
+      tag = MLTAG_FLOAT;
+      tmp = copy_double (DATA.v_double);
+      break;
     case G_TYPE_STRING:
-        tag = MLTAG_STRING;
-        tmp = Val_option (DATA.v_pointer, copy_string);
-        break;
+      tag = MLTAG_STRING;
+      tmp = Val_option (DATA.v_pointer, copy_string);
+      break;
     case G_TYPE_INTERFACE: /* assume interfaces are for objects */
     case G_TYPE_OBJECT:
-        tag = MLTAG_OBJECT;
-        tmp = Val_option ((GObject*)DATA.v_pointer, Val_GObject);
-        break;
+      tag = MLTAG_OBJECT;
+      tmp = Val_option ((GObject*)DATA.v_pointer, Val_GObject);
+      break;
     case G_TYPE_BOXED:
-        tag = MLTAG_POINTER;
-        tmp = (DATA.v_pointer == NULL ? Val_unit
-               : ml_some(Val_gboxed(type, DATA.v_pointer)));
-        break;
+      if (type == G_TYPE_CAML) {
+	value *data = g_value_get_boxed (val);
+	if (data != NULL) {
+	  tag = MLTAG_CAML;
+	  tmp = *data;
+	}
+      }
+      else {
+	tag = MLTAG_POINTER;
+	tmp = (DATA.v_pointer == NULL ? Val_unit
+	       : ml_some(Val_gboxed(type, DATA.v_pointer)));
+      }
+      break;
     case G_TYPE_POINTER:
-        tag = MLTAG_POINTER;
-        tmp = Val_option (DATA.v_pointer, Val_pointer);
-        break;
+      tag = MLTAG_POINTER;
+      tmp = Val_option (DATA.v_pointer, Val_pointer);
+      break;
     case G_TYPE_INT64:
     case G_TYPE_UINT64:
-        tag = MLTAG_INT64;
-        tmp = copy_int64 (DATA.v_int64);
-        break;
-    default:
-        tag = -1;
+      tag = MLTAG_INT64;
+      tmp = copy_int64 (DATA.v_int64);
+      break;
     }
     if (tag != -1) {
         ret = alloc_small(2,0);
@@ -324,14 +351,15 @@ void g_value_set_variant (GValue *val, value arg)
     case G_TYPE_ULONG:
     case G_TYPE_ENUM:
     case G_TYPE_FLAGS:
-        if (tag == MLTAG_INT)
-            DATA.v_long = Int_val(data);
-        else if (tag == MLTAG_INT32)
-            DATA.v_long = Int32_val(data);
-        else if (tag == MLTAG_LONG)
-            DATA.v_long = Nativeint_val(data);
-        else break;
-        return;
+      switch (tag) {
+      case MLTAG_INT:
+	DATA.v_long = Int_val(data); return;
+      case MLTAG_INT32:
+	DATA.v_long = Int32_val(data); return;
+      case MLTAG_LONG:
+	DATA.v_long = Nativeint_val(data); return;
+      };
+      break;
     case G_TYPE_FLOAT:
         if (tag != MLTAG_FLOAT) break;
         DATA.v_float = (float)Double_val(data);
@@ -350,8 +378,11 @@ void g_value_set_variant (GValue *val, value arg)
         g_value_set_object(val, Option_val(data,GObject_val,NULL));
         return;
     case G_TYPE_BOXED:
-        if (tag != MLTAG_POINTER) break;
-        g_value_set_boxed(val, Option_val(data,MLPointer_val,NULL));
+        if (tag == MLTAG_CAML && type == G_TYPE_CAML)
+	  g_value_store_caml_value (val, data);
+	else if (tag == MLTAG_POINTER)
+	  g_value_set_boxed(val, Option_val(data,MLPointer_val,NULL));
+	else break;
         return;
     case G_TYPE_POINTER:
         if (tag != MLTAG_POINTER && tag != MLTAG_OBJECT) break;
@@ -507,7 +538,7 @@ CAMLprim value ml_g_signal_emit_by_name (value obj, value sig, value params)
     GType itype = G_TYPE_FROM_INSTANCE (instance);
     GType return_type;
     guint signal_id;
-    int i;
+    unsigned int i;
     GSignalQuery query;
 
     if(!g_signal_parse_name(String_val(sig), itype, &signal_id, &detail, TRUE))

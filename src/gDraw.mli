@@ -1,4 +1,4 @@
-(* $Id: gDraw.mli,v 1.20 2003/09/27 13:42:19 oandrieu Exp $ *)
+(* $Id: gDraw.mli,v 1.23 2004/03/15 05:12:15 garrigue Exp $ *)
 
 open Gdk
 
@@ -46,6 +46,8 @@ class drawable : ?colormap:colormap -> ([>`drawable] Gobject.obj as 'a) ->
     method line : x:int -> y:int -> x:int -> y:int -> unit
     method point : x:int -> y:int -> unit
     method polygon : ?filled:bool -> (int * int) list -> unit
+    method put_layout :
+      x: int -> y: int -> ?fore:color -> ?back:color -> Pango.layout -> unit
     method put_image :
       x:int -> y:int ->
       ?xsrc:int -> ?ysrc:int -> ?width:int -> ?height:int -> image -> unit
@@ -56,6 +58,12 @@ class drawable : ?colormap:colormap -> ([>`drawable] Gobject.obj as 'a) ->
       width:int -> height:int ->
       ?x:int -> ?y:int -> ?dither:Gdk.Tags.rgb_dither ->
       ?row_stride:int -> Gpointer.region -> unit
+    method put_pixbuf :
+      x:int -> y:int ->
+      ?width:int -> ?height:int ->
+      ?dither:Gdk.Tags.rgb_dither ->
+      ?x_dither:int ->
+      ?y_dither:int -> ?src_x:int -> ?src_y:int -> GdkPixbuf.pixbuf -> unit
     method rectangle :
       x:int ->
       y:int -> width:int -> height:int -> ?filled:bool -> unit -> unit
@@ -119,7 +127,7 @@ val pixmap_from_xpm_d :
 class drag_context : Gdk.drag_context ->
   object
     val context : Gdk.drag_context
-    method status : ?time:int32 -> Tags.drag_action list -> unit
+    method status : ?time:int32 -> Tags.drag_action option -> unit
     method suggested_action : Tags.drag_action
     method targets : string list
   end

@@ -1,4 +1,4 @@
-(* $Id: gPack.mli,v 1.30 2003/12/01 08:48:55 oandrieu Exp $ *)
+(* $Id: gPack.mli,v 1.33 2004/07/05 10:05:47 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -16,12 +16,17 @@ class box_skel : ([> box] as 'a) obj ->
     method pack :
       ?from:Tags.pack_type ->
       ?expand:bool -> ?fill:bool -> ?padding:int -> widget -> unit
+   (** @param from default value is [`START]
+       @param expand default vaue is [false]
+       @param fill default value is [true], ignored if [expand] is [false] *)
     method reorder_child : widget -> pos:int -> unit
     method set_child_packing :
       ?from:Tags.pack_type ->
       ?expand:bool -> ?fill:bool -> ?padding:int -> widget -> unit
     method set_homogeneous : bool -> unit
+    method homogeneous : bool
     method set_spacing : int -> unit
+    method spacing : int
   end
 
 (** A base class for box containers
@@ -57,21 +62,14 @@ val hbox :
 (** @gtkdoc gtk GtkButtonBox *)
 class button_box : ([> Gtk.button_box] as 'a) obj ->
   object
-    inherit GContainer.container_full
+    inherit box
     val obj : 'a obj
-    method pack :
-      ?from:Tags.pack_type ->
-      ?expand:bool -> ?fill:bool -> ?padding:int -> widget -> unit
-    method reorder_child : widget -> pos:int -> unit
-    method set_child_ipadding : ?x:int -> ?y:int -> unit -> unit
-    method set_child_packing :
-      ?from:Tags.pack_type ->
-      ?expand:bool -> ?fill:bool -> ?padding:int -> widget -> unit
-    method set_child_size : ?width:int -> ?height:int -> unit -> unit
-    method set_homogeneous : bool -> unit
-    method set_layout : GtkPack.BBox.bbox_style -> unit
-    method layout : GtkPack.BBox.bbox_style
-    method set_spacing : int -> unit
+    method set_child_ipadding : ?x:int -> ?y:int -> unit -> unit (** @deprecated . *)
+    method set_child_size : ?width:int -> ?height:int -> unit -> unit (** @deprecated . *)
+    method set_layout : Gtk.Tags.button_box_style -> unit
+    method layout : Gtk.Tags.button_box_style
+    method get_child_secondary : widget -> bool (** @since GTK 2.4 *)
+    method set_child_secondary : widget -> bool -> unit (** @since GTK 2.4 *)
   end
 
 (** @gtkdoc gtk GtkButtonBox *)
@@ -106,6 +104,13 @@ class table :
       ?fill:Tags.expand_type ->
       ?shrink:Tags.expand_type ->
       ?xpadding:int -> ?ypadding:int -> widget -> unit
+    (** @param left column number to attach the left side of the widget to
+        @param top  row number to attach the top of the widget to
+        @param right default value is [left+1]
+        @param bottom default value is [top+1]
+        @param expand default value is [`NONE]
+        @param fill default value is [`BOTH]
+        @param shrink default value is [`NONE] *)
     method col_spacings : int
     method columns : int
     method homogeneous : bool
@@ -272,7 +277,11 @@ class paned :
     method add1 : widget -> unit
     method add2 : widget -> unit
     method pack1 : ?resize:bool -> ?shrink:bool -> widget -> unit
+    (** @param resize default value is [false]
+        @param shrink default value is [false] *)
     method pack2 : ?resize:bool -> ?shrink:bool -> widget -> unit
+    (** @param resize default value is [false]
+        @param shrink default value is [false] *)
     method child1 : widget
     method child2 : widget
     method set_position : int -> unit

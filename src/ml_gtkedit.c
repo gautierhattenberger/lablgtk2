@@ -1,4 +1,4 @@
-/* $Id: ml_gtkedit.c,v 1.11 2004/01/04 19:14:57 oandrieu Exp $ */
+/* $Id: ml_gtkedit.c,v 1.13 2004/03/18 07:05:30 garrigue Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -69,10 +69,8 @@ ML_1 (gtk_editable_paste_clipboard, GtkEditable_val, Unit)
 ML_1 (gtk_editable_delete_selection, GtkEditable_val, Unit)
 ML_2 (gtk_editable_set_position, GtkEditable_val, Int_val, Unit)
 ML_1 (gtk_editable_get_position, GtkEditable_val, Val_int)
-/*
 ML_2 (gtk_editable_set_editable, GtkEditable_val, Bool_val, Unit)
 ML_1 (gtk_editable_get_editable, GtkEditable_val, Val_bool)
-*/
 
 /* gtkentry.h */
 
@@ -167,10 +165,6 @@ Make_Extractor (gtk_combo, GtkCombo_val, list, Val_GtkWidget)
 #ifdef HASGTK24
 /* gtkcombobox.h */
 #define GtkComboBox_val(val) check_cast(GTK_COMBO_BOX,val)
-ML_0 (gtk_combo_box_new_text, Val_GtkWidget_sink)
-ML_2 (gtk_combo_box_append_text, GtkComboBox_val, String_val, Unit)
-ML_3 (gtk_combo_box_insert_text, GtkComboBox_val, Int_val, String_val, Unit)
-ML_2 (gtk_combo_box_prepend_text, GtkComboBox_val, String_val, Unit)
 
 /* taken from ml_gtktree.c, this should go in a .h */
 #define GtkTreeIter_val(val) ((GtkTreeIter*)MLPointer_val(val))

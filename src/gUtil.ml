@@ -1,10 +1,13 @@
-(* $Id: gUtil.ml,v 1.18 2003/02/20 06:47:51 garrigue Exp $ *)
+(* $Id: gUtil.ml,v 1.20 2004/06/02 20:41:40 oandrieu Exp $ *)
 
 open StdLabels
 open GObj
 
+let print_widget ppf (o : #widget) = 
+    Format.fprintf ppf "<%s@@0x%x>" o#misc#get_type o#get_oid
+
 class ['a] memo () = object
-  constraint 'a = #widget
+  constraint 'a = <get_oid: int>
   val tbl = Hashtbl.create 7
   method add (obj : 'a) = Hashtbl.add tbl obj#get_oid obj
   method find (obj : widget) = Hashtbl.find tbl obj#get_oid

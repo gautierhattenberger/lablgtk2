@@ -1,4 +1,4 @@
-(* $Id: gObj.mli,v 1.53 2003/12/22 01:42:24 oandrieu Exp $ *)
+(* $Id: gObj.mli,v 1.57 2004/03/15 05:12:15 garrigue Exp $ *)
 
 open Gtk
 
@@ -25,7 +25,8 @@ class ['a] gobject_signals : ?after:bool -> 'a obj ->
     val obj : 'a obj
     val after : bool
     method after : 'b
-    method private connect : ('a,'c) GtkSignal.t -> callback:'c -> GtkSignal.id
+    method private connect :
+        'c. ('a,'c) GtkSignal.t -> callback:'c -> GtkSignal.id
   end
 
 (** {3 GtkObject} *)
@@ -185,7 +186,7 @@ and misc_ops : Gtk.widget obj ->
     method colormap : Gdk.colormap
     method connect : misc_signals
     method convert_selection : target:string -> ?time:int32 -> Gdk.atom -> bool
-    method create_pango_context : unit -> GPango.context_rw
+    method create_pango_context : GPango.context_rw
     method draw : Gdk.Rectangle.t option -> unit
     method get_flag : Tags.widget_flags -> bool
     method grab_default : unit -> unit
@@ -210,11 +211,13 @@ and misc_ops : Gtk.widget obj ->
     method remove_accelerator :
       group:accel_group -> ?modi:Gdk.Tags.modifier list -> Gdk.keysym -> unit
     method render_icon :
-       ?detail:string -> size:Gtk.Tags.icon_size -> GtkStock.id -> GdkPixbuf.pixbuf
+       ?detail:string -> size:Gtk.Tags.icon_size ->
+       GtkStock.id -> GdkPixbuf.pixbuf
     method reparent : widget -> unit
     method set_app_paintable : bool -> unit
     method set_can_default : bool -> unit
     method set_can_focus : bool -> unit
+    method set_double_buffered : bool -> unit
     method set_name : string -> unit
     method set_sensitive : bool -> unit
     method set_size_chars :
@@ -280,7 +283,7 @@ and drag_context :
     method set_icon_pixmap :
       ?colormap:Gdk.colormap -> GDraw.pixmap -> hot_x:int -> hot_y:int -> unit
     method set_icon_widget : widget -> hot_x:int -> hot_y:int -> unit
-    method status : ?time:int32 -> Gdk.Tags.drag_action list -> unit
+    method status : ?time:int32 -> Gdk.Tags.drag_action option -> unit
     method suggested_action : Gdk.Tags.drag_action
     method targets : string list
   end

@@ -1,4 +1,4 @@
-(* $Id: gtkTree.props,v 1.3 2003/12/19 01:15:53 oandrieu Exp $ *)
+(* $Id: gtkTree.props,v 1.6 2004/03/18 07:05:29 garrigue Exp $ *)
 
 prefix "Gtk"
 
@@ -19,32 +19,18 @@ classes {
   GtkTreeModel "Gtk.tree_model obj"
 }
 
-class TreeItem wrapsig : Item {
-  method set_subtree : "[>`widget] obj -> unit"
-  method remove_subtree
-  method collapse
-  method expand
-  signal collapse
-  signal expand
-}
-
-class Tree : Container {
-  signal select_child : GtkWidget
-  signal selection_changed
-  signal unselect_child : GtkWidget
-}
-
 class TreeView set wrap wrapsig : Container {
-  "model"                GtkTreeModel_opt     : Read / Write / NoWrap
-  "hadjustment"          GtkAdjustment        : Read / Write
-  "vadjustment"          GtkAdjustment        : Read / Write
   "enable-search"        gboolean             : Read / Write
   "expander-column"      GtkTreeViewColumn_opt: Read / Write / NoSet / NoWrap
+  "fixed-height-mode"    gboolean             : Read / Write
+  "hadjustment"          GtkAdjustment        : Read / Write
   "headers-clickable"    gboolean             : Write
   "headers-visible"      gboolean             : Read / Write
+  "model"                GtkTreeModel_opt     : Read / Write / NoWrap
   "reorderable"          gboolean             : Read / Write
   "rules-hint"           gboolean             : Read / Write
   "search-column"        gint                 : Read / Write
+  "vadjustment"          GtkAdjustment        : Read / Write
   signal columns_changed
   signal cursor_changed
   signal expand_collapse_cursor_row :
@@ -192,15 +178,15 @@ class TreeSortable abstract wrapsig : GObject {
   method sort_column_changed
   method get_sort_column_id : "(int * Gtk.Tags.sort_type) option"
   method set_sort_column_id : "int -> Gtk.Tags.sort_type -> unit"
-  method set_sort_func : "int -> ([> `treesortable] Gobject.obj -> Gtk.tree_iter -> Gtk.tree_iter -> int) -> unit"
-  method set_default_sort_func : "([> `treesortable] Gobject.obj -> Gtk.tree_iter -> Gtk.tree_iter -> int) -> unit"
+  method set_sort_func : "int -> ([`treemodel] Gobject.obj -> Gtk.tree_iter -> Gtk.tree_iter -> int) -> unit"
+  method set_default_sort_func : "([`treemodel] Gobject.obj -> Gtk.tree_iter -> Gtk.tree_iter -> int) -> unit"
   method has_default_sort_func : "bool"
 }
 
 class TreeModelFilter : GObject {
   "child-model"          GtkTreeModel         : Read / Write / Construct Only
   "virtual-root"         GtkTreePath          : Read / Write / Construct Only
-  method set_visible_func : "([> `treemodel] Gobject.obj -> Gtk.tree_iter -> bool) -> unit"
+  method set_visible_func : "([`treemodel] Gobject.obj -> Gtk.tree_iter -> bool) -> unit"
   method set_visible_column : "int -> unit"
   method convert_child_path_to_path : "Gtk.tree_path -> Gtk.tree_path"
   method convert_child_iter_to_iter : "Gtk.tree_iter -> Gtk.tree_iter"

@@ -1,4 +1,4 @@
-(* $Id: gobject.ml,v 1.24 2003/12/10 10:49:56 oandrieu Exp $ *)
+(* $Id: gobject.ml,v 1.26 2004/03/15 05:12:16 garrigue Exp $ *)
 
 open StdLabels
 open Gaux
@@ -11,6 +11,7 @@ type g_closure
 
 type basic =
   [ `CHAR of char
+  | `CAML of Obj.t
   | `BOOL of bool
   | `INT of int
   | `FLOAT of float
@@ -24,6 +25,7 @@ type 'a data_set =
 
 type base_data =
   [ `BOOLEAN
+  | `CAML
   | `CHAR
   | `UCHAR
   | `INT
@@ -70,6 +72,8 @@ module Type = struct
       = "ml_g_type_register_static"
   let register_static ~parent ~name =
     register_static parent name
+  external g_caml_get_type : unit -> g_type = "ml_g_caml_get_type"
+  let caml = g_caml_get_type ()
 end
 
 module Value = struct
@@ -157,6 +161,8 @@ external coerce_option : 'a obj option -> unit obj option = "%identity"
 external unsafe_create : g_type -> (string * 'a data_set) list -> 'b obj
     = "ml_g_object_new"
   (* This is dangerous! *)
+external unsafe_unref : 'a obj -> unit = "ml_g_object_unref"
+external get_ref_count : 'a obj -> int = "ml_g_object_ref_count"
 
 type ('a,'b) property = { name: string; conv: 'b data_conv }
 
@@ -252,6 +258,17 @@ module Data = struct
              | `OBJECT None -> raise Gpointer.Null
              | _ -> failwith "Gobject.get_object");
       inj = (fun c -> `OBJECT (Some (unsafe_cast c))) }
+  let caml =
+    { kind = `CAML;
+      proj = (function `CAML v -> Obj.obj v
+             | _ -> failwith "Gobject.get_caml") ;
+      inj = (fun v -> `CAML (Obj.repr v)) }
+  let caml_option =
+    { kind = `CAML;
+      proj = (function `CAML v -> Some (Obj.obj v)
+	     | `NONE -> None
+             | _ -> failwith "Gobject.get_caml") ;
+      inj = (function None -> `POINTER None | Some v -> `CAML (Obj.repr v)) }
 
   let of_value conv v =
     conv.proj (Value.get_conv conv.kind v)

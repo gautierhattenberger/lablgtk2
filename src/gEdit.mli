@@ -1,4 +1,4 @@
-(* $Id: gEdit.mli,v 1.27 2004/01/04 19:14:57 oandrieu Exp $ *)
+(* $Id: gEdit.mli,v 1.32 2004/06/22 18:52:54 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -20,15 +20,14 @@ class editable_signals : [> editable] obj ->
 
 (** Interface for text-editing widgets
    @gtkdoc gtk GtkEditable *)
-class editable : 'a obj ->
+class editable : ([> Gtk.editable] as 'a) obj ->
   object
-    inherit GObj.widget
-    constraint 'a = [> Gtk.editable]
-    val obj : 'a obj
+    inherit ['a] GObj.widget_impl
     method copy_clipboard : unit -> unit
     method cut_clipboard : unit -> unit
     method delete_selection : unit -> unit
     method delete_text : start:int -> stop:int -> unit
+    method editable : bool
     method get_chars : start:int -> stop:int -> string
     method insert_text : string -> pos:int -> int
     method paste_clipboard : unit -> unit
@@ -36,6 +35,7 @@ class editable : 'a obj ->
     method select_region : start:int -> stop:int -> unit
     method selection : (int * int) option
     method set_position : int -> unit
+    method set_editable : bool -> unit
   end
 
 (** {3 GtkEntry & GtkEntryCompletion} *)
@@ -100,7 +100,7 @@ class entry_signals : [> Gtk.entry] obj ->
 class entry : ([> Gtk.entry] as 'a) obj ->
   object
     inherit editable
-    val obj : 'a obj
+    inherit ['a] GObj.objvar
     method connect : entry_signals
     method event : event_ops
     method append_text : string -> unit
@@ -253,6 +253,7 @@ class combo_box :
     inherit GContainer.bin
     inherit GTree.cell_layout
     val obj : 'a Gtk.obj
+    method event : GObj.event_ops
     method active : int
     method active_iter : Gtk.tree_iter option
     method connect : combo_box_signals
@@ -260,6 +261,7 @@ class combo_box :
     method set_active : int -> unit
     method set_active_iter : Gtk.tree_iter option -> unit				   
     method set_column_span_column : int GTree.column -> unit
+    method set_model : GTree.model -> unit
     method set_row_span_column : int GTree.column -> unit
     method set_wrap_width : int -> unit
     method wrap_width : int
@@ -268,39 +270,13 @@ class combo_box :
 (** @since GTK 2.4
     @gtkdoc gtk GtkComboBox *)
 val combo_box :
-  model:#GTree.model ->
+  ?model:#GTree.model ->
   ?wrap_width:int ->
-  ?border_width:int ->
   ?width:int ->
   ?height:int ->
   ?packing:(GObj.widget -> unit) ->
   ?show:bool ->
   unit -> combo_box
-
-(** @since GTK 2.4
-    @gtkdoc gtk GtkComboBox *)
-class combo_box_text : 
-  ([> Gtk.combo_box|`comboboxtext] as 'a) Gtk.obj ->
-    object
-      inherit combo_box
-      val obj : 'a Gtk.obj
-      val column : string GTree.column
-      method column : string GTree.column
-      method append_text : string -> unit
-      method insert_text : int -> string -> unit
-      method prepend_text : string -> unit
-    end
-
-(** @since GTK 2.4
-    @gtkdoc gtk GtkComboBox *)
-val combo_box_text :
-  ?wrap_width:int ->
-  ?border_width:int ->
-  ?width:int ->
-  ?height:int ->
-  ?packing:(GObj.widget -> unit) ->
-  ?show:bool ->
-  unit -> combo_box_text
 
 (** @since GTK 2.4
     @gtkdoc gtk GtkComboBoxEntry *)
@@ -309,20 +285,54 @@ class combo_box_entry :
     object
       inherit combo_box
       val obj : 'a Gtk.obj
-      val text_column : string GTree.column
       method text_column : string GTree.column
+      method set_text_column : string GTree.column -> unit
       method entry : entry
     end
 
 (** @since GTK 2.4
     @gtkdoc gtk GtkComboBoxEntry *)
 val combo_box_entry :
-  model:#GTree.model ->
-  text_column:string GTree.column ->
+  ?model:#GTree.model ->
+  ?text_column:string GTree.column ->
   ?wrap_width:int ->
-  ?border_width:int ->
   ?width:int ->
   ?height:int ->
   ?packing:(GObj.widget -> unit) ->
   ?show:bool ->
   unit -> combo_box_entry
+
+(** {4 Convenience API for text-only ComboBoxes} *)
+
+type 'a text_combo = 'a * (GTree.list_store * string GTree.column)
+  constraint 'a = #combo_box
+
+val text_combo_add        : 'a text_combo -> string -> unit
+val text_combo_get_active : 'a text_combo -> string option
+
+(** A convenience function for creating simple {!GEdit.combo_box}. 
+    Creates a simple {!GTree.list_store} with a single text column, 
+    adds [strings] in it, creates a {!GTree.cell_renderer_text} and 
+    connects it with the model.
+    @since GTK 2.4
+    @gtkdoc gtk GtkComboBox *)
+val combo_box_text :
+  ?strings:string list ->
+  ?wrap_width:int ->
+  ?width:int ->
+  ?height:int ->
+  ?packing:(GObj.widget -> unit) ->
+  ?show:bool ->
+  unit -> combo_box text_combo
+
+(** A convenience function. See {!GEdit.combo_box_text}
+    @since GTK 2.4
+    @gtkdoc gtk GtkComboBoxEntry *)
+val combo_box_entry_text :
+  ?strings:string list ->
+  ?wrap_width:int ->
+  ?width:int ->
+  ?height:int ->
+  ?packing:(GObj.widget -> unit) ->
+  ?show:bool ->
+  unit -> combo_box_entry text_combo

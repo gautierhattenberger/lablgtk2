@@ -1,4 +1,4 @@
-(* $Id: gPango.ml,v 1.5 2003/06/23 00:53:58 garrigue Exp $ *)
+(* $Id: gPango.ml,v 1.7 2004/03/15 05:12:15 garrigue Exp $ *)
 
 open Gaux
 open Pango
@@ -44,6 +44,7 @@ class context obj = object (self)
   method get_metrics
       ?(desc = self#font_description) ?(lang = self#language) () =
     new metrics (get_metrics obj desc (Some (Language.from_string lang)))
+  method create_layout = Layout.create obj
 end
 
 class context_rw obj = object

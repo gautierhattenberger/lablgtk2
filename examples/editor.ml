@@ -1,6 +1,6 @@
-(* $Id: editor.ml,v 1.24 2003/06/18 10:04:51 garrigue Exp $ *)
+(* $Id: editor.ml,v 1.26 2004/07/01 12:29:50 garrigue Exp $ *)
 
-(* This example does not work with lablgtk2, see editor2.ml *)
+(* Uses the deprecated old text widget. See editor2.ml for the new one *)
 
 open StdLabels
 open GMain
@@ -18,7 +18,7 @@ let file_dialog ~title ~callback ?filename () =
   sel#show ()
 
 class editor ?packing ?show () = object (self)
-  val text = GEdit.text ~editable:true ?packing ?show ()
+  val text = GBroken.text ~editable:true ?packing ?show ()
   val mutable filename = None
 
   method text = text

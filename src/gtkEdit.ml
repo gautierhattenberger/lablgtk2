@@ -1,4 +1,4 @@
-(* $Id: gtkEdit.ml,v 1.23 2004/01/04 19:14:57 oandrieu Exp $ *)
+(* $Id: gtkEdit.ml,v 1.25 2004/03/18 07:05:29 garrigue Exp $ *)
 
 open StdLabels
 open Gaux
@@ -13,28 +13,6 @@ let () = _gtkedit_init ()
 
 module Editable = struct
   include Editable
-  external select_region : [>`editable] obj -> start:int -> stop:int -> unit
-      = "ml_gtk_editable_select_region"
-  external get_selection_bounds : [>`editable] obj -> (int * int) option
-      = "ml_gtk_editable_get_selection_bounds"
-  external insert_text : [>`editable] obj -> string -> pos:int -> int
-      = "ml_gtk_editable_insert_text"
-  external delete_text : [>`editable] obj -> start:int -> stop:int -> unit
-      = "ml_gtk_editable_delete_text"
-  external get_chars : [>`editable] obj -> start:int -> stop:int -> string
-      = "ml_gtk_editable_get_chars"
-  external cut_clipboard : [>`editable] obj -> unit
-      = "ml_gtk_editable_cut_clipboard"
-  external copy_clipboard : [>`editable] obj -> unit
-      = "ml_gtk_editable_copy_clipboard"
-  external paste_clipboard : [>`editable] obj -> unit
-      = "ml_gtk_editable_paste_clipboard"
-  external delete_selection : [>`editable] obj -> unit
-      = "ml_gtk_editable_delete_selection"
-  external set_position : [>`editable] obj -> int -> unit
-      = "ml_gtk_editable_set_position"
-  external get_position : [>`editable] obj -> int
-      = "ml_gtk_editable_get_position"
   let marshal_insert f argv =
     match List.tl (Closure.get_args argv) with
     | `STRING _ :: `INT len :: `POINTER(Some p) :: _ ->
@@ -107,17 +85,7 @@ module Combo = struct
       = "ml_gtk_combo_set_item_string"
 end
 
-module ComboBox = struct
-  include GtkEditProps.ComboBox
-  external new_text : unit -> [> Gtk.combo_box|`comboboxtext] obj
-      = "ml_gtk_combo_box_new_text"
-  external append_text : [> Gtk.combo_box|`comboboxtext] obj -> string -> unit 
-      = "ml_gtk_combo_box_append_text"
-  external insert_text : [> Gtk.combo_box|`comboboxtext] obj -> int -> string -> unit
-      = "ml_gtk_combo_box_insert_text"
-  external prepend_text : [> Gtk.combo_box|`comboboxtext] obj -> string -> unit
-      = "ml_gtk_combo_box_prepend_text"
-end
+module ComboBox = GtkEditProps.ComboBox
 
 module ComboBoxEntry = GtkEditProps.ComboBoxEntry
 

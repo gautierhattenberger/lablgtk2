@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.135 2003/12/14 23:00:59 oandrieu Exp $
+# $Id: Makefile,v 1.150 2004/07/15 08:43:35 garrigue Exp $
 # Makefile for lablgtk.
 
 COMPILER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS) -w s -c
@@ -9,7 +9,7 @@ LIBRARIAN = $(CAMLMKLIB) -verbose
 TOPLEVEL = $(CAMLMKTOP) $(MLFLAGS)
 CAMLP4 = $(CAMLP4O) pr_o.cmo
 MKLIB = lib /nologo /debugtype:CV /out:
-MKDLL = link /nologo /dll "`$(CAMLC) -where`/ocamlrun.lib" /out:
+MKDLL = link /nologo /dll "`$(CAMLC) -where`/ocamlrun.lib" "$(GTKLIBPATH)" /out:
 CONFIG = ../config.make
 
 # protect against missing definitions
@@ -23,7 +23,7 @@ include $(CONFIG)
 TARGETS = varcc$(XE) lablgtktop$(XE) lablgtk2$(XB)
 
 all: byte
-world: byte $(OCAMLBEST)
+world: byte $(CAMLBEST)
 
 MLLIBS = lablgtk.cma
 CLIBS = liblablgtk2$(XA)
@@ -97,6 +97,7 @@ MLLIBS += lablrsvg.cma
 CLIBS += liblablrsvg$(XA)
 RSVGMLOBJS = rsvg.cmo
 RSVGCOBJS = ml_rsvg$(XO)
+$(RSVGCOBJS) : CFLAGS+=$(HAVE_SVGZ)
 endif
 
 
@@ -131,24 +132,26 @@ opt:  $(TARGETS) lablgtkopt
 GTKOBJS =  ml_gtk$(XO) ml_pango$(XO) ml_gtkbin$(XO) ml_gtkbutton$(XO) \
 	ml_gtkedit$(XO) ml_gtklist$(XO) ml_gtkmenu$(XO) ml_gtkmisc$(XO) \
 	ml_gtkpack$(XO) ml_gtkrange$(XO) ml_gtktext$(XO) ml_gtktree$(XO) \
-	ml_gtkstock$(XO) ml_gtkfile$(XO) ml_gtkaction$(XO)
+	ml_gtkstock$(XO) ml_gtkfile$(XO) ml_gtkaction$(XO) ml_gtkbroken$(XO)
 COBJS = ml_gdkpixbuf$(XO) ml_gdk$(XO) ml_glib$(XO) ml_gobject$(XO) \
-	ml_gpointer$(XO) wrappers$(XO) $(GTKOBJS)
+	ml_gpointer$(XO) ml_gvaluecaml$(XO) wrappers$(XO) $(GTKOBJS)
 GTKPROPS = gtkBase.props gtkBin.props gtkButton.props gtkEdit.props \
 	gtkList.props gtkMenu.props gtkMisc.props gtkPack.props \
-	gtkRange.props gtkText.props gtkTree.props gtkFile.props gtkAction.props
+	gtkRange.props gtkText.props gtkTree.props gtkFile.props \
+	gtkAction.props gtkBroken.props
 MLOBJS1 =  gaux.cmo gpointer.cmo glib.cmo gobject.cmo
 ENUMOBJS = gdkEnums.cmo pangoEnums.cmo gtkEnums.cmo
-MLOBJS2 = gdk.cmo gdkEvent.cmo gdkKeysyms.cmo gdkPixbuf.cmo \
-	gtk.cmo pango.cmo gtkSignal.cmo gtkStock.cmo gtkObject.cmo
+MLOBJS2 = pango.cmo gdk.cmo gdkEvent.cmo gdkKeysyms.cmo gdkPixbuf.cmo \
+	gtk.cmo gtkSignal.cmo gtkStock.cmo gtkObject.cmo
 MLOBJS3 = gtkData.cmo gtkBase.cmo gtkPack.cmo gtkButton.cmo \
 	gtkMenu.cmo gtkMisc.cmo gtkWindow.cmo gtkList.cmo \
 	gtkBin.cmo gtkEdit.cmo gtkRange.cmo gtkText.cmo gtkTree.cmo \
-	gtkFile.cmo gtkMain.cmo \
+	gtkFile.cmo gtkMain.cmo gtkBroken.cmo \
 	gPango.cmo gDraw.cmo gObj.cmo gData.cmo gMain.cmo
 MLOBJS4 = gContainer.cmo gPack.cmo gButton.cmo gText.cmo \
-	gMenu.cmo gMisc.cmo gTree.cmo gList.cmo gFile.cmo gWindow.cmo gBin.cmo \
-	gEdit.cmo gRange.cmo gAction.cmo gUtil.cmo gToolbox.cmo
+	gMenu.cmo gMisc.cmo gTree.cmo gList.cmo gFile.cmo gWindow.cmo \
+	gBin.cmo gEdit.cmo gRange.cmo gAction.cmo gBroken.cmo \
+	gUtil.cmo gToolbox.cmo
 MLOBJS =  $(MLOBJS1) $(ENUMOBJS) $(MLOBJS2) $(GTKPROPS:.props=Props.cmo) \
 	$(MLOBJS3) $(GTKPROPS:%.props=o%Props.cmo) $(MLOBJS4)
 MLXOBJS = $(MLOBJS1) $(ENUMOBJS) $(MLOBJS2) $(MLOBJS3) $(MLOBJS4)
@@ -185,13 +188,16 @@ lablgtk2: Makefile $(CONFIG) lablgtk2.in
 	    < lablgtk2.in > $@
 	chmod 755 $@
 
+lablgtk2.bat: lablgtk2.bat.in
+	cp lablgtk2.bat.in lablgtk2.bat
+
 lablgtkopt:: $(MLLIBS:.cma=.cmxa) $(INITOBJS:.cmo=.cmx)
 ifeq ($(THREADS_LIB),system)
 lablgtkopt:: $(THOBJS:.cmo=.cmx)
 endif
 
 lablgladecc$(XE): xml_lexer.cmo lablgladecc.cmo
-	$(LINKER) -o $@ $(MLLINK) xml_lexer.cmo lablgladecc.cmo
+	$(LINKER) -o $@ xml_lexer.cmo lablgladecc.cmo
 
 testcc$(XE): lablgladecc$(XE) lablgtktop
 	./lablgladecc -test > testcc.ml
@@ -267,6 +273,19 @@ lablgtkgl.cmxa: liblablgtkgl2$(XA) $(GLMLOBJS:.cmo=.cmx)
 #lablgnome.cmxa: liblablgnome$(XA) $(GNOMEMLOBJS:.cmo=.cmx)
 #	$(LIBRARIAN) -o lablgnome $(GNOMEMLOBJS:.cmo=.cmx) $(GNOMELIBS)
 
+ifeq ($(TOOLCHAIN),msvc)
+liblablglade2$(XA): $(GLADECOBJS)
+	$(MKLIB)$@ $(GLADECOBJS)
+dlllablglade2.dll: $(GLADECOBJS:$(XO)=.d$(XO))
+	$(MKDLL)$@ $(GLADECOBJS:$(XO)=.d$(XO)) dlllablgtk2.lib $(GLADELIBS) $(GTKLIBS) $(OCAMLDLL)
+lablglade.cma: liblablglade2$(XA) dlllablglade2.dll $(GLADEMLOBJS) $(CONFIG)
+	$(LINKER) -a -o $@ $(GLADEMLOBJS) \
+	  -cclib -llablglade2 -dllib -llablglade2 \
+	  -cclib "$(GLADELIBS)"
+lablglade.cmxa: liblablglade2$(XA) $(GLADEMLOBJS:.cmo=.cmx) $(CONFIG)
+	$(LINKOPT) -a -o $@  $(GLADEMLOBJS:.cmo=.cmx) -cclib -llablglade2 \
+	  -cclib "$(GLADELIBS)"
+else
 liblablglade2$(XA): $(GLADECOBJS)
 	$(LIBRARIAN) -o lablglade2 $(GLADECOBJS) $(GLADELIBS)
 lablglade.cma: liblablglade2$(XA) $(GLADEMLOBJS)
@@ -274,6 +293,7 @@ lablglade.cma: liblablglade2$(XA) $(GLADEMLOBJS)
 lablglade.cmxa: liblablglade2$(XA) $(GLADEMLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablglade -oc lablglade2 \
 	    $(GLADEMLOBJS:.cmo=.cmx) $(GLADELIBS)
+endif
 
 liblablrsvg$(XA): $(RSVGCOBJS)
 	$(LIBRARIAN) -o lablrsvg $(RSVGCOBJS) $(RSVGLIBS)
@@ -320,7 +340,7 @@ gtkThread.cmx: gtkThread.ml
 	   $(COMPOPT) $(THFLAGS) gtkThread.ml; fi
 
 xml_lexer.ml: xml_lexer.mll
-	$(OCAMLLEX) xml_lexer.mll
+	$(CAMLLEX) xml_lexer.mll
 xml_lexer.cmo xml_lexer.cmx : xml_lexer.cmi
 
 varcc$(XE): varcc.cmo
@@ -354,7 +374,7 @@ DOCFILES =  gaux.ml gpointer.mli glib.mli gobject.mli \
         gObj.mli gMain.mli gData.mli gContainer.mli gBin.mli gPack.mli gButton.mli \
         gText.mli \
         gMenu.mli gMisc.mli gTree.mli gFile.mli gList.mli gWindow.mli \
-        gEdit.mli gRange.mli gAction.mli gUtil.mli gToolbox.mli
+        gEdit.mli gRange.mli gAction.mli gUtil.mli gToolbox.mli gBroken.mli
 ifdef USE_GLADE
 DOCFILES += glade.mli xml_lexer.mli
 endif
@@ -375,7 +395,7 @@ OCAMLDOC = ocamldoc
 lablgtk$(XO)doc : $(DOCFILES) $(ALLOBJS)
 	$(OCAMLDOC) -dump $@ -v $(if $(LABLGLDIR),-I $(LABLGLDIR)) $(DOCFILES)
 gtkdoc.cmo : gtkdoc.ml
-	$(CAMLC) -I +ocamldoc -c $<
+	$(CAMLC) -I +ocamldoc -pp "$(CAMLP4O) pa_macro.cmo $(ODOC_DEF)" -c $<
 DOCDIR=../doc
 DOC_URI=
 DOC_BASE_URI=$(if $(DOC_URI),-base-uri $(DOC_URI))
@@ -390,8 +410,10 @@ $(GTKOBJS): pango_tags.h gtk_tags.h ml_gtk.h gdk_tags.h ml_gdk.h \
 $(GNOMEUICOBJS) : gnomeui_tags.h
 $(PANELCOBJS) : panel_tags.h
 ml_glib$(XO): glib_tags.h ml_glib.h wrappers.h
-ml_gobject$(XO): gobject_tags.h wrappers.h
-ml_gdk$(XO): gdk_tags.h ml_gdk.h ml_gpointer.h ml_pango.h wrappers.h
+ml_gobject$(XO): gobject_tags.h ml_gvaluecaml.h wrappers.h
+ml_gvaluecaml$(XO): ml_gobject.h wrappers.h
+ml_gdk$(XO): gdk_tags.h ml_gdk.h ml_gpointer.h \
+	pango_tags.h ml_pango.h wrappers.h
 ml_gtk$(XO) ml_gtktext$(XO): ml_pango.h
 ml_gtkgl$(XO): gtkgl_tags.h ml_gtk.h ml_gdk.h wrappers.h
 ml_gtkxmhtml$(XO): gtkxmhtml_tags.h ml_gtk.h ml_gdk.h wrappers.h

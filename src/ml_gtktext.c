@@ -1,4 +1,4 @@
-/* $Id: ml_gtktext.c,v 1.16 2004/01/08 00:54:29 oandrieu Exp $ */
+/* $Id: ml_gtktext.c,v 1.17 2004/02/13 08:25:49 garrigue Exp $ */
 /* Author: Benjamin Monate */
 
 #include <stdio.h>
@@ -433,19 +433,12 @@ ML_3 (gtk_text_buffer_delete_selection, GtkTextBuffer_val,
 CAMLprim value ml_gtk_text_buffer_get_selection_bounds(value tb)
 {
   CAMLparam1(tb);
-  CAMLlocal2(res,couple);
+  CAMLlocal1(res);
   GtkTextIter res1,res2;
-  int e;
-  e=gtk_text_buffer_get_selection_bounds(GtkTextBuffer_val(tb), &res1, &res2);
-  
-  if (e) res = Val_unit; 
-  else {
-    couple = alloc_tuple(2);
-    Store_field(res,0,Val_GtkTextIter(&res1));
-    Store_field(res,1,Val_GtkTextIter(&res2));
-    res = ml_some(couple);
-      };
-
+  gtk_text_buffer_get_selection_bounds(GtkTextBuffer_val(tb), &res1, &res2);
+  res = alloc_tuple(2);
+  Store_field(res,0,Val_GtkTextIter(&res1));
+  Store_field(res,1,Val_GtkTextIter(&res2));
   CAMLreturn(res);
 }
 

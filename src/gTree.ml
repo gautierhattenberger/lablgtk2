@@ -1,4 +1,4 @@
-(* $Id: gTree.ml,v 1.43 2004/01/08 00:54:28 oandrieu Exp $ *)
+(* $Id: gTree.ml,v 1.50 2004/06/18 08:44:20 oandrieu Exp $ *)
 
 open StdLabels
 open Gaux
@@ -11,76 +11,8 @@ open OgtkTreeProps
 open GObj
 open GContainer
 
-(* Obsolete GtkTree/GtkTreeItem framework *)
-
-class tree_item_signals obj = object
-  inherit container_signals_impl (obj : tree_item obj)
-  inherit item_sigs
-  inherit tree_item_sigs
-end
-
-class tree_item obj = object
-  inherit container obj
-  method event = new GObj.event_ops obj
-  method as_item : Gtk.tree_item obj = obj
-  method connect = new tree_item_signals obj
-  method set_subtree (w : tree) = TreeItem.set_subtree obj w#as_tree
-  method remove_subtree () = TreeItem.remove_subtree obj
-  method expand () = TreeItem.expand obj
-  method collapse () = TreeItem.collapse obj
-  method subtree =
-    try Some(new tree (TreeItem.subtree obj)) with Gpointer.Null -> None
-end
-
-and tree_signals obj = object (self)
-  inherit container_signals_impl obj
-  method selection_changed = self#connect Tree.S.selection_changed
-  method select_child ~callback =
-    self#connect Tree.S.select_child
-      ~callback:(fun w -> callback (new tree_item (TreeItem.cast w))) 
-  method unselect_child ~callback =
-    self#connect Tree.S.unselect_child
-      ~callback:(fun w -> callback (new tree_item (TreeItem.cast w))) 
-end
-
-and tree obj = object (self)
-  inherit [tree_item] item_container obj
-  method event = new GObj.event_ops obj
-  method as_tree = (obj :> Gtk.tree obj)
-  method insert w ~pos = Tree.insert obj w#as_item ~pos
-  method connect = new tree_signals obj
-  method clear_items = Tree.clear_items obj
-  method select_item = Tree.select_item obj
-  method unselect_item = Tree.unselect_item obj
-  method child_position (w : tree_item) = Tree.child_position obj w#as_item
-  method remove_items items =
-    Tree.remove_items obj
-      (List.map ~f:(fun (t : tree_item) -> t#as_item) items)
-  method set_selection_mode = Tree.set_selection_mode obj
-  method set_view_mode = Tree.set_view_mode obj
-  method set_view_lines = Tree.set_view_lines obj
-  method selection =
-    List.map ~f:(fun w -> self#wrap (w :> Gtk.widget obj)) (Tree.selection obj)
-  method private wrap w =
-    new tree_item (TreeItem.cast w)
-end
-
-let tree_item ?label ?packing ?show () =
-  let w = TreeItem.create ?label () in
-  let self = new tree_item w in
-  may packing ~f:(fun f -> (f self : unit));
-  if show <> Some false then self#misc#show ();
-  self
-
-let tree ?selection_mode ?view_mode ?view_lines =
-  GContainer.pack_container [] ~create:(fun p ->
-    let w = Tree.create p in
-    Tree.set w ?selection_mode ?view_mode ?view_lines;
-    new tree w)
-
 (* New GtkTreeView/Model framework *)
 
-open Gobject
 type 'a column = {index: int; conv: 'a data_conv; creator: int}
 
 class column_list = object (self)
@@ -139,6 +71,7 @@ class model obj = object (self)
   method iter_children = TreeModel.iter_children obj
   method iter_parent = TreeModel.iter_parent obj
   method foreach = TreeModel.foreach obj
+  method row_changed = TreeModel.row_changed obj
 end
 
 class tree_sortable_signals obj = object
@@ -154,10 +87,10 @@ class tree_sortable obj = object
   method set_sort_column_id = GtkTree.TreeSortable.set_sort_column_id obj
   method set_sort_func id cmp = 
     GtkTree.TreeSortable.set_sort_func obj id
-      (fun m it_a it_b -> cmp (new tree_sortable m) it_a it_b)
+      (fun m it_a it_b -> cmp (new model m) it_a it_b)
   method set_default_sort_func cmp = 
     GtkTree.TreeSortable.set_default_sort_func obj
-      (fun m it_a it_b -> cmp (new tree_sortable m) it_a it_b)
+      (fun m it_a it_b -> cmp (new model m) it_a it_b)
   method has_default_sort_func = GtkTree.TreeSortable.has_default_sort_func obj
 end
 
@@ -216,10 +149,21 @@ end
 let list_store (cols : column_list) =
   cols#lock ();
   let types =
-    List.map Type.of_fundamental (cols#kinds :> fundamental_type list) in
+    List.map Type.of_fundamental cols#kinds in
   let store = ListStore.create (Array.of_list types) in
   Hashtbl.add model_ids (Gobject.get_oid store) cols#id;
   new list_store store
+
+let store_of_list conv data =
+  let cols = new column_list in
+  let column = cols#add conv in
+  let store = list_store cols in
+  List.iter
+    (fun d ->
+      let row = store#append () in
+      store#set ~row ~column d)
+    data ;
+  store, column
 
 class model_sort (obj : Gtk.tree_model_sort) = object
   inherit tree_sortable obj
@@ -250,7 +194,7 @@ class model_filter (obj : Gtk.tree_model_filter) = object
   method virtual_root = Gobject.get GtkTree.TreeModelFilter.P.virtual_root obj
   method set_visible_func f =
     GtkTree.TreeModelFilter.set_visible_func obj
-      (fun o it -> f (new model obj) it)
+      (fun o it -> f (new model o) it)
   method set_visible_column (c : bool column) = 
     GtkTree.TreeModelFilter.set_visible_column obj c.index
   method convert_child_path_to_path = GtkTree.TreeModelFilter.convert_child_path_to_path obj
@@ -325,10 +269,18 @@ class view_column (_obj : tree_view_column obj) = object
         TreeViewColumn.add_attribute obj crr#as_renderer attr col.index
   method clear_attributes : 
       'a. (#cell_renderer as 'a) -> unit = 
-      fun crr -> GtkTree.CellLayout.clear_attributes obj crr#as_renderer
+      fun crr -> TreeViewColumn.clear_attributes obj crr#as_renderer
 
   method set_sort_column_id = TreeViewColumn.set_sort_column_id obj
   method get_sort_column_id = TreeViewColumn.get_sort_column_id obj
+  method set_cell_data_func :
+    'a. (#cell_renderer as 'a) -> (model -> Gtk.tree_iter -> unit) -> unit =
+    fun crr cb -> 
+      TreeViewColumn.set_cell_data_func obj crr#as_renderer
+	(Some (fun m i -> cb (new model m) i))
+  method unset_cell_data_func : 'a. (#cell_renderer as 'a) -> unit = 
+    fun crr ->
+      TreeViewColumn.set_cell_data_func obj crr#as_renderer None
 end
 let view_column ?title ?renderer () =
   let w = new view_column (TreeViewColumn.create []) in
@@ -413,8 +365,14 @@ class view obj = object
       | Some cell ->
           TreeView.set_cursor_on_cell obj ~edit row (as_column col)
             cell#as_renderer
-  method get_cursor () = TreeView.get_cursor obj
-  method get_path_at_pos = TreeView.get_path_at_pos obj
+  method get_cursor () =
+    match TreeView.get_cursor obj with
+      path, Some vc -> path, Some (new view_column vc)
+    | _, None as pair -> pair
+  method get_path_at_pos ~x ~y =
+    match TreeView.get_path_at_pos obj ~x ~y with
+      Some (p, c, x, y) -> Some (p, new view_column c, x, y)
+    | None -> None
 end
 let view ?model ?hadjustment ?vadjustment =
   let model = may_map (fun m -> m#as_model) model in

@@ -1,4 +1,4 @@
-(* $Id: gtkTree.ml,v 1.35 2004/01/08 00:54:28 oandrieu Exp $ *)
+(* $Id: gtkTree.ml,v 1.40 2004/06/18 06:12:32 garrigue Exp $ *)
 
 open Gaux
 open Gtk
@@ -8,46 +8,6 @@ open GtkBase
 
 external _gtktree_init : unit -> unit = "ml_gtktree_init"
 let () = _gtktree_init ()
-
-module TreeItem = struct
-  include TreeItem
-  external create_with_label : string -> tree_item obj
-      = "ml_gtk_tree_item_new_with_label"
-  let create ?label () =
-    match label with None -> create []
-    | Some label -> create_with_label label
-  external subtree : [>`treeitem] obj -> tree obj
-      = "ml_GTK_TREE_ITEM_SUBTREE"
-end
-
-module Tree = struct
-  include Tree
-  external insert : [>`tree] obj -> [>`treeitem] obj -> pos:int -> unit
-      = "ml_gtk_tree_insert"
-  external remove_items : [>`tree] obj -> [>`treeitem] obj list -> unit
-      = "ml_gtk_tree_remove_items"
-  external clear_items : [>`tree] obj -> start:int -> stop:int -> unit
-      = "ml_gtk_tree_clear_items"
-  external select_item : [>`tree] obj -> pos:int -> unit
-      = "ml_gtk_tree_select_item"
-  external unselect_item : [>`tree] obj -> pos:int -> unit
-      = "ml_gtk_tree_unselect_item"
-  external child_position : [>`tree] obj -> [>`treeitem] obj -> int
-      = "ml_gtk_tree_child_position"
-  external set_selection_mode : [>`tree] obj -> selection_mode -> unit
-      = "ml_gtk_tree_set_selection_mode"
-  external set_view_mode : [>`tree] obj -> [`LINE|`ITEM] -> unit
-      = "ml_gtk_tree_set_view_mode"
-  external set_view_lines : [>`tree] obj -> bool -> unit
-      = "ml_gtk_tree_set_view_lines"
-  external selection : [>`tree] obj -> tree_item obj list =
-    "ml_gtk_tree_selection"
-  let set ?selection_mode ?view_mode ?view_lines w =
-    let may_set f = may ~f:(f w) in
-    may_set set_selection_mode selection_mode;
-    may_set set_view_mode view_mode;
-    may_set set_view_lines view_lines
-end
 
 module TreePath = struct
   external create_ : unit -> tree_path = "ml_gtk_tree_path_new"
@@ -117,23 +77,24 @@ module TreeModel = struct
     = "ml_gtk_tree_model_iter_next"
   external iter_has_child : [>`treemodel] obj -> tree_iter -> bool
     = "ml_gtk_tree_model_iter_has_child"
-  external iter_n_children : [>`treemodel] obj -> tree_iter -> int
+  external iter_n_children : [>`treemodel] obj -> tree_iter option -> int
     = "ml_gtk_tree_model_iter_n_children"
-  external iter_nth_child : [>`treemodel] obj -> tree_iter -> parent:tree_iter -> int -> bool
+  external iter_nth_child : [>`treemodel] obj -> tree_iter -> parent:tree_iter option -> int -> bool
     = "ml_gtk_tree_model_iter_nth_child"
   let iter_children m ?(nth=0) p =
     let i = alloc_iter () in
     if iter_nth_child m i p nth then i
-    else failwith "GtkTree.TreeModel.iter_children"
+    else invalid_arg "GtkTree.TreeModel.iter_children"
   external iter_parent :
     [>`treemodel] obj -> tree_iter -> child:tree_iter -> bool
     = "ml_gtk_tree_model_iter_parent"
   let iter_parent m child =
     let i = alloc_iter () in
-    if iter_parent m i ~child then i
-    else failwith "GtkTree.TreeModel.iter_parent"
+    if iter_parent m i ~child then Some i else None
   external foreach : [>`treemodel] obj -> (tree_path -> tree_iter -> bool) -> unit
     = "ml_gtk_tree_model_foreach"
+  external row_changed : [>`treemodel] obj -> tree_path -> tree_iter -> unit
+    = "ml_gtk_tree_model_row_changed"
 end
 
 module TreeStore = struct
@@ -290,6 +251,9 @@ module TreeViewColumn = struct
     = "ml_gtk_tree_view_column_set_sort_column_id"      
   external get_sort_column_id : [>`treeviewcolumn] obj -> int
     = "ml_gtk_tree_view_column_get_sort_column_id"
+  external set_cell_data_func : 
+    [>`treeviewcolumn] obj -> [>`cellrenderer] obj -> 
+    ([`treemodel] obj -> tree_iter -> unit) option -> unit = "ml_gtk_tree_view_column_set_cell_data_func"
 end
 
 module TreeView = struct
@@ -340,7 +304,7 @@ module TreeView = struct
     [>`treeviewcolumn] obj -> [>`cellrenderer] obj -> edit:bool -> unit
     = "ml_gtk_tree_view_set_cursor_on_cell"
   external get_cursor :
-    [>`treeview] obj -> tree_path option * tree_view_column option
+    [>`treeview] obj -> tree_path option * tree_view_column obj option
     = "ml_gtk_tree_view_get_cursor"
   external get_path_at_pos :
     [>`treeview] obj -> x:int -> y:int ->

@@ -1,4 +1,4 @@
-(* $Id: glib.ml,v 1.18 2003/07/18 16:53:32 monate Exp $ *)
+(* $Id: glib.ml,v 1.20 2004/06/02 20:57:25 oandrieu Exp $ *)
 
 open StdLabels
 
@@ -6,7 +6,8 @@ type unichar = int
 type unistring = unichar array
 
 exception GError of string
-let () = Callback.register_exception "gerror" (GError "")
+external _init : unit -> unit = "ml_glib_init"
+let () =  _init () ; Callback.register_exception "gerror" (GError "")
 exception Critical of string * string
 
 module Main = struct
@@ -87,6 +88,15 @@ end
 *)
 
 module Convert = struct
+  type error = 
+    | NO_CONVERSION
+    | ILLEGAL_SEQUENCE
+    | FAILED
+    | PARTIAL_INPUT
+    | BAD_URI
+    | NOT_ABSOLUTE_PATH
+  exception Error of error * string
+  let () = Callback.register_exception "g_convert_error" (Error (NO_CONVERSION, ""))
   external convert :
     string -> to_codeset:string -> from_codeset:string -> string
     = "ml_g_convert"
@@ -237,4 +247,8 @@ module Utf8 = struct
 
   let first_char s =
     to_unichar s ~pos:(ref 0)
+end
+
+module Markup = struct
+  external escape_text : string -> string = "ml_g_markup_escape_text"
 end

@@ -1,4 +1,4 @@
-/* $Id: wrappers.h,v 1.51 2004/01/08 00:54:29 oandrieu Exp $ */
+/* $Id: wrappers.h,v 1.57 2004/06/15 21:42:30 oandrieu Exp $ */
 
 #ifndef _wrappers_
 #define _wrappers_
@@ -11,13 +11,14 @@ CAMLextern char *young_start, *young_end; /* from minor_gc.h */
 
 value copy_memblock_indirected (void *src, asize_t size);
 value alloc_memblock_indirected (asize_t size);
-value ml_some (value);
+CAMLprim value ml_some (value);
+value ml_cons (value, value);
 void ml_raise_null_pointer (void) Noreturn;
 value Val_pointer (void *);
-value copy_string_check (const char*);
+CAMLprim value copy_string_check (const char*);
 value copy_string_or_null (const char *);
 
-value *ml_global_root_new (value v);
+CAMLprim value *ml_global_root_new (value v);
 void ml_global_root_destroy (void *data);
 
 /* enums <-> polymorphic variants */
@@ -31,7 +32,7 @@ value ml_lookup_flags_getter (lookup_info *table, int data);
 #if GTK_CHECK_VERSION(2,2,0) && !defined(DISABLE_GTK22)
 #define HASGTK22
 #endif
-#if GTK_CHECK_VERSION(2,3,0) && !defined(DISABLE_GTK24)
+#if GTK_CHECK_VERSION(2,4,0) && !defined(DISABLE_GTK24)
 #define HASGTK24
 #endif
 
@@ -257,6 +258,7 @@ value Val_##type (type *p) \
   initialize (&Field(ret,1), (value) p); init(p); return ret; }
 
 #define Pointer_val(val) ((void*)Field(val,1))
+#define Store_pointer(val,p) (Field(val,1)=Val_bp(p))
 #define MLPointer_val(val) \
         (Field(val,1) == 2 ? &Field(val,2) : (void*)Field(val,1))
 

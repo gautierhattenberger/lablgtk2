@@ -1,4 +1,4 @@
-(* $Id: pango_tags.var,v 1.3 2003/06/15 11:30:39 garrigue Exp $ *)
+(* $Id: pango_tags.var,v 1.4 2004/03/01 09:07:30 garrigue Exp $ *)
 
 package "pango"
 prefix "pango_"
@@ -28,3 +28,6 @@ type noconv scale = "PANGO_SCALE_"
 
 type underline = "PANGO_UNDERLINE_"
   [ `NONE | `SINGLE | `DOUBLE | `LOW ]
+
+type wrap_mode = "PANGO_WRAP_"
+  [ `WORD | `CHAR | `WORD_CHAR ]

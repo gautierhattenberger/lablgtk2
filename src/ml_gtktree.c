@@ -1,8 +1,4 @@
-/* $Id: ml_gtktree.c,v 1.23 2004/01/08 00:54:29 oandrieu Exp $ */
-
-/* GtkTree is obsolete, but we keep it for a while */
-
-#define GTK_ENABLE_BROKEN 1
+/* $Id: ml_gtktree.c,v 1.30 2004/06/18 06:12:32 garrigue Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -25,8 +21,6 @@ CAMLprim value ml_gtktree_init(value unit)
 {
     /* Since these are declared const, must force gcc to call them! */
     GType t =
-        gtk_tree_item_get_type() +
-        gtk_tree_get_type() +
         gtk_tree_view_get_type() +
         gtk_tree_view_column_get_type() +
         gtk_tree_store_get_type() +
@@ -40,47 +34,6 @@ CAMLprim value ml_gtktree_init(value unit)
 #endif
         ;
     return Val_GType(t);
-}
-
-#define Tree_view_mode_val(val) \
-  (val == MLTAG_ITEM ? GTK_TREE_VIEW_ITEM : GTK_TREE_VIEW_LINE)
-
-/* gtktreeitem.h */
-
-#define GtkTreeItem_val(val) check_cast(GTK_TREE_ITEM,val)
-ML_0 (gtk_tree_item_new, Val_GtkWidget_sink)
-ML_1 (gtk_tree_item_new_with_label, String_val, Val_GtkWidget_sink)
-ML_2 (gtk_tree_item_set_subtree, GtkTreeItem_val, GtkWidget_val, Unit)
-ML_1 (gtk_tree_item_remove_subtree, GtkTreeItem_val, Unit)
-ML_1 (gtk_tree_item_expand, GtkTreeItem_val, Unit)
-ML_1 (gtk_tree_item_collapse, GtkTreeItem_val, Unit)
-ML_1 (GTK_TREE_ITEM_SUBTREE, GtkTreeItem_val, Val_GtkWidget)
-
-/* gtktree.h */
-
-#define GtkTree_val(val) check_cast(GTK_TREE,val)
-ML_0 (gtk_tree_new, Val_GtkWidget_sink)
-ML_3 (gtk_tree_insert, GtkTree_val, GtkWidget_val, Int_val, Unit)
-ML_3 (gtk_tree_clear_items, GtkTree_val, Int_val, Int_val, Unit)
-ML_2 (gtk_tree_select_item, GtkTree_val, Int_val, Unit)
-ML_2 (gtk_tree_unselect_item, GtkTree_val, Int_val, Unit)
-ML_2 (gtk_tree_child_position, GtkTree_val, GtkWidget_val, Val_int)
-ML_2 (gtk_tree_set_selection_mode, GtkTree_val, Selection_mode_val, Unit)
-ML_2 (gtk_tree_set_view_mode, GtkTree_val, Tree_view_mode_val, Unit)
-ML_2 (gtk_tree_set_view_lines, GtkTree_val, Bool_val, Unit)
-
-static value val_gtkany (gpointer p) { return Val_GtkAny(p); }
-CAMLprim value ml_gtk_tree_selection (value tree)
-{
-  GList *selection = GTK_TREE_SELECTION_OLD(GtkTree_val(tree));
-  return Val_GList(selection, val_gtkany);
-}
-static gpointer gtkobject_val (value val) { return GtkObject_val(val); }
-CAMLprim value ml_gtk_tree_remove_items (value tree, value items)
-{
-  GList *items_list = GList_val (items, gtkobject_val);
-  gtk_tree_remove_items (GtkTree_val(tree), items_list);
-  return Val_unit;
 }
 
 /* gtktreemodel.h */
@@ -150,15 +103,16 @@ ML_2 (gtk_tree_model_get_iter_first, GtkTreeModel_val, GtkTreeIter_val, Val_bool
 ML_2 (gtk_tree_model_iter_next, GtkTreeModel_val, GtkTreeIter_val,
       Val_bool)
 ML_2 (gtk_tree_model_iter_has_child, GtkTreeModel_val, GtkTreeIter_val, Val_bool)
-ML_2 (gtk_tree_model_iter_n_children, GtkTreeModel_val, GtkTreeIter_val,
+#define GtkTreeIterOption(v) Option_val(v,GtkTreeIter_val,NULL)
+ML_2 (gtk_tree_model_iter_n_children, GtkTreeModel_val, GtkTreeIterOption,
       Val_int)
-ML_4 (gtk_tree_model_iter_nth_child, GtkTreeModel_val, GtkTreeIter_val, 
+ML_4 (gtk_tree_model_iter_nth_child, GtkTreeModel_val, GtkTreeIterOption, 
       GtkTreeIter_val, Int_val, Val_bool)
 ML_3 (gtk_tree_model_iter_parent, GtkTreeModel_val, GtkTreeIter_val,
       GtkTreeIter_val, Val_bool)
-static gboolean model_foreach_func(GtkTreeModel *model, 
-				   GtkTreePath *path, GtkTreeIter *iter, 
-				   gpointer data)
+static gboolean gtk_tree_model_foreach_func(GtkTreeModel *model, 
+					    GtkTreePath *path, GtkTreeIter *iter, 
+					    gpointer data)
 {
   value *closure = data;
   CAMLparam0();
@@ -166,18 +120,21 @@ static gboolean model_foreach_func(GtkTreeModel *model,
   vpath = Val_GtkTreePath_copy(path);
   viter = Val_GtkTreeIter(iter);
   vret = callback2_exn(*closure, vpath, viter);
-  if (Is_exception_result(vret))
+  if (Is_exception_result(vret)) {
+    CAML_EXN_LOG("gtk_tree_model_foreach_func");
     CAMLreturn(FALSE);
+  }
   CAMLreturn(Bool_val(vret));
 }
 CAMLprim value ml_gtk_tree_model_foreach(value m, value cb)
 {
   CAMLparam1(cb);
   gtk_tree_model_foreach(GtkTreeModel_val(m),
-			 model_foreach_func,
+			 gtk_tree_model_foreach_func,
 			 &cb);
   CAMLreturn(Val_unit);
 }
+ML_3 (gtk_tree_model_row_changed, GtkTreeModel_val, GtkTreePath_val, GtkTreeIter_val, Unit)
 
 /* gtktreestore.h */
 
@@ -290,32 +247,42 @@ Unsupported(gtk_list_store_move_after)
 ML_2 (gtk_tree_selection_set_mode, GtkTreeSelection_val, Selection_mode_val,
       Unit)
 ML_1 (gtk_tree_selection_get_mode, GtkTreeSelection_val, Val_selection_mode)
-static gboolean tree_selection_func(GtkTreeSelection *s, GtkTreeModel *m,
-                                    GtkTreePath *p, gboolean cs,
-                                    gpointer clos_p)
-{ return callback2(*(value*)clos_p, Val_GtkTreePath_copy(p), Val_bool(cs)); }
+static gboolean gtk_tree_selection_func(GtkTreeSelection *s, GtkTreeModel *m,
+					GtkTreePath *p, gboolean cs,
+					gpointer clos_p)
+{
+  value vp = Val_GtkTreePath_copy(p);
+  value ret = callback2_exn(*(value*)clos_p, vp, Val_bool(cs));
+  if (Is_exception_result(ret)) {
+    CAML_EXN_LOG("gtk_tree_selection_func");
+    return TRUE;
+  }
+  return Bool_val(ret); 
+}
 CAMLprim value ml_gtk_tree_selection_set_select_function (value s, value clos)
 {
   value *clos_p = ml_global_root_new(clos);
   gtk_tree_selection_set_select_function (GtkTreeSelection_val(s),
-                                          tree_selection_func,
+                                          gtk_tree_selection_func,
                                           clos_p,
                                           ml_global_root_destroy);
   return Val_unit;
 }
-static void selected_foreach_func(GtkTreeModel      *model,
-                                  GtkTreePath       *path,
-                                  GtkTreeIter       *iter,
-                                  gpointer           data)
+static void gtk_tree_selection_foreach_func(GtkTreeModel      *model,
+					    GtkTreePath       *path,
+					    GtkTreeIter       *iter,
+					    gpointer           data)
 { 
   value p = Val_GtkTreePath_copy(path);
-  callback(*(value*)data, p);
+  value ret = callback_exn(*(value*)data, p);
+  if (Is_exception_result(ret)) 
+    CAML_EXN_LOG("gtk_tree_selection_foreach_func");
 }
 CAMLprim value ml_gtk_tree_selection_selected_foreach (value s, value clos)
 {
   CAMLparam1(clos);
   gtk_tree_selection_selected_foreach(GtkTreeSelection_val(s),
-                                      selected_foreach_func,
+                                      gtk_tree_selection_foreach_func,
                                       &clos);
   CAMLreturn(Val_unit);
 }
@@ -375,6 +342,31 @@ ML_4 (gtk_tree_view_column_add_attribute, GtkTreeViewColumn_val,
 ML_2 (gtk_tree_view_column_set_sort_column_id, GtkTreeViewColumn_val,
       Int_val, Unit)
 ML_1 (gtk_tree_view_column_get_sort_column_id, GtkTreeViewColumn_val, Val_int)
+static void gtk_tree_cell_data_func(GtkTreeViewColumn *tree_column, GtkCellRenderer *cell,
+				    GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data)
+{
+  value *closure = data;
+  CAMLparam0();
+  CAMLlocal3(vmod,vit,ret);
+  vmod  = Val_GAnyObject(tree_model);
+  vit   = Val_GtkTreeIter(iter);
+  ret = callback2_exn(*closure, vmod, vit);
+  if (Is_exception_result(ret)) 
+    CAML_EXN_LOG("gtk_tree_cell_data_func");
+  CAMLreturn0;
+}
+CAMLprim value ml_gtk_tree_view_column_set_cell_data_func(value vcol, value cr, value cb)
+{
+  value *glob_root = NULL;
+  if (Is_block(cb))
+    glob_root = ml_global_root_new(Field(cb, 0));
+  gtk_tree_view_column_set_cell_data_func(GtkTreeViewColumn_val(vcol),
+					  GtkCellRenderer_val(cr),
+					  (Is_block(cb) ? gtk_tree_cell_data_func : NULL),
+					  glob_root,
+					  ml_global_root_destroy);
+  return Val_unit;
+}
 
 /* GtkTreeView */
 
@@ -513,37 +505,41 @@ CAMLprim value ml_gtk_tree_sortable_get_sort_column_id(value m)
 }
 ML_3 (gtk_tree_sortable_set_sort_column_id, GtkTreeSortable_val, Int_val, Sort_type_val, Unit)
 
-static gint ml_gtk_tree_iter_compare_func(GtkTreeModel *model,
-					  GtkTreeIter  *a,
-					  GtkTreeIter  *b,
-					  gpointer      user_data)
+static gint gtk_tree_iter_compare_func(GtkTreeModel *model,
+				       GtkTreeIter  *a,
+				       GtkTreeIter  *b,
+				       gpointer      user_data)
 {
   value *clos = user_data;
   CAMLparam0();
   CAMLlocal4(ret, obj, iter_a, iter_b);
-  iter_a = Val_pointer(a);
-  iter_b = Val_pointer(b);
+  iter_a = Val_GtkTreeIter(a);
+  iter_b = Val_GtkTreeIter(b);
   obj = Val_GAnyObject(model);
   ret = callback3_exn(*clos, obj, iter_a, iter_b);
-  if (Is_exception_result(ret))
+  if (Is_exception_result(ret)) {
+    CAML_EXN_LOG("gtk_tree_iter_compare_func");
     CAMLreturn(0);
+  }
   CAMLreturn(Int_val(ret));
 }
 
-CAMLprim value ml_gtk_tree_sortable_set_sort_func(value m, value id, value sort_fun)
+CAMLprim value ml_gtk_tree_sortable_set_sort_func(value m, value id,
+						  value sort_fun)
 {
   value *clos = ml_global_root_new(sort_fun);
   gtk_tree_sortable_set_sort_func(GtkTreeSortable_val(m), Int_val(id), 
-				  ml_gtk_tree_iter_compare_func,
+				  gtk_tree_iter_compare_func,
 				  clos, ml_global_root_destroy);
   return Val_unit;
 }
 
-CAMLprim value ml_gtk_tree_sortable_set_default_sort_func(value m, value sort_fun)
+CAMLprim value ml_gtk_tree_sortable_set_default_sort_func(value m,
+							  value sort_fun)
 {
   value *clos = ml_global_root_new(sort_fun);
   gtk_tree_sortable_set_default_sort_func(GtkTreeSortable_val(m),
-					  ml_gtk_tree_iter_compare_func,
+					  gtk_tree_iter_compare_func,
 					  clos, ml_global_root_destroy);
   return Val_unit;
 }
@@ -554,49 +550,55 @@ ML_1 (gtk_tree_sortable_has_default_sort_func, GtkTreeSortable_val, Val_bool)
 #ifdef HASGTK24
 #define GtkTreeModelFilter_val(val) check_cast(GTK_TREE_MODEL_FILTER,val)
 
-static gboolean ml_gtk_tree_model_filter_visible_func(GtkTreeModel *model,
-						      GtkTreeIter  *iter,
-						      gpointer      data)
+static gboolean gtk_tree_model_filter_visible_func(GtkTreeModel *model,
+						   GtkTreeIter  *iter,
+						   gpointer      data)
 {
   value *clos = data;
   CAMLparam0();
   CAMLlocal3(ret, obj, it);
-  it  = Val_pointer(iter);
+  it  = Val_GtkTreeIter(iter);
   obj = Val_GAnyObject(model);
   ret = callback2_exn(*clos, obj, it);
-  if (Is_exception_result(ret))
+  if (Is_exception_result(ret)) {
+    CAML_EXN_LOG("gtk_tree_model_filter_visible_func");
     CAMLreturn(FALSE);
+  }
   CAMLreturn(Bool_val(ret));
 }
 
 CAMLprim value ml_gtk_tree_model_filter_set_visible_func(value m, value f)
 {
   gtk_tree_model_filter_set_visible_func(GtkTreeModelFilter_val(m), 
-					 ml_gtk_tree_model_filter_visible_func,
+					 gtk_tree_model_filter_visible_func,
 					 ml_global_root_new(f),
 					 ml_global_root_destroy);
   return Val_unit;
 }
 
-ML_2 (gtk_tree_model_filter_set_visible_column, GtkTreeModelFilter_val, Int_val, Unit)
+ML_2 (gtk_tree_model_filter_set_visible_column, GtkTreeModelFilter_val,
+      Int_val, Unit)
 ML_1 (gtk_tree_model_filter_refilter, GtkTreeModelFilter_val, Unit)
-
-ML_2 (gtk_tree_model_filter_convert_child_path_to_path, GtkTreeModelFilter_val, 
+ML_2 (gtk_tree_model_filter_convert_child_path_to_path, GtkTreeModelFilter_val,
       GtkTreePath_val, Val_GtkTreePath)
-CAMLprim value ml_gtk_tree_model_filter_convert_child_iter_to_iter(value m, value it)
+CAMLprim value ml_gtk_tree_model_filter_convert_child_iter_to_iter(value m,
+								   value it)
 {
   GtkTreeIter dst_it;
   gtk_tree_model_filter_convert_child_iter_to_iter(GtkTreeModelFilter_val(m), 
-						   &dst_it, GtkTreeIter_val(it));
+						   &dst_it,
+						   GtkTreeIter_val(it));
   return Val_GtkTreeIter(&dst_it);
 }
-ML_2 (gtk_tree_model_filter_convert_path_to_child_path, GtkTreeModelFilter_val, 
+ML_2 (gtk_tree_model_filter_convert_path_to_child_path, GtkTreeModelFilter_val,
       GtkTreePath_val, Val_GtkTreePath)
-CAMLprim value ml_gtk_tree_model_filter_convert_iter_to_child_iter(value m, value it)
+CAMLprim value ml_gtk_tree_model_filter_convert_iter_to_child_iter(value m,
+								   value it)
 {
   GtkTreeIter dst_it;
   gtk_tree_model_filter_convert_iter_to_child_iter(GtkTreeModelFilter_val(m),
-						   &dst_it, GtkTreeIter_val(it));
+						   &dst_it,
+						   GtkTreeIter_val(it));
   return Val_GtkTreeIter(&dst_it);
 }
 

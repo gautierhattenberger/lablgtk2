@@ -1,4 +1,4 @@
-/* $Id: ml_gpointer.c,v 1.8 2003/10/07 05:38:31 garrigue Exp $ */
+/* $Id: ml_gpointer.c,v 1.9 2004/06/15 21:42:30 oandrieu Exp $ */
 
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
@@ -57,7 +57,7 @@ CAMLprim value ml_set_long_at_pointer (value ptr, value n)
 
 unsigned char* ml_gpointer_base (value region)
 {
-    int i;
+    unsigned int i;
     value ptr = RegData_val(region);
     value path = RegPath_val(region);
 

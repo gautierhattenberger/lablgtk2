@@ -1,4 +1,4 @@
-(* $Id: gDraw.ml,v 1.20 2003/07/05 09:52:45 garrigue Exp $ *)
+(* $Id: gDraw.ml,v 1.23 2004/03/15 05:12:15 garrigue Exp $ *)
 
 open Gaux
 open Gobject
@@ -73,9 +73,13 @@ class drawable ?(colormap = default_colormap ()) w = object (self)
   method arc = Draw.arc w gc
   method polygon = Draw.polygon w gc
   method string s = Draw.string w gc s
+  method put_layout ~x ~y ?fore ?back lay =
+    Draw.layout w gc ~x ~y lay
+      ?fore:(may_map self#color fore) ?back:(may_map self#color back)
   method put_image ~x ~y = Draw.image w gc ~xdest:x ~ydest:y
   method put_pixmap ~x ~y = Draw.pixmap w gc ~xdest:x ~ydest:y
   method put_rgb_data = Rgb.draw_image w gc
+  method put_pixbuf ~x ~y = GdkPixbuf.draw_pixbuf w gc ~dest_x:x ~dest_y:y
   method points = Draw.points w gc
   method lines = Draw.lines w gc
   method segments = Draw.segments w gc
@@ -116,7 +120,11 @@ class pixmap ?colormap ?mask pm = object
     may bitmap ~f:(fun m -> m#string s ~font ~x ~y)
   method points pts = pixmap#points pts; may bitmap ~f:(fun m -> m#points pts)
   method lines pts = pixmap#lines pts; may bitmap ~f:(fun m -> m#lines pts)
-  method segments lns = pixmap#segments lns; may bitmap ~f:(fun m -> m#segments lns)
+  method segments lns =
+    pixmap#segments lns; may bitmap ~f:(fun m -> m#segments lns)
+  method put_layout ~x ~y ?fore ?back lay =
+    pixmap#put_layout ~x ~y ?fore ?back lay;
+    may bitmap ~f:(fun (m : #drawable) -> m#put_layout ~x ~y lay)
 end
 
 class type misc_ops = object

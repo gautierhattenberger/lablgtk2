@@ -1,4 +1,4 @@
-(* $Id: gdkPixbuf.mli,v 1.5 2003/08/06 00:12:39 oandrieu Exp $ *)
+(* $Id: gdkPixbuf.mli,v 1.6 2004/03/15 05:12:15 garrigue Exp $ *)
 
 (* Types *)
 
@@ -54,13 +54,18 @@ val get_pixels : pixbuf -> Gpointer.region
 
 (* Rendering *)
 
-val render_alpha :
-  Gdk.bitmap ->
+val draw_pixbuf :
+  [>`drawable] Gobject.obj ->
+  Gdk.gc ->
   ?dest_x:int ->
   ?dest_y:int ->
   ?width:int ->
-  ?height:int -> ?threshold:int -> ?src_x:int -> ?src_y:int -> pixbuf -> unit
+  ?height:int ->
+  ?dither:Gdk.Tags.rgb_dither ->
+  ?x_dither:int ->
+  ?y_dither:int -> ?src_x:int -> ?src_y:int -> pixbuf -> unit
 
+(* obsolete: identical to draw_pixbuf *)
 val render_to_drawable :
   [>`drawable] Gobject.obj ->
   ?gc:Gdk.gc ->
@@ -71,6 +76,13 @@ val render_to_drawable :
   ?dither:Gdk.Tags.rgb_dither ->
   ?x_dither:int ->
   ?y_dither:int -> ?src_x:int -> ?src_y:int -> pixbuf -> unit
+
+val render_alpha :
+  Gdk.bitmap ->
+  ?dest_x:int ->
+  ?dest_y:int ->
+  ?width:int ->
+  ?height:int -> ?threshold:int -> ?src_x:int -> ?src_y:int -> pixbuf -> unit
 
 val render_to_drawable_alpha :
   [>`drawable] Gobject.obj ->

@@ -1,15 +1,15 @@
-/* $Id: ml_gobject.h,v 1.7 2003/06/20 11:05:25 garrigue Exp $ */
+/* $Id: ml_gobject.h,v 1.10 2004/01/16 11:26:03 oandrieu Exp $ */
 
 /* Defined in ml_gobject.h */
 
 #define GObject_val(val) ((GObject*)Pointer_val(val))
-value Val_GObject (GObject *);
-value Val_GObject_new (GObject *);
+CAMLprim value Val_GObject (GObject *);
+CAMLprim value Val_GObject_new (GObject *);
 #define Val_GAnyObject(val) Val_GObject(G_OBJECT(val))
 #define Val_GAnyObject_new(val) Val_GObject_new(G_OBJECT(val))
 
-#define GType_val Int_val
-#define Val_GType Val_int
+#define GType_val Long_val
+#define Val_GType Val_long
 
 #define GClosure_val(val) ((GClosure*)Pointer_val(val))
 value Val_GClosure (GClosure *);
@@ -31,3 +31,8 @@ value Val_gboxed_new(GType t, gpointer p); /* without copy */
 #else
 #define check_cast(f,v) (Pointer_val(v) == NULL ? NULL : f(Pointer_val(v)))
 #endif
+
+/* Yell if a caml callback raised an exception */
+#undef  G_LOG_DOMAIN
+#define G_LOG_DOMAIN "LablGTK"
+#define CAML_EXN_LOG(name) g_critical("%s: callback raised an exception", name)
