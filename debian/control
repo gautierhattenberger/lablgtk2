@@ -1,0 +1,34 @@
+Source: lablgtk
+Section: libs
+Priority: optional
+Maintainer: Sven Luther <luther@debian.org>
+Build-Depends: debhelper (>> 3.0.0), ocaml-3.07, libncurses5-dev, xlibs|xlib6g, liblablgl-ocaml-dev (>= 0.99-16), libgtk1.2-dev, libglib1.2-dev, gtkglarea5-dev, libglade-gnome0-dev, libgtkxmhtml-dev, libgdk-pixbuf-dev
+Standards-Version: 3.6.0
+
+Package: liblablgtk-ocaml
+Architecture: any
+Section: libs
+Depends: ocaml-base-3.07, liblablgl-ocaml (>= 0.99-16), ${shlibs:Depends}
+Conflicts: lablgtk (<< 1.2.3-2)
+Replaces: lablgtk-runtime
+Provides: lablgtk-runtime
+Description: Runtime libraries for lablgtk.
+ lablgtk contains bindings for gtk+ and ocaml. It includes gtkglarea bindings
+ to be used with the OpenGL bindings of the lablgl package.
+ .
+ This package include only the dynamic libraries needed for running dynamic
+ bytecode executables.
+
+Package: liblablgtk-ocaml-dev
+Architecture: any
+Section: libdevel
+Depends: liblablgtk-ocaml (= ${Source-Version}), ocaml-3.07, liblablgl-ocaml-dev (>= 0.99-16), libgtk1.2-dev, libglade-gnome-dev, libgtkxmhtml-dev
+Conflicts: lablgtk
+Provides: lablgtk
+Replaces: lablgtk
+Description: Ocaml bindings to Gtk+
+ lablgtk contains bindings for gtk+ and ocaml. It includes gtkglarea bindings
+ to be used with the OpenGL bindings of the lablgl package.
+ .
+ This package contains the developpment files of lablgtk.
+

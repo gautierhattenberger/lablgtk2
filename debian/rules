@@ -1,0 +1,105 @@
+#!/usr/bin/make -f
+# Sample debian/rules that uses debhelper. 
+# GNU copyright 1997 by Joey Hess.
+#
+# This version is for a hypothetical package that builds an
+# architecture-dependant package, as well as an architecture-independent
+# package.
+
+# We want to use dpatch.
+include /usr/share/dpatch/dpatch.make
+PACKAGE=lablgtk
+
+# Uncomment this to turn on verbose mode. 
+#export DH_VERBOSE=1
+
+export OCAML_VERSION=`ocamlc -version`
+
+# This is the debhelper compatability version to use.
+export DH_COMPAT=3
+
+configure: configure-stamp
+configure-stamp: patch-stamp
+	dh_testdir
+	# Add here commands to configure the package.
+	$(MAKE) configure USE_GL=1 USE_GNOME=1 USE_GLADE=1
+
+	touch configure-stamp
+
+build: configure-stamp build-stamp
+build-stamp:
+	dh_testdir
+
+	# Add here commands to compile the package.
+	$(MAKE)
+	if [ -x /usr/bin/ocamlopt ]; then \
+		$(MAKE) opt; \
+	fi
+
+	touch build-stamp
+
+clean: unpatch
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	# Add here commands to clean up after the build process.
+	-$(MAKE) clean
+
+	dh_clean config.make
+
+install: DH_OPTIONS=
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the package into
+	# debian/iliblablgtk-ocaml-dev
+	$(MAKE) install							\
+		LIBDIR=$(CURDIR)/debian/liblablgtk-ocaml-dev/usr/lib/ocaml/$(OCAML_VERSION)	\
+		BINDIR=$(CURDIR)/debian/liblablgtk-ocaml-dev/usr/bin
+	cp debian/META $(CURDIR)/debian/liblablgtk-ocaml-dev/usr/lib/ocaml/$(OCAML_VERSION)/lablgtk
+	cp debian/META.lablgtkgl $(CURDIR)/debian/liblablgtk-ocaml-dev/usr/lib/ocaml/$(OCAML_VERSION)/lablgtkgl/META
+
+	# And now move the liblablgtk-ocaml files into their own package.
+	dh_movefiles -pliblablgtk-ocaml --sourcedir=debian/liblablgtk-ocaml-dev
+
+# Build architecture-independent files here.
+# Pass -i to all debhelper commands in this target to reduce clutter.
+binary-indep: build install
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir -s
+	dh_testroot -s
+#	dh_installdebconf -s
+	dh_installdocs -s -X.cvsignore
+	dh_installexamples -s
+	dh_installmenu -s
+#	dh_installlogrotate -s
+#	dh_installemacsen -s
+#	dh_installpam -s
+#	dh_installmime -s
+#	dh_installinit -s
+	dh_installcron -s
+#	dh_installman -s
+	dh_installinfo -s
+	dh_undocumented -pliblablgtk-ocaml-dev lablgladecc.1 lablgtk.1
+	dh_installchangelogs CHANGES -s
+	dh_strip -s
+	dh_link -s
+#	dh_ocamlld -pliblablgtk-ocaml /usr/lib/ocaml/lablgtk
+	dh_compress -s
+	dh_fixperms -s
+#	dh_makeshlibs -s
+	dh_installdeb -s
+#	dh_perl -s
+	dh_shlibdeps -s
+	dh_gencontrol -s
+	dh_md5sums -s
+	dh_builddeb -s
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

@@ -1,0 +1,17 @@
+This package was debianized by Sven LUTHER <luther@debian.org> on
+Sun,  3 Dec 2000 12:06:26 +0100.
+
+It was downloaded from :
+  http://wwwfun.kurims.kyoto-u.ac.jp/soft/olabl/dist
+
+Upstream Author(s):
+  Jacques Garrigue <garrigue@kurims.kyoto-u.ac.jp>
+  Hubert Fauque <hubert.fauque@wanadoo.fr>
+  Jun Furuse <Jun.Furuse@inria.fr>
+  Koji Kagawa <kagawa@eng.kagawa-u.ac.jp>
+
+Copyright:
+
+LablGtk is distributed under the terms the LGPL licence, which can be
+found in the /usr/share/common-licenses/LGPL file on debian systems.
+

@@ -1,0 +1,45 @@
+version="1.2.5"
+directory="+lablgtk"
+requires=""
+linkopts=""
+
+# bytecode, no thread support
+archive(byte)="lablgtk.cma"
+archive(byte,init)="lablgtk.cma gtkInit.cmo"
+archive(byte,gnome)="lablgtk.cma lablgnome.cma"
+archive(byte,gnome,init)="lablgtk.cma lablgnome.cma gtkInit.cmo"
+archive(byte,glade)="lablgtk.cma lablglade.cma"
+archive(byte,glade,init)="lablgtk.cma lablglade.cma gtkInit.cmo"
+archive(byte,gnome,glade)="lablgtk.cma lablgnome.cma lablglade.cma"
+archive(byte,gnome,glade,init)="lablgtk.cma lablgnome.cma lablglade.cma gtkInit.cmo"
+
+# native code, no thread support
+archive(native)="lablgtk.cmxa"
+archive(native,init)="lablgtk.cmxa gtkInit.cmx"
+archive(native,gnome)="lablgtk.cmxa lablgnome.cmxa"
+archive(native,gnome,init)="lablgtk.cmxa lablgnome.cmxa gtkInit.cmx"
+archive(native,glade)="lablgtk.cmxa lablglade.cmxa"
+archive(native,glade,init)="lablgtk.cmxa lablglade.cmxa gtkInit.cmx"
+archive(native,gnome,glade)="lablgtk.cmxa lablgnome.cmxa lablglade.cmxa"
+archive(native,gnome,glade,init)="lablgtk.cmxa lablgnome.cmxa lablglade.cmxa gtkInit.cmx"
+
+# bytecode, thread support
+archive(byte,mt)="lablgtk.cma gtkThread.cmo"
+archive(byte,init,mt)="lablgtk.cma gtkInit.cmo gtkThread.cmo"
+archive(byte,gnome,mt)="lablgtk.cma lablgnome.cma gtkThread.cmo"
+archive(byte,gnome,init,mt)="lablgtk.cma lablgnome.cma gtkInit.cmo gtkThread.cmo"
+archive(byte,glade,mt)="lablgtk.cma lablglade.cma gtkThread.cmo"
+archive(byte,glade,init,mt)="lablgtk.cma lablglade.cma gtkInit.cmo gtkThread.cmo"
+archive(byte,gnome,glade,mt)="lablgtk.cma lablgnome.cma lablglade.cma gtkThread.cmo"
+archive(byte,gnome,glade,init,mt)="lablgtk.cma lablgnome.cma lablglade.cma gtkInit.cmo gtkThread.cmo"
+
+# nativecode, thread support
+archive(native,mt)="lablgtk.cmxa gtkThread.cmx"
+archive(native,init,mt)="lablgtk.cmxa gtkInit.cmx gtkThread.cmx"
+archive(native,gnome,mt)="lablgtk.cmxa lablgnome.cmxa gtkThread.cmx"
+archive(native,gnome,init,mt)="lablgtk.cmxa lablgnome.cmxa gtkInit.cmx gtkThread.cmx"
+archive(native,glade,mt)="lablgtk.cmxa lablglade.cmxa gtkThread.cmx"
+archive(native,glade,init,mt)="lablgtk.cmxa lablglade.cmxa gtkInit.cmx gtkThread.cmx"
+archive(native,gnome,glade,mt)="lablgtk.cmxa lablgnome.cmxa lablglade.cmxa gtkThread.cmx"
+archive(native,gnome,glade,init,mt)="lablgtk.cmxa lablgnome.cmxa lablglade.cmxa gtkInit.cmx gtkThread.cmx"
+
