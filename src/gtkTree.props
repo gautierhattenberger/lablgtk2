@@ -1,11 +1,11 @@
-(* $Id: gtkTree.props,v 1.6 2004/03/18 07:05:29 garrigue Exp $ *)
+(* $Id: gtkTree.props,v 1.12 2004/11/10 19:54:03 oandrieu Exp $ *)
 
 prefix "Gtk"
 
 header {
 open Gtk
 module Internal = struct
-  let tree_path_string = ref (unsafe_boxed : tree_path data_conv)
+  let tree_path_string = ref (unsafe_pointer : tree_path data_conv)
 end
 }
 
@@ -94,6 +94,7 @@ class CellRendererText vset : CellRenderer {
   "rise-set"             gboolean             : Read / Write / NoVSet
   "scale"                gdouble              : Read / Write
   "scale-set"            gboolean             : Read / Write / NoVSet
+  "single-paragraph-mode" gboolean            : Read / Write
   "size"                 gint                 : Read / Write
   "size-points"          gdouble              : Read / Write
   "size-set"             gboolean             : Read / Write / NoVSet
@@ -125,9 +126,11 @@ class CellRendererToggle vset : CellRenderer {
 class CellLayout abstract : Object {
   method pack_start : "Gtk.cell_renderer Gtk.obj -> expand:bool -> unit"
   method pack_end   : "Gtk.cell_renderer Gtk.obj -> expand:bool -> unit"
+  method reorder    : "Gtk.cell_renderer Gtk.obj -> int -> unit"
   method clear
   method add_attribute : "Gtk.cell_renderer Gtk.obj -> string -> int -> unit"
   method clear_attributes : "Gtk.cell_renderer Gtk.obj -> unit"
+  method set_cell_data_func : "Gtk.cell_renderer Gtk.obj -> ([`treemodel] obj -> tree_iter -> unit) option -> unit"
 }
 
 class TreeViewColumn wrap : Object {

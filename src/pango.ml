@@ -1,4 +1,4 @@
-(* $Id: pango.ml,v 1.10 2004/03/15 05:12:16 garrigue Exp $ *)
+(* $Id: pango.ml,v 1.11 2004/09/17 00:19:31 garrigue Exp $ *)
 
 open Gaux
 open Gobject
@@ -11,6 +11,9 @@ type language
 type layout = [`pangolayout] obj
 type units = int
 type rectangle = {x:int; y:int; width:int; height:int}
+
+external _pango_init : unit -> unit = "ml_pango_init"
+let () = _pango_init ()
 
 module Tags = struct
   type style =

@@ -1,4 +1,4 @@
-(* $Id: gdkPixbuf.ml,v 1.9 2004/03/24 00:49:00 oandrieu Exp $ *)
+(* $Id: gdkPixbuf.ml,v 1.12 2004/08/23 21:37:40 oandrieu Exp $ *)
 
 open Gaux
 open Gobject
@@ -8,7 +8,6 @@ type pixbuf = [`pixbuf] obj
 type colorspace = [ `RGB ]
 type alpha_mode = [ `BILEVEL | `FULL ]
 type interpolation = [ `NEAREST | `TILES | `BILINEAR | `HYPER ]
-type uint8 = int
 
 type gdkpixbuferror =
   | ERROR_CORRUPT_IMAGE
@@ -56,6 +55,8 @@ external copy : pixbuf -> pixbuf = "ml_gdk_pixbuf_copy"
 external subpixbuf : pixbuf -> src_x:int -> src_y:int -> width:int -> height:int -> pixbuf 
   = "ml_gdk_pixbuf_new_subpixbuf"
 external from_file : string -> pixbuf = "ml_gdk_pixbuf_new_from_file"
+external from_file_at_size : string -> width:int -> height:int -> pixbuf 
+  = "ml_gdk_pixbuf_new_from_file_at_size"
 external from_xpm_data : string array -> pixbuf
   = "ml_gdk_pixbuf_new_from_xpm_data"
 
@@ -67,7 +68,7 @@ let from_data ~width ~height ?(bits=8) ?rowstride ?(has_alpha=false) data =
   let nc = if has_alpha then 4 else 3 in
   let rowstride = match rowstride with None -> width * nc | Some r -> r in
   if bits <> 8 || rowstride < width * nc || width <= 0 || height <= 0
-  || Gpointer.length data < (rowstride * (height - 1) + width) * nc
+  || Gpointer.length data < rowstride * (height - 1) + width * nc
   then invalid_arg "GdkPixbuf.from_data";
   _from_data data ~has_alpha ~bits ~width ~height ~rowstride
 
@@ -101,7 +102,7 @@ let render_alpha bm ?(dest_x=0) ?(dest_y=0) ?width ?height ?(threshold=128)
   _render_alpha ~src bm ~src_x ~src_y ~dest_x ~dest_y ~width ~height ~threshold
 
 external _draw_pixbuf :
-  [>`drawable] obj -> gc -> src:pixbuf -> src_x:int -> src_y:int ->
+  src:pixbuf -> [>`drawable] obj -> gc -> src_x:int -> src_y:int ->
   dest_x:int -> dest_y:int -> width:int -> height:int ->
   dither:Tags.rgb_dither -> x_dither:int -> y_dither:int -> unit
   = "ml_gdk_pixbuf_render_to_drawable_bc"
@@ -210,3 +211,10 @@ let composite ~dest ~alpha ?(dest_x=0) ?(dest_y=0) ?width ?height
 
 external save : filename:string -> typ:string -> ?options:(string * string) list -> pixbuf -> unit
     = "ml_gdk_pixbuf_save"
+
+external save_to_callback : 
+  pixbuf -> typ:string -> ?options:(string * string) list -> 
+  (string -> unit) -> unit = "ml_gdk_pixbuf_save_to_callback"
+
+let save_to_buffer pb ~typ ?options buffer =
+  save_to_callback pb ~typ ?options (Buffer.add_string buffer)

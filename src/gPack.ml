@@ -1,4 +1,4 @@
-(* $Id: gPack.ml,v 1.34 2004/03/05 21:30:32 oandrieu Exp $ *)
+(* $Id: gPack.ml,v 1.36 2004/11/15 14:30:38 oandrieu Exp $ *)
 
 open Gaux
 open Gobject
@@ -144,7 +144,9 @@ let packer ?spacing ?border_width ?width ?height ?packing ?show () =
 *)
 
 class paned obj = object
-  inherit container_full (obj : Gtk.paned obj)
+  inherit [Gtk.paned] container_impl obj
+  inherit paned_props
+  method connect = new container_signals_impl obj
   method event = new GObj.event_ops obj
   method add w =
     if List.length (Container.children obj) = 2 then
@@ -164,11 +166,8 @@ class paned obj = object
     try ignore(Paned.child2 obj);
       raise(Error "GPack.paned#pack2: already full")
     with _ -> Paned.pack2 obj (as_widget w) ~resize ~shrink
-  (* method set_handle_size = Paned.set_handle_size obj *)
-  method set_position = set Paned.P.position obj
   method child1 = new widget (Paned.child1 obj)
   method child2 = new widget (Paned.child2 obj)
-  (* method handle_size = Paned.handle_size obj *)
 end
 
 let paned dir =

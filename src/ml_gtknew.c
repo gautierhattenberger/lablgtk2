@@ -1,4 +1,4 @@
-/* $Id: ml_gtknew.c,v 1.4 2003/06/13 17:58:24 monate Exp $ */
+/* $Id: ml_gtknew.c,v 1.6 2004/09/21 11:29:37 oandrieu Exp $ */
 
 #include <gtk/gtk.h>
 #include <caml/mlvalues.h>
@@ -16,7 +16,7 @@ static value ml_class_init=0;
 
 static void class_init (value class)
 {
-  callback(ml_class_init, class);
+  callback_exn(ml_class_init, class);
 }
 
 
@@ -125,7 +125,6 @@ widget_info_array[] = {
   { sizeof(GtkSeparator), sizeof(GtkSeparatorClass), gtk_separator_get_type },
   { sizeof(GtkHSeparator), sizeof(GtkHSeparatorClass), gtk_hseparator_get_type },
   { sizeof(GtkVSeparator), sizeof(GtkVSeparatorClass), gtk_vseparator_get_type },
-  { sizeof(GtkPreview), sizeof(GtkPreviewClass), gtk_preview_get_type },
   { sizeof(GtkProgress), sizeof(GtkProgressClass), gtk_progress_get_type },
   { sizeof(GtkProgressBar), sizeof(GtkProgressBarClass), gtk_progress_bar_get_type },
   { sizeof(GtkData), sizeof(GtkDataClass), gtk_data_get_type },

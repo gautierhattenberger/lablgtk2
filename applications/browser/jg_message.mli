@@ -12,7 +12,7 @@
 (*                                                                       *)
 (*************************************************************************)
 
-(* $Id: jg_message.mli,v 1.2 2003/02/20 06:47:47 garrigue Exp $ *)
+(* $Id: jg_message.mli,v 1.3 2004/11/19 01:41:32 garrigue Exp $ *)
 
 val formatted :
   title:string ->
@@ -24,8 +24,8 @@ val formatted :
   unit -> GText.view * (unit -> unit)
 
 val ask :
-    title:string -> ?master:GWindow.window ->
+    title:string -> ?master:#GWindow.window_skel ->
     ?no:bool -> ?cancel:bool -> string -> [`Cancel|`No|`Yes]
 
 val info :
-    title:string -> ?master:GWindow.window -> string -> unit
+    title:string -> ?master:#GWindow.window_skel -> string -> unit

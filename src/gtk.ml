@@ -1,4 +1,4 @@
-(* $Id: gtk.ml,v 1.107 2004/05/09 14:39:14 oandrieu Exp $ *)
+(* $Id: gtk.ml,v 1.111 2004/11/10 19:54:03 oandrieu Exp $ *)
 
 open Gobject
 
@@ -37,7 +37,6 @@ module Tags = struct
   type path_type = [ `WIDGET|`WIDGET_CLASS|`CLASS ]
   type policy_type = [ `ALWAYS|`AUTOMATIC|`NEVER ]
   type position = [ `LEFT|`RIGHT|`TOP|`BOTTOM ]
-  type preview_type = [ `COLOR|`GRAYSCALE ]
   type relief_style = [ `NORMAL|`HALF|`NONE ]
   type resize_mode = [ `PARENT|`QUEUE|`IMMEDIATE ]
   type signal_run_type = [ `FIRST|`LAST|`BOTH|`NO_RECURSE|`ACTION|`NO_HOOKS ]
@@ -198,7 +197,6 @@ type scale = [widget|`range|`scale]
 type scrollbar = [widget|`range|`scrollbar]
 type ruler = [widget|`ruler]
 type separator = [widget|`separator]
-type preview = [widget|`preview]
 
 type text_view = [container|`textview]
 type text_buffer = [`textbuffer] obj

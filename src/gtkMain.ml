@@ -1,4 +1,4 @@
-(* $Id: gtkMain.ml,v 1.22 2003/06/10 10:26:22 garrigue Exp $ *)
+(* $Id: gtkMain.ml,v 1.24 2004/09/21 11:29:37 oandrieu Exp $ *)
 
 open StdLabels
 open Gtk
@@ -8,7 +8,6 @@ let () = Gc.set {(Gc.get()) with Gc.max_overhead = 1000000}
 
 module Main = struct
   external init : string array -> string array = "ml_gtk_init"
-  (* external exit : int -> unit = "ml_gtk_exit" *)
   (* external set_locale : unit -> string = "ml_gtk_set_locale" *)
   external disable_setlocale : unit -> unit = "ml_gtk_disable_setlocale"
   (* external main : unit -> unit = "ml_gtk_main" *)
@@ -51,32 +50,4 @@ end
 
 module Rc = struct
   external add_default_file : string -> unit = "ml_gtk_rc_add_default_file"
-end
-
-module Message = struct
-  (* Use normal caml printing function *)
-  let _ =
-    Glib.Message.set_print_handler (fun msg -> print_string msg)
-
-  (* A list of strings used as prefix to determine whether a warning
-     should cause an exception or not *)
-  let critical_warnings =
-    ref [ "Invalid text buffer iterator" ]
-
-  let is_critical_warning s =
-    List.exists !critical_warnings ~f:
-      (fun w ->
-        let len = String.length w in
-        String.length s >= len && w = String.sub s ~pos:0 ~len)
-
-  let () =
-    (* Cause exceptions for critical messages in the Gtk domain,
-       including "critical" warnings *)
-    Glib.Message.set_log_handler ~domain:"Gtk" ~levels:[`WARNING;`CRITICAL]
-      (fun ~level msg ->
-        let crit = level land (Glib.Message.log_level `CRITICAL) <> 0 in
-        if crit || is_critical_warning msg then
-          raise (Glib.Critical ("Gtk", msg))
-        else prerr_endline ("Gtk-WARNING **: " ^ msg));
-    ()
 end

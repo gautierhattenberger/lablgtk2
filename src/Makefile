@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.150 2004/07/15 08:43:35 garrigue Exp $
+# $Id: Makefile,v 1.158 2004/11/17 10:24:57 garrigue Exp $
 # Makefile for lablgtk.
 
 COMPILER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS) -w s -c
@@ -29,13 +29,15 @@ MLLIBS = lablgtk.cma
 CLIBS = liblablgtk2$(XA)
 #MLLINK = unix.cma str.cma
 
+GTKCFLAGS += -DLOG_DOMAIN=\"LablGTK\"
+
 ifdef DEBUG
 CFLAGS = -g $(GTKCFLAGS)
 MLLINK = -custom
 #MLLINK += -cclib -lcamlrund
 MLBYTEFLAGS = -g
 else
-CFLAGS = -O -DG_DISABLE_CAST_CHECKS $(GTKCFLAGS)
+CFLAGS = -O -DG_DISABLE_ASSERT -DG_DISABLE_CAST_CHECKS $(GTKCFLAGS)
 endif
 
 THFLAGS = -thread
@@ -100,6 +102,12 @@ RSVGCOBJS = ml_rsvg$(XO)
 $(RSVGCOBJS) : CFLAGS+=$(HAVE_SVGZ)
 endif
 
+ifdef USE_GTKSPELL
+MLLIBS += lablgtkspell.cma
+CLIBS += liblablgtkspell$(XA)
+GTKSPELLMLOBJS = gtkSpell.cmo
+GTKSPELLCOBJS = ml_gtkspell$(XO)
+endif
 
 # Rules
 .SUFFIXES: .ml .mli .cmo .cmi .cmx .c $(XO) .d$(XO) .var .h .opt .def .ml4
@@ -124,15 +132,13 @@ endif
 %Props.ml o%Props.ml: %.props propcc$(XE)
 	./propcc $<
 
-# Targets
-byte: $(TARGETS)
-opt:  $(TARGETS) lablgtkopt
-
 # Files
-GTKOBJS =  ml_gtk$(XO) ml_pango$(XO) ml_gtkbin$(XO) ml_gtkbutton$(XO) \
-	ml_gtkedit$(XO) ml_gtklist$(XO) ml_gtkmenu$(XO) ml_gtkmisc$(XO) \
-	ml_gtkpack$(XO) ml_gtkrange$(XO) ml_gtktext$(XO) ml_gtktree$(XO) \
-	ml_gtkstock$(XO) ml_gtkfile$(XO) ml_gtkaction$(XO) ml_gtkbroken$(XO)
+GTKOBJS =  ml_gtk$(XO) ml_pango$(XO) ml_gtkaction$(XO) \
+	ml_gtkbin$(XO) ml_gtkbroken$(XO) ml_gtkbutton$(XO) \
+	ml_gtkedit$(XO) ml_gtkfile$(XO) ml_gtklist$(XO) \
+	ml_gtkmenu$(XO) ml_gtkmisc$(XO) \
+	ml_gtkpack$(XO) ml_gtkrange$(XO) ml_gtkstock$(XO) \
+	ml_gtktext$(XO) ml_gtktree$(XO)
 COBJS = ml_gdkpixbuf$(XO) ml_gdk$(XO) ml_glib$(XO) ml_gobject$(XO) \
 	ml_gpointer$(XO) ml_gvaluecaml$(XO) wrappers$(XO) $(GTKOBJS)
 GTKPROPS = gtkBase.props gtkBin.props gtkButton.props gtkEdit.props \
@@ -159,20 +165,24 @@ THOBJS = gtkThread.cmo
 INITOBJS = gtkInit.cmo
 THINITOBJS = gtkThInit.cmo
 ALLOBJS = $(MLXOBJS) $(GLMLOBJS) $(GNOMEMLOBJS) $(GLADEMLOBJS) \
-	$(RSVGMLOBJS) $(GNOMECANVASMLOBJS) $(GNOMEUIMLOBJS) $(PANELOBJS) \
+	$(RSVGMLOBJS) $(GNOMECANVASMLOBJS) $(GNOMEUIMLOBJS) $(PANELMLOBJS) $(GTKSPELLMLOBJS) \
 	$(INITOBJS)
 ALLTHOBJS = $(THOBJS) $(THINITOBJS)
 
+# Targets
+byte: $(TARGETS) $(INITOBJS)
+opt:  $(TARGETS) lablgtkopt
+
 depend: $(ENUMOBJS:.cmo=.ml) $(GTKPROPS:%.props=%Props.ml) $(GTKPROPS:%.props=o%Props.ml)
-	ocamldep *.ml *.mli > .depend
+	ocamldep $(ALLOBJS:.cmo=.ml) $(ALLTHOBJS:.cmo=.ml) *.mli > .depend
 
 ifeq ($(THREADS_LIB),no)
-lablgtktop$(XE): $(MLLIBS) $(INITOBJS)
-	$(TOPLEVEL) $(CUSTOM) -o $@ $(MLLINK) -I . $(MLLIBS) $(INITOBJS)
+lablgtktop$(XE): $(MLLIBS)
+	$(TOPLEVEL) $(CUSTOM) -o $@ $(MLLINK) -I . $(MLLIBS)
 else
-lablgtktop$(XE): $(MLLIBS) $(THOBJS) $(INITOBJS) $(THINITOBJS)
+lablgtktop$(XE): $(MLLIBS) $(ALLTHOBJS)
 	$(TOPLEVEL) $(THFLAGS) $(CUSTOM) -o $@ $(THLINK) $(MLLINK) \
-	   -I . $(MLLIBS) $(THOBJS) $(INITOBJS)
+	   -I . $(MLLIBS) $(THOBJS)
 endif
 
 lablgtk2: Makefile $(CONFIG) lablgtk2.in
@@ -329,6 +339,14 @@ lablpanel.cmxa: liblablpanel$(XA) $(PANELMLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablpanel \
 	    $(PANELMLOBJS:.cmo=.cmx) $(PANELLIBS)
 
+liblablgtkspell$(XA): $(GTKSPELLCOBJS)
+	$(LIBRARIAN) -o lablgtkspell $(GTKSPELLCOBJS) $(GTKSPELLLIBS)
+lablgtkspell.cma: liblablgtkspell$(XA) $(GTKSPELLMLOBJS)
+	$(LIBRARIAN) -o lablgtkspell $(GTKSPELLMLOBJS) $(GTKSPELLLIBS)
+lablgtkspell.cmxa: liblablgtkspell$(XA) $(GTKSPELLMLOBJS:.cmo=.cmx)
+	$(LIBRARIAN) -o lablgtkspell \
+	    $(GTKSPELLMLOBJS:.cmo=.cmx) $(GTKSPELLLIBS)
+
 gtkThread.cmo: gtkThread.ml
 	$(COMPILER) $(THFLAGS) gtkThread.ml
 
@@ -336,8 +354,7 @@ gtkThread.cmi: gtkThread.mli
 	$(COMPILER) $(THFLAGS) gtkThread.mli
 
 gtkThread.cmx: gtkThread.ml
-	if test -f "$(LIBDIR)/libthreadsnat$(XA)"; then \
-	   $(COMPOPT) $(THFLAGS) gtkThread.ml; fi
+	$(COMPOPT) $(THFLAGS) gtkThread.ml
 
 xml_lexer.ml: xml_lexer.mll
 	$(CAMLLEX) xml_lexer.mll
@@ -387,8 +404,14 @@ endif
 ifdef USE_GNOMECANVAS
 DOCFILES += gnomeCanvas.ml gnoCanvas.mli
 endif
+ifdef USE_GNOMEUI
+DOCFILES += gnomeDruid.ml gnoDruid.mli
+endif
 ifdef USE_PANEL
 DOCFILES += panel.mli
+endif
+ifdef USE_GTKSPELL
+DOCFILES += gtkSpell.mli
 endif
 
 OCAMLDOC = ocamldoc
@@ -397,7 +420,7 @@ lablgtk$(XO)doc : $(DOCFILES) $(ALLOBJS)
 gtkdoc.cmo : gtkdoc.ml
 	$(CAMLC) -I +ocamldoc -pp "$(CAMLP4O) pa_macro.cmo $(ODOC_DEF)" -c $<
 DOCDIR=../doc
-DOC_URI=
+DOC_URI=file:///usr/share/gtk-doc/html
 DOC_BASE_URI=$(if $(DOC_URI),-base-uri $(DOC_URI))
 doc : lablgtk$(XO)doc gtkdoc.cmo
 	mkdir -p $(DOCDIR)/html

@@ -1,4 +1,4 @@
-(* $Id: gtkTree.ml,v 1.40 2004/06/18 06:12:32 garrigue Exp $ *)
+(* $Id: gtkTree.ml,v 1.43 2004/11/10 19:54:03 oandrieu Exp $ *)
 
 open Gaux
 open Gtk

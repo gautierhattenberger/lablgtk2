@@ -1,5 +1,6 @@
-/* $Id: ml_glib.c,v 1.40 2004/07/16 01:42:58 garrigue Exp $ */
+/* $Id: ml_glib.c,v 1.47 2004/11/10 21:08:26 oandrieu Exp $ */
 
+#include <string.h>
 #include <locale.h>
 #ifdef _WIN32
 #include "win32.h"
@@ -24,6 +25,8 @@ CAMLprim value ml_glib_init(value unit)
 {
   ml_register_exn_map (G_CONVERT_ERROR,
 		       "g_convert_error");
+  ml_register_exn_map (G_MARKUP_ERROR,
+		       "g_markup_error");
   return Val_unit;
 }
 
@@ -83,25 +86,6 @@ GList *GList_val (value list, gpointer (*func)(value))
     CAMLreturn (res);
 }
 
-/* Redirect printer */
-
-static value ml_print_handler = 0L;
-
-static void ml_print_wrapper (const gchar *msg)
-{
-    value arg = copy_string ((char*)msg);
-    callback (ml_print_handler, arg);
-}
-    
-CAMLprim value ml_g_set_print_handler (value clos)
-{
-    value old_handler = ml_print_handler ? ml_print_handler : clos;
-    if (!ml_print_handler) register_global_root (&ml_print_handler);
-    g_set_print_handler (ml_print_wrapper);
-    ml_print_handler = clos;
-    return old_handler;
-}
-
 /* Error handling */
 static GSList *exn_map;
 
@@ -138,7 +122,6 @@ static value *lookup_exn_map (GQuark domain)
 static void ml_raise_gerror_exn(GError *, value *) Noreturn;
 static void ml_raise_gerror_exn(GError *err, value *exn)
 {
-  CAMLparam0();
   CAMLlocal2(b, msg);
   g_assert (err && exn);
   msg = copy_string(err->message);
@@ -147,7 +130,6 @@ static void ml_raise_gerror_exn(GError *err, value *exn)
   Field (b, 1) = Val_int(err->code);
   Field (b, 2) = msg;
   g_error_free (err);
-  local_roots = caml__frame; /* gcc moans with CAMLreturn */
   mlraise(b);
 }
 
@@ -177,13 +159,16 @@ void ml_raise_gerror(GError *err)
     ml_raise_generic_gerror (err);
 }
 
-static void ml_g_log_func(const gchar *log_domain,
-			  GLogLevelFlags log_level,
-			  const gchar *message,
-			  gpointer data)
+/* Logging */
+static void
+ml_g_log_func(const gchar *log_domain,
+	      GLogLevelFlags log_level,
+	      const gchar *message,
+	      gpointer data)
 {
-    value *clos_p = data;
-    callback2(*clos_p, Val_int(log_level), Val_string(message));
+    value msg, *clos_p = data;
+    msg = copy_string (message);
+    callback2_exn(*clos_p, Val_int(log_level), msg);
 }
 
 ML_1 (Log_level_val, ID, Val_int)
@@ -191,7 +176,8 @@ ML_1 (Log_level_val, ID, Val_int)
 CAMLprim value ml_g_log_set_handler (value domain, value levels, value clos)
 {
     value *clos_p = ml_global_root_new (clos);
-    int id = g_log_set_handler (String_val(domain), Int_val(levels),
+    int id = g_log_set_handler (String_option_val(domain), 
+				Int_val(levels),
                                 ml_g_log_func, clos_p);
     CAMLparam1(domain);
     value ret = alloc_small(3,0);
@@ -204,11 +190,21 @@ CAMLprim value ml_g_log_set_handler (value domain, value levels, value clos)
 CAMLprim value ml_g_log_remove_handler (value hnd)
 {
     if (Field(hnd,2) != 0) {
-        g_log_remove_handler (String_val(Field(hnd,0)), Int_val(Field(hnd,1)));
+        g_log_remove_handler (String_option_val(Field(hnd,0)),
+			      Int_val(Field(hnd,1)));
         ml_global_root_destroy ((value*)Field(hnd,2));
         Field(hnd,2) = 0;
     }
     return Val_unit;
+}
+
+ML_1(g_log_set_always_fatal, Int_val, Unit)
+ML_2(g_log_set_fatal_mask, String_option_val, Int_val, Unit)
+
+CAMLprim value ml_g_log (value domain, value level, value msg)
+{
+  g_log (String_option_val(domain), Int_val(level), "%s", String_val(msg));
+  return Val_unit;
 }
 
 /* Main loop handling */
@@ -229,23 +225,31 @@ ML_1 (g_main_destroy, GMainLoop_val, Unit)
 
 static gboolean ml_g_source_func (gpointer data)
 {
-    return Bool_val (callback (*(value*)data, Val_unit));
+  value res, *clos = data;
+  res = callback_exn (*clos, Val_unit);
+  if (Is_exception_result(res))
+    {
+      CAML_EXN_LOG ("GSourceFunc");
+      return FALSE;
+    }
+  return Bool_val (res);
 }
 
-CAMLprim value ml_g_timeout_add (value interval, value clos)
+CAMLprim value ml_g_timeout_add (value o_prio, value interval, value clos)
 {
     value *clos_p = ml_global_root_new (clos);
     return Val_int
-        (g_timeout_add_full (G_PRIORITY_DEFAULT, Long_val(interval),
+        (g_timeout_add_full (Option_val(o_prio, Int_val, G_PRIORITY_DEFAULT),
+			     Long_val(interval),
                              ml_g_source_func, clos_p,
                              ml_global_root_destroy));
 }
 
-CAMLprim value ml_g_idle_add (value clos)
+CAMLprim value ml_g_idle_add (value o_prio, value clos)
 {
     value *clos_p = ml_global_root_new (clos);
     return Val_int
-      (g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
+      (g_idle_add_full (Option_val(o_prio, Int_val, G_PRIORITY_DEFAULT_IDLE),
 			ml_g_source_func, clos_p,
 			ml_global_root_destroy));
 }
@@ -272,29 +276,28 @@ CAMLprim value ml_g_io_channel_unix_new(value wh)
 static gboolean ml_g_io_channel_watch(GIOChannel *s, GIOCondition c,
                                       gpointer data)
 {
-    value *clos_p = (value*)data;
-    return Bool_val(callback(*clos_p, Val_unit));
+    value res, cond, *clos_p = data;
+    cond = ml_lookup_flags_getter (ml_table_io_condition, c);
+    res = callback_exn (*clos_p, cond);
+    if (Is_exception_result (res))
+      {
+	CAML_EXN_LOG("GIOChannel watch");
+	return FALSE;
+      }
+    return Bool_val(res);
 }
-void ml_g_destroy_notify(gpointer data)
-{
-    ml_global_root_destroy(data);
-}
+
+static Make_Flags_val(Io_condition_val)
 
 CAMLprim value ml_g_io_add_watch(value cond, value clos, value prio, value io)
 {
-    g_io_add_watch_full(GIOChannel_val(io),
-                        Option_val(prio,Int_val,0),
-                        Io_condition_val(cond),
-                        ml_g_io_channel_watch,
-                        ml_global_root_new(clos),
-                        ml_global_root_destroy);
-    return Val_unit;
-    return Val_int ( g_io_add_watch_full(GIOChannel_val(io),
-					 Option_val(prio,Int_val,0),
-					 Io_condition_val(cond),
-					 ml_g_io_channel_watch,
-					 ml_global_root_new(clos),
-					 ml_g_destroy_notify) );
+    return Val_long (
+      g_io_add_watch_full(GIOChannel_val(io),
+                          Option_val(prio,Int_val,G_PRIORITY_DEFAULT),
+                          Flags_Io_condition_val(cond),
+                          ml_g_io_channel_watch,
+                          ml_global_root_new(clos),
+                          ml_global_root_destroy) );
 }
 
 CAMLprim value ml_g_io_channel_read(value io, value str, value offset,
@@ -372,51 +375,90 @@ GSList *GSList_val (value list, gpointer (*func)(value))
 
 /* Character Set Conversion */
 
+static value
+caml_copy_string_len_and_free (char *str, size_t len)
+{
+  value v;
+  g_assert (str != NULL);
+  v = alloc_string (len);
+  memcpy (String_val(v), str, len);
+  g_free (str);
+  return v;
+}
+
 CAMLprim value ml_g_convert(value str, value to, value from)
 {
-  gsize br=0,bw=0;
+  gsize bw=0;
   gchar* c_res;
   GError *error=NULL;
   c_res = g_convert(String_val(str),string_length(str),
                     String_val(to),String_val(from),
-                    &br,&bw,&error);
+                    NULL,&bw,&error);
   if (error != NULL) ml_raise_gerror(error);
-  return Val_string(c_res);
+  return caml_copy_string_len_and_free (c_res, bw);
 }
 
 CAMLprim value ml_g_convert_with_fallback(value fallback, value to, value from, value str)
 {
-  gsize br=0,bw=0;
+  gsize bw=0;
   gchar* c_res;
   GError *error=NULL;
   c_res = g_convert_with_fallback(String_val(str),string_length(str),
-				  String_val(to),String_val(from),Option_val(fallback ,String_val,NULL),
-		      &br,&bw,&error);
+				  String_val(to),String_val(from),
+				  String_option_val(fallback),
+				  NULL,&bw,&error);
   if (error != NULL) ml_raise_gerror(error);
-  return Val_string(c_res);
+  return caml_copy_string_len_and_free (c_res, bw);
 }
 
 #define Make_conversion(cname) \
 CAMLprim value ml_##cname(value str) { \
-  gsize br=0,bw=0; \
+  gsize bw=0; \
   gchar* c_res; \
   GError *error=NULL; \
-  c_res = cname(String_val(str),string_length(str),&br,&bw,&error); \
+  c_res = cname(String_val(str),string_length(str),NULL,&bw,&error); \
   if (error != NULL) ml_raise_gerror(error); \
-  return Val_string(c_res); \
+  return caml_copy_string_len_and_free (c_res, bw); \
 }
 
-Make_conversion(g_locale_to_utf8)
+/* Make_conversion(g_locale_to_utf8) */
 Make_conversion(g_filename_to_utf8)
-Make_conversion(g_locale_from_utf8)
+/* Make_conversion(g_locale_from_utf8) */
 Make_conversion(g_filename_from_utf8)
+
+CAMLprim value ml_g_filename_from_uri (value uri)
+{
+  GError *err = NULL;
+  gchar *hostname, *result;
+  result = g_filename_from_uri (String_val(uri), &hostname, &err);
+  if (err != NULL) ml_raise_gerror(err);
+  {
+    CAMLparam0();
+    CAMLlocal3(v_h, v_f, v_p);
+    v_h = Val_option(hostname, copy_string_g_free);
+    v_f = copy_string_g_free (result);
+    v_p = alloc_small(2, 0);
+    Field(v_p, 0) = v_h;
+    Field(v_p, 1) = v_f;
+    CAMLreturn(v_p);
+  }
+}
+
+CAMLprim value ml_g_filename_to_uri (value hostname, value uri)
+{
+  GError *err = NULL;
+  gchar *result;
+  result = g_filename_to_uri (String_val(uri), String_option_val(hostname), &err);
+  if (err != NULL) ml_raise_gerror(err);
+  return copy_string_g_free(result);
+}
 
 CAMLprim value ml_g_get_charset()
 {
   CAMLparam0();
   CAMLlocal1(couple);
   gboolean r;
-  G_CONST_RETURN char *c="";
+  G_CONST_RETURN char *c;
   r = g_get_charset(&c);
   couple = alloc_tuple(2);
   Store_field(couple,0,Val_bool(r));
@@ -426,8 +468,7 @@ CAMLprim value ml_g_get_charset()
 
 CAMLprim value ml_g_utf8_validate(value s)
 {
-  const gchar *c=NULL;
-  return Val_bool(g_utf8_validate(SizedString_val(s),&c));
+  return Val_bool(g_utf8_validate(SizedString_val(s),NULL));
 }
 
 
@@ -439,6 +480,16 @@ ML_1 (g_unichar_digit_value, Int_val, Val_int)
 ML_1 (g_unichar_xdigit_value, Int_val, Val_int)
 
 ML_1 (g_utf8_strlen, SizedString_val, Val_int)
+ML_2 (g_utf8_normalize, SizedString_val, Normalize_mode_val, copy_string_g_free)
+ML_1 (g_utf8_casefold, SizedString_val, copy_string_g_free)
+ML_2 (g_utf8_collate, String_val, String_val, Val_int)
+ML_1 (g_utf8_collate_key, SizedString_val, copy_string_g_free)
+ML_1 (g_utf8_strup, SizedString_val, copy_string_g_free)
+ML_1 (g_utf8_strdown, SizedString_val, copy_string_g_free)
+CAMLprim value ml_g_utf8_offset_to_pointer (value s, value pos, value off)
+{
+  return Val_long (g_utf8_offset_to_pointer (String_val(s) + Long_val(pos), Long_val(off)) - String_val(s));
+}
 
 #define UNI_BOOL(f) ML_1(g_unichar_##f, Int_val, Val_bool)
 UNI_BOOL(validate)
@@ -459,3 +510,31 @@ UNI_BOOL(iswide)
 #undef UNI_BOOL
 
 ML_1 (g_markup_escape_text, SizedString_val, copy_string_g_free)
+
+ML_0 (g_get_prgname, copy_string_or_null)
+ML_1 (g_set_prgname, String_val, Unit)
+#ifndef DISABLE_GTK22
+ML_0 (g_get_application_name, copy_string_or_null)
+ML_1 (g_set_application_name, String_val, Unit)
+#else
+Unsupported(g_get_application_name)
+Unsupported(g_set_application_name)
+#endif
+
+ML_0 (g_get_user_name, copy_string)
+ML_0 (g_get_real_name, copy_string)
+CAMLprim value ml_g_get_home_dir (value unit)
+{
+  const char *s = g_get_home_dir();
+  return s ? ml_some (copy_string (s)) : Val_unit;
+}
+ML_0 (g_get_tmp_dir, copy_string)
+CAMLprim value ml_g_find_program_in_path (value p)
+{
+  value v;
+  char *s = g_find_program_in_path (String_val(p));
+  if (s == NULL) raise_not_found();
+  v = copy_string(s);
+  g_free(s);
+  return v;
+}

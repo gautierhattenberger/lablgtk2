@@ -1,4 +1,4 @@
-(* $Id: gobject.mli,v 1.15 2004/03/15 05:12:16 garrigue Exp $ *)
+(* $Id: gobject.mli,v 1.17 2004/09/18 05:27:54 garrigue Exp $ *)
 
 type -'a obj
 type g_type
@@ -21,7 +21,6 @@ type 'a data_set =
 
 type base_data =
   [ `BOOLEAN
-  | `CAML
   | `CHAR
   | `UCHAR
   | `INT
@@ -39,7 +38,7 @@ type base_data =
   | `BOXED
   | `OBJECT ]
 
-type data_kind = [ `INT32 | `UINT32 | base_data ]
+type data_kind = [ `INT32 | `UINT32 | `OTHER of g_type | base_data ]
 type data_conv_get = [ `INT32 of int32 | data_get ]
 
 type 'a data_conv =
@@ -157,16 +156,16 @@ module Data :
     val unsafe_pointer : 'a data_conv
     val unsafe_pointer_option : 'a option data_conv
     (* use boxed to enable copy of parameter *)
-    val boxed : Gpointer.boxed option data_conv
-    val unsafe_boxed : 'a data_conv
-    val unsafe_boxed_option : 'a option data_conv
+    val boxed : g_type -> Gpointer.boxed option data_conv
+    val unsafe_boxed : g_type -> 'a data_conv
+    val unsafe_boxed_option : g_type -> 'a option data_conv
     val gobject : 'a obj data_conv
     val gobject_option : 'a obj option data_conv
     val caml : 'a data_conv
     val caml_option : 'a option data_conv
     val of_value : 'a data_conv -> g_value -> 'a
     val to_value : 'a data_conv -> 'a -> g_value
-    val get_fundamental : 'a data_conv -> fundamental_type
+    val get_type : 'a data_conv -> g_type
   end
 
 module Property :

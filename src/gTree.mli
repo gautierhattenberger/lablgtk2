@@ -1,4 +1,4 @@
-(* $Id: gTree.mli,v 1.46 2004/07/05 10:05:47 oandrieu Exp $ *)
+(* $Id: gTree.mli,v 1.52 2004/11/10 19:54:03 oandrieu Exp $ *)
 
 open Gobject
 open Gtk
@@ -16,7 +16,7 @@ class column_list :
   object
     method add : 'a data_conv -> 'a column
     method id : int
-    method kinds : fundamental_type list
+    method types : g_type list
     method lock : unit -> unit
   end
 
@@ -251,9 +251,12 @@ class cell_layout : ([> Gtk.cell_layout] as 'a) Gtk.obj ->
       ?from:Tags.pack_type -> #cell_renderer -> unit
    (** @param expand default value is [false]
        @param from default value is [`START] *)
+    method reorder : #cell_renderer -> int -> unit
     method clear : unit -> unit
     method add_attribute : #cell_renderer -> string -> 'b column -> unit
     method clear_attributes : #cell_renderer -> unit
+    method set_cell_data_func   : #cell_renderer -> (model -> Gtk.tree_iter -> unit) -> unit
+    method unset_cell_data_func : #cell_renderer -> unit
   end
 
 (** @gtkdoc gtk GtkTreeViewColumn *)
@@ -302,8 +305,6 @@ class view_column : tree_view_column obj ->
     method visible : bool
     method widget : widget option
     method width : int
-    method set_cell_data_func   : #cell_renderer -> (model -> Gtk.tree_iter -> unit) -> unit
-    method unset_cell_data_func : #cell_renderer -> unit
   end
 
 (** @gtkdoc gtk GtkTreeViewColumn *)
@@ -459,6 +460,7 @@ type cell_properties_text =
   | `MARKUP of string
   | `RISE of int
   | `SCALE of Pango.Tags.scale
+  | `SINGLE_PARAGRAPH_MODE of bool
   | `SIZE of int
   | `SIZE_POINTS of float
   | `STRETCH of Pango.Tags.stretch

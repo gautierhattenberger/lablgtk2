@@ -1,4 +1,4 @@
-(* $Id: gtkSignal.ml,v 1.13 2003/09/22 03:24:15 garrigue Exp $ *)
+(* $Id: gtkSignal.ml,v 1.14 2004/08/24 11:31:14 oandrieu Exp $ *)
 
 open StdLabels
 open Gobject
@@ -144,3 +144,10 @@ let emit_unit obj =
   emit obj ~emitter:(fun ~cont () -> cont [||]) ~conv:ignore ()
 let emit_int =
   emit ~emitter:(fun ~cont n -> cont [|`INT n|]) ~conv:ignore
+
+external _override_class_closure : 
+  string -> g_type -> g_closure -> unit
+  = "ml_g_signal_override_class_closure"
+let override_class_closure { name = name } t c = _override_class_closure name t c
+
+external chain_from_overridden : Closure.argv -> unit = "ml_g_signal_chain_from_overridden"

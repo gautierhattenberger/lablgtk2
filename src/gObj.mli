@@ -1,8 +1,8 @@
-(* $Id: gObj.mli,v 1.57 2004/03/15 05:12:15 garrigue Exp $ *)
+(* $Id: gObj.mli,v 1.59 2004/11/18 12:30:39 oandrieu Exp $ *)
 
 open Gtk
 
-(** Base classes for objects an dwidgets *)
+(** Base classes for objects and widgets *)
 
 (** {3 GObject} *)
 

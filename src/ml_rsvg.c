@@ -1,8 +1,9 @@
-/* $Id: ml_rsvg.c,v 1.5 2004/07/08 09:20:01 oandrieu Exp $ */
+/* $Id: ml_rsvg.c,v 1.6 2004/08/27 11:22:15 oandrieu Exp $ */
 /* Author: Olivier Andrieu */
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <librsvg/rsvg.h>
+#include <librsvg/librsvg-features.h>
 #include <caml/mlvalues.h>
 #include <caml/alloc.h>
 #include <caml/memory.h>

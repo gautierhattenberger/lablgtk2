@@ -1,4 +1,4 @@
-/* $Id: ml_pango.c,v 1.11 2004/03/01 09:07:30 garrigue Exp $ */
+/* $Id: ml_pango.c,v 1.13 2004/09/17 00:19:31 garrigue Exp $ */
 
 #include <stdio.h>
 #include <pango/pango.h>
@@ -16,8 +16,20 @@
 #include "ml_pango.h"
 #include "pango_tags.h"
 #include "gtk_tags.h"
+
+#ifndef HASGTK22
+#define PANGO_WRAP_WORD_CHAR -1
+#endif
 #include "pango_tags.c"
 
+
+CAMLprim value ml_pango_init(value unit)
+{
+  /* Since these are declared const, must force gcc to call them! */
+  GType t =
+    pango_font_description_get_type();
+  return Val_GType(t);
+}
 
 /* PangoFontDescription */
 

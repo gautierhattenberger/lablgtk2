@@ -1,5 +1,5 @@
 (* -*- caml -*- *)
-(* $Id: propcc.ml4,v 1.20 2003/12/13 16:35:55 oandrieu Exp $ *)
+(* $Id: propcc.ml4,v 1.21 2004/09/17 00:19:31 garrigue Exp $ *)
 
 open StdLabels
 open MoreLabels
@@ -106,7 +106,7 @@ let add_pointer conv gtk name =
     (Printf.sprintf "(%s_option : %s option data_conv)" conv name)
 
 let add_object = add_pointer "gobject"
-let add_boxed = add_pointer "unsafe_boxed"
+let add_boxed = add_pointer "unsafe_pointer" (* the type is not used *)
 
 let () =
   List.iter ~f:(fun t -> Hashtbl.add conversions ("g"^t) t)

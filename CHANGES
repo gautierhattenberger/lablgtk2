@@ -1,4 +1,96 @@
-$Id: CHANGES,v 1.267 2004/07/16 01:40:24 garrigue Exp $
+$Id: CHANGES,v 1.297 2004/11/17 10:26:03 garrigue Exp $
+
+2004.11.17 [Jacques]
+  * fix make depend
+  * cleanup lablgtk2.in
+
+2004.11.15 [Olivier]
+  * add max-position and min-position in GPack.paned (2.4)
+  * add GtkSpell interface (http://gtkspell.sf.net/)
+
+2004.11.10 [Olivier]
+  * add GPack.paned#position
+  * allow multiple conditions per watch in Glib.Io.add_watch
+
+2004.10.24 [Olivier]
+  * add a .mli for GnoDruid, reorganize gnoDruid.ml a bit
+  * add the single-paragraph-mode property in GtkCellRendererText
+
+2004.10.05 [Jacques]
+  * revise Timeout.add and Idle.add for compatibility
+    (optional arguments must be followed by a non-labeled argument)
+
+2004.10.02 [Jacques]
+  * 2.2 compatibility fixes (G_STRFUNC only defined in 2.4)
+
+2004.09.21 [Olivier]
+  * add optional priority argument for timeouts and idle callbacks in Glib
+  * get rid of the print handler in Glib.Message (it's not used by libraries)
+  * get rid of the Glib.Critical exception (callbacks should never raise exceptions)
+  * add Glib.Message.log and a couple other functions related to logging
+  * generally prevent exceptions from escaping callbacks
+
+2004.09.18 [Jacques]
+  * revert to using `OTHER in Gobject.data_kind
+
+2004.09.17 [Olivier]
+  * more unicode fixes, add a Utf8.to_unichar_validated function
+
+2004.09.17 [Jacques]
+  * Gobject.Data.boxed parameterized by the real type, to be able to
+    create tree store columns from it. Gobject.fundamental_type
+    modified accordingly.
+
+2004.09.15 [Olivier]
+  * add GText.buffer#select_range
+
+2004.09.14 [Olivier]
+  * add a few unicode-related functions 
+
+2004.09.08 [Olivier]
+  * add GAction.ui_manager#add_ui
+  * have #get_widget and #get_action raise Not_found instead of
+    Null_pointer. 
+
+2004.09.03 [Olivier]
+  * in GAction.action_group, do not merge #add_action and
+    #add_action_with_accel in a single method because they have
+    different behaviour. Fixes a bug where stock items accelerators
+    were not connected.
+  * add the padding properties of GBin.alignment (2.4)
+
+2004.08.27 [Olivier]
+  * add GTree.cell_layout#reorder and GTree.cell_layout#set_cell_data_func
+  * add a couple of utility functions in Glib
+  * decimate ml_gtkmisc.c, add a couple of things to GtkCalendar and GtkLabel
+
+2004.08.24 [Olivier]
+  * add GWindow.message_dialog#set_markup (2.4)
+  * add override of default signal handlers
+    (GtkSignal.override_class_closure, GtkSignal.chain_from_overridden) 
+
+2004.08.23 [Olivier]
+  * wrap some 2.4 additions in GdkPixbuf (from_file_at_size,
+    save_to_buffer). Add some Ocamldoc comments.
+  * add 2.4 stock items in GtkStock
+
+2004.08.20 [Jacques]
+  * fix GdkPixbuf.render_to_drawable
+  * support gtk-2.0.1
+  * add examples/GL/texturesurf.ml with texture from pixbuf
+
+2004.08.19 [Olivier]
+  * add 'active' property of ComboBox as a constructor parameter.
+  * qualify conversion tables as 'const' (so they end up in read-only
+    pages)
+  * add some ocamldoc comments
+
+2004.08.11 [Olivier]
+  * have GAction.ui_manager#add_ui_from_string raise an exception in
+    case of error.
+  * add Glib.Markup.Error exception.
+  * avoid memory leaks in Glib.Convert.
+  * remove some dead code (GtkPreview).
 
 In lablgtk2-20040716 (2.4.0):
 
