@@ -1,54 +1,96 @@
-lablgtk (1.2.6-2) unstable; urgency=low
-
-  * Forgot dpatch build dependency.
-
- -- Sven Luther <luther@debian.org>  Fri,  3 Oct 2003 14:24:44 +0200
-
-lablgtk (1.2.6-1) unstable; urgency=low
+lablgtk2 (2.2.0-1) unstable; urgency=low
 
   * New upstream release.
   * Dpatchification.
-  * Moved section of the -dev to libdevel as it should.
+  * Still kept the patch for the button labels, it didn't make it upstream in
+    time.
 
- -- Sven Luther <luther@debian.org>  Fri,  3 Oct 2003 13:02:30 +0200
+ -- Sven Luther <luther@debian.org>  Fri, 10 Oct 2003 15:16:36 +0200
 
-lablgtk (1.2.5-10) unstable; urgency=low
+lablgtk2 (0.beta.20030828-3) unstable; urgency=low
 
+  * Added Button label methods.
+
+ -- Sven Luther <luther@debian.org>  Thu,  9 Oct 2003 14:41:27 +0200
+
+lablgtk2 (0.beta.20030828-2) unstable; urgency=low
+
+  * Applied notebook fix patch from Olivier Andrieu.
+
+ -- Sven Luther <luther@debian.org>  Tue,  7 Oct 2003 17:06:23 +0200
+
+lablgtk2 (0.beta.20030828-1) unstable; urgency=low
+
+  * New upstream release
   * Rebuilt for ocaml 3.07.
 
- -- Sven Luther <luther@debian.org>  Wed,  1 Oct 2003 16:38:26 +0200
+ -- Sven Luther <luther@debian.org>  Wed,  1 Oct 2003 17:01:51 +0200
 
-lablgtk (1.2.5-9) unstable; urgency=high
+lablgtk2 (0.beta.20030423-2) unstable; urgency=low
 
-  * Added the same shlibs.local as lablgl, so that the resulting package can
-    work with XFree86 packages dating from before the gl/glu split.
+  * Modified sections.  liblablgtk2-ocaml is section libs,
+    liblablgkt2-ocaml-dev is libdevel.
+  * Fixed description type. (Closes: #184926) 
 
- -- Sven Luther <luther@debian.org>  Mon, 31 Mar 2003 13:49:31 +0200
+ -- Sven Luther <luther@debian.org>  Wed, 23 Apr 2003 10:29:20 +0200
 
-lablgtk (1.2.5-8) unstable; urgency=low
+lablgtk2 (0.beta.20030423-1) unstable; urgency=low
 
-  * Added libglade-gnome-dev and libgtkxmhtml-dev dependencies.
-    (Closes: #178334)
-  * Forgot a few lines in the Ocamlfind README changes last time.
+  * New upstream release. 
 
- -- Sven Luther <luther@debian.org>  Fri, 14 Feb 2003 11:09:28 +0100
+ -- Sven Luther <luther@debian.org>  Wed, 23 Apr 2003 09:49:45 +0200
 
-lablgtk (1.2.5-7) unstable; urgency=low
+lablgtk2 (0.beta.20030314-1) unstable; urgency=low
 
-  * Rebuilt since /usr/bin/lablgtk was having problems with the more recent
-    lablgl 0.99-1 package. (Closes: #178107)
-  * New META file from Stefano Zacchiroli. New lablgtkgl META file in its own
-    directory (for now).
-  * Added a little paragraph about Ocamlfind in the README file, thanks to
-    Rémi Vanicat for this.
-  * Applied GToolbox thread safety patch.
-  * Modified the OpenGL build dependencies.
+  * New upstream release. This is a beta version, and the API should now have
+    stabilized, so it is ok to begin using it for serious work, and adapt the
+    other libraries to it (hint: like camlimages2).
 
- -- Sven Luther <luther@debian.org>  Wed, 22 Jan 2003 20:00:09 +0100
+ -- Sven Luther <luther@debian.org>  Fri, 14 Mar 2003 10:04:36 +0100
+
+lablgtk2 (0.alpha.20030221-1) unstable; urgency=low
+
+  * New upstream alpha snapshot of the gtk2 bindings.
+
+ -- Sven Luther <luther@debian.org>  Sat, 08 Mar 2003 11:10:20 +0100
+
+lablgtk2 (0.alpha.20030210b-3) unstable; urgency=low
+
+  * Added librsvg support, thanks to Olivier Andrieu for providing the patch.
+
+ -- Sven Luther <luther@debian.org>  Wed, 12 Feb 2003 08:57:06 +0100
+
+lablgtk2 (0.alpha.20030210b-2) unstable; urgency=low
+
+  * Now build depend and depend on liblablgl-ocaml-dev (>=0.99-3). This will
+    pull in the libgl-dev and libglu-dev build-dependency which where missing
+    for the last upload.
+
+ -- Sven Luther <luther@debian.org>  Tue, 11 Feb 2003 13:22:27 +0100
+
+lablgtk2 (0.alpha.20030210b-1) unstable; urgency=low
+
+  * New upstream alpha snapshot of the gtk2 bindings, now include glade and
+    opengl bindings.
+
+ -- Sven Luther <luther@debian.org>  Mon, 10 Feb 2003 14:31:01 +0100
+
+lablgtk2 (0.alpha.20030210-1) unstable; urgency=low
+
+  * New upstream alpha snapshot of the gtk2 bindings.
+
+ -- Sven Luther <luther@debian.org>  Mon, 10 Feb 2003 10:17:09 +0100
+
+lablgtk2 (0.alpha-1) unstable; urgency=low
+
+  * Initial Release of the gtk2 bindings.
+
+ -- Sven Luther <luther@debian.org>  Fri, 27 Dec 2002 10:39:52 +0100
 
 lablgtk (1.2.5-6+20021031) unstable; urgency=low
 
-  * Applied the 31 november 2002 cvs patch. (Closes: #172026)
+  * Applied the 31 november 2002 cvs patch.
+    (Closes: #172026)
 
  -- Sven Luther <luther@debian.org>  Sun, 15 Dec 2002 14:56:47 +0100
 
