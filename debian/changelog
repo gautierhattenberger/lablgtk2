@@ -1,3 +1,12 @@
+lablgtk2 (2.4.0+2004.11.19-2) unstable; urgency=low
+
+  * Changed the maintainer to Debian OCaml Maintainers.
+  * Added GtkSpell support.
+  * Installing gnomeDruid.cmi in liblablgtk2-ocaml-dev since it is needed by
+    lablgtk2-doc.
+
+ -- Samuel Mimram <smimram@debian.org>  Thu, 13 Jan 2005 22:40:54 +0100
+
 lablgtk2 (2.4.0+2004.11.19-1) unstable; urgency=low
 
   * New upstream CVS snapshot.

@@ -1,8 +1,9 @@
 Source: lablgtk2
 Section: libdevel
 Priority: optional
-Maintainer: Sven Luther <luther@debian.org>
-Build-Depends: debhelper (>> 3.0.0), ocaml-3.08, libncurses5-dev, xlibs|xlib6g, debhelper, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.01-1), librsvg2-dev, libgnomecanvas2-dev, dpatch
+Maintainer: Debian OCaml Maintainers <debian-ocaml-maint@lists.debian.org>
+Uloaders: Sven Luther <luther@debian.org>, Samuel Mimram <smimram@debian.org>
+Build-Depends: debhelper (>> 3.0.0), ocaml-3.08, libncurses5-dev, xlibs|xlib6g, debhelper, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.01-1), librsvg2-dev, libgnomecanvas2-dev, libgtkspell-dev, dpatch
 Standards-Version: 3.6.1
 
 Package: liblablgtk2-ocaml

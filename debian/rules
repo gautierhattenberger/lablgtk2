@@ -35,7 +35,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	./configure --with-gl --with-glade --with-rsvg --with-gnomecanvas
+	./configure --with-gl --with-glade --with-rsvg --with-gnomecanvas --with-gtkspell
 
 	touch configure-stamp
 
@@ -45,6 +45,7 @@ build-stamp: patch-stamp configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
+	$(MAKE) depend
 	$(MAKE)
 	if [ -x /usr/bin/ocamlopt ]; then \
 		$(MAKE) opt; \
@@ -77,6 +78,8 @@ install: build
 		BINDIR=$(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/bin
 	cp debian/META		\
 		$(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
+	# This file is needed by lablgtk2-doc
+	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
 	
 	install -m 644 debian/liblablgtk2-ocaml-dev.override \
 		$(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/share/lintian/overrides/liblablgtk2-ocaml-dev
