@@ -9,7 +9,7 @@ lablgtk2 (2.4.0+2004.11.19-4) unstable; urgency=low
 lablgtk2 (2.4.0+2004.11.19-3) unstable; urgency=low
 
   * Added GnomeUI and Panel-Applet support. This should make the package build
-    again.
+    again, closes: #253712.
 
  -- Samuel Mimram <smimram@debian.org>  Fri, 14 Jan 2005 20:17:31 +0100
 

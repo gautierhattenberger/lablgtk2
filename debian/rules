@@ -79,9 +79,9 @@ install: build
 
 	# This file is needed by lablgtk2-doc
 	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
-	
-	#install -m 644 debian/liblablgtk2-ocaml-dev.override \
-	#	$(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/share/lintian/overrides/liblablgtk2-ocaml-dev
+
+	# Examples
+	cp -r examples/rsvg examples/panel examples/canvas $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/usr/share/doc/liblablgtk2-gnome-ocaml-dev/examples
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -94,7 +94,7 @@ binary-arch: build install
 
 #	dh_installdebconf -s
 	dh_installdocs -s
-	dh_installexamples -s --exclude='.cvsignore'
+	dh_installexamples -s --exclude='.cvsignore' --exclude='rsvg' --exclude='panel' --exclude='canvas'
 	dh_installmenu -s
 	dh_movefiles -s
 	dh_install -s --sourcedir=$(DESTDIR) --list-missing
