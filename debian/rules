@@ -72,17 +72,17 @@ install: build
 	#$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 
 	# Add here commands to install the package into
-	# debian/liblablgtk-ocaml-dev
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/liblablgtk-ocaml-dev/	\
-		BINDIR=$(CURDIR)/debian/liblablgtk-ocaml-dev/usr/bin
+	# debian/liblablgtk2-ocaml-dev
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/liblablgtk2-ocaml-dev/	\
+		BINDIR=$(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/bin
 	cp debian/META		\
-		$(CURDIR)/debian/liblablgtk-ocaml-dev$(OCAML_LIBDIR)/lablgtk
+		$(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
 	
-	install -m 644 debian/liblablgtk-ocaml-dev.override \
-		$(CURDIR)/debian/liblablgtk-ocaml-dev/usr/share/lintian/overrides/liblablgtk-ocaml-dev
+	install -m 644 debian/liblablgtk2-ocaml-dev.override \
+		$(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/share/lintian/overrides/liblablgtk2-ocaml-dev
 
-	# And now move the liblablgtk-ocaml files into their own package
-	dh_movefiles -pliblablgtk-ocaml --sourcedir=debian/liblablgtk-ocaml-dev
+	# And now move the liblablgtk2-ocaml files into their own package
+	dh_movefiles -pliblablgtk2-ocaml --sourcedir=debian/liblablgtk2-ocaml-dev
 
 
 # Build architecture-independent files here.
