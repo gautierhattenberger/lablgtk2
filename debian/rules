@@ -5,7 +5,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-export OCAML_VERSION=`ocamlc -version`
+export OCAML_LIBDIR=`ocamlc -where`
 
 # This is the debhelper compatibility version to use.
 export DH_COMPAT=3
@@ -76,9 +76,9 @@ install: build
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/liblablgtk2-ocaml-dev/	\
 		BINDIR=$(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/bin
 	cp debian/META		\
-		$(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/lib/ocaml/$(OCAML_VERSION)/lablgtk2
+		$(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
 	cp debian/META.gtkgl	\
-		$(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/lib/ocaml/$(OCAML_VERSION)/lablgtkgl2/META
+		$(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtkgl2/META
 	
 	install -m 644 debian/liblablgtk2-ocaml-dev.override \
 		$(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/share/lintian/overrides/liblablgtk2-ocaml-dev
