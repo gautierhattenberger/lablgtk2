@@ -1,4 +1,6 @@
-/* $Id: ml_pango.h,v 1.3 2003/03/07 09:26:50 garrigue Exp $ */
+/* $Id: ml_pango.h,v 1.4 2004/03/01 09:07:30 garrigue Exp $ */
+
+#include "pango_tags.h"
 
 #define PangoFontDescription_val(val) ((PangoFontDescription*)Pointer_val(val))
 value Val_PangoFontDescription_new(PangoFontDescription* it);
@@ -18,3 +20,6 @@ value ml_PangoStyle_Val (value val);
 #define Val_PangoFont Val_GAnyObject
 
 #define PangoFontMetrics_val(val) ((PangoFontMetrics*)Pointer_val(val))
+
+#define PangoLayout_val(val) check_cast(PANGO_LAYOUT, val)
+#define Val_PangoLayout Val_GAnyObject

@@ -1,6 +1,7 @@
-(* $Id: glib.mli,v 1.10 2003/09/27 13:42:19 oandrieu Exp $ *)
+(* $Id: glib.mli,v 1.13 2004/06/02 20:57:25 oandrieu Exp $ *)
 
-(** Interface to Glib functions *)
+(** Interface to Glib functions 
+    @gtkdoc glib index *)
 
 type unichar = int
 type unistring = unichar array
@@ -25,12 +26,14 @@ module Main : sig
   val setlocale : locale_category -> string option -> string 
 end
 
+(** @gtkdoc glib glib-The-Main-Event-Loop *)
 module Timeout : sig
   type id
   val add : ms:int -> callback:(unit -> bool) -> id
   val remove : id -> unit
 end
 
+(** @gtkdoc glib glib-The-Main-Event-Loop *)
 module Idle : sig
   type id
   val add : callback:(unit -> bool) -> id
@@ -51,6 +54,7 @@ end
 
 (** {3 Message Logging} *)
 
+(** @gtkdoc glib glib-Message-Logging *)
 module Message : sig
   (* Redirect output *)
   type print_func = string -> unit
@@ -88,19 +92,28 @@ end
 (** Character Set Conversion 
    @gtkdoc glib glib-Character-Set-Conversion *)
 module Convert :  sig
+  type error = 
+    | NO_CONVERSION (** Conversion between the requested character sets is not supported *)
+    | ILLEGAL_SEQUENCE (** Invalid byte sequence in conversion input *)
+    | FAILED (** Conversion failed for some reason *)
+    | PARTIAL_INPUT (** Partial character sequence at end of input *)
+    | BAD_URI (** URI is invalid *)
+    | NOT_ABSOLUTE_PATH (** Pathname is not an absolute path *)
+  exception Error of error * string
+
   val convert :
-    string -> to_codeset:string -> from_codeset:string -> string
+    string -> to_codeset:string -> from_codeset:string -> string (** @raise Error . *)
   val convert_with_fallback :
-    ?fallback:string -> to_codeset:string -> from_codeset:string -> string -> string
+    ?fallback:string -> to_codeset:string -> from_codeset:string -> string -> string (** @raise Error . *)
 
   (** All internal strings are encoded in utf8: you should use
      the following conversion functions *)
 
-  val locale_from_utf8 : string -> string
-  val locale_to_utf8 : string -> string
-  val filename_from_utf8 : string -> string
-  val filename_to_utf8 : string -> string
-  val get_charset : unit -> bool * string
+  val locale_from_utf8 : string -> string (** @raise Error . *)
+  val locale_to_utf8 : string -> string (** @raise Error . *)
+  val filename_from_utf8 : string -> string (** @raise Error . *)
+  val filename_to_utf8 : string -> string (** @raise Error . *)
+  val get_charset : unit -> bool * string (** @raise Error . *)
 end
 
 (** Unicode Manipulation
@@ -148,4 +161,9 @@ module Utf8 : sig
   val to_unichar : string -> pos:int ref -> unichar
   val to_unistring : string -> unistring
   val first_char : string -> unichar
+end
+
+(** @gtkdoc glib glib-Simple-XML-Subset-Parser *)
+module Markup : sig
+  val escape_text: string -> string
 end

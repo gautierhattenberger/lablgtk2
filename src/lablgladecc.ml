@@ -1,4 +1,4 @@
-(* $Id: lablgladecc.ml,v 1.19 2004/01/13 06:40:25 garrigue Exp $ *)
+(* $Id: lablgladecc.ml,v 1.22 2004/07/09 13:52:21 oandrieu Exp $ *)
 
 open StdLabels
 open Printf
@@ -66,8 +66,8 @@ let classes = ref [
   "GtkHBox", ("GtkPack.Box", "GPack.box");
   "GtkVBox", ("GtkPack.Box", "GPack.box");
   "GtkBBox", ("GtkPack.BBox", "GPack.button_box");
-  "GtkHBBox", ("GtkPack.BBox", "GPack.button_box");
-  "GtkVBBox", ("GtkPack.BBox", "GPack.button_box");
+  "GtkHButtonBox", ("GtkPack.BBox", "GPack.button_box");
+  "GtkVButtonBox", ("GtkPack.BBox", "GPack.button_box");
   "GtkFixed", ("GtkPack.Fixed", "GPack.fixed");
   "GtkLayout", ("GtkPack.Layout", "GPack.layout");
 (*  "GtkPacker", ("GtkPack.Packer", "GPack.packer"); *)
@@ -98,7 +98,7 @@ let classes = ref [
   "GtkTree", ("GtkTree.Tree", "GTree.tree");
   "GtkCTree", ("GtkBase.Container", "GContainer.container");
   "GtkWindow", ("GtkWindow.Window", "GWindow.window");
-  "GtkDialog", ("GtkWindow.Dialog", "GWindow.dialog");
+  "GtkDialog", ("GtkWindow.Dialog", "GWindow.dialog_any");
   "GtkInputDialog", ("GtkWindow.Dialog", "GWindow.dialog");
   "GtkFileSelection", ("GtkWindow.FileSelection", "GWindow.file_selection");
   "GtkFontSelectionDialog", ("GtkWindow.FontSelectionDialog",
@@ -109,13 +109,9 @@ let classes = ref [
 open Xml_lexer
 
 let parse_header lexbuf =
-  begin match token lexbuf with Tag ("?xml",_,true) -> ()
-  | _ -> failwith "no XML header" end;
-  begin match token lexbuf with Tag ("!doctype",_,_) -> ()
-  | _ -> failwith "no DOCTYPE declaration" end;
-  begin match token lexbuf with Tag ("glade-interface",_,_) -> ()
-  | Tag(tag,_,_) -> prerr_endline tag
-  | _ -> failwith "no glade-interface declaration" end
+  match token lexbuf with 
+  | Tag ("glade-interface",_,_) -> ()
+  | _ -> failwith "no glade-interface declaration" 
 
 let parse_field lexbuf ~tag =
   let b = Buffer.create 80 and first = ref true in
@@ -207,9 +203,6 @@ let output_widget w =
     begin match clas with
     | "GList.clist" ->
   	printf "    val %s : int %s =\n" w.wcamlname clas
-    | "GWindow.dialog" ->
-  	printf "    val %s : [`NONE | `DELETE_EVENT | `ID of int] %s =\n"
-          w.wcamlname clas
     | _ ->
         printf "    val %s =\n" w.wcamlname
     end;

@@ -1,4 +1,4 @@
-(* $Id: gToolbox.mli,v 1.5 2003/04/11 15:01:56 guesdon Exp $ *)
+(* $Id: gToolbox.mli,v 1.6 2004/03/18 07:05:28 garrigue Exp $ *)
 
 (** Useful functions for LablGTK. *)
 
@@ -107,7 +107,7 @@ class ['a] tree_selection :
     method clear_selection : unit -> unit
     method selection : 'a option
     method wview : GText.view
-    method wtree : GTree.tree
+    method wtree : GBroken.tree
   end
 
 (** A function to make the user select a node in a tree.

@@ -1,4 +1,4 @@
-(* $Id: gTree.mli,v 1.39 2004/01/08 00:54:28 oandrieu Exp $ *)
+(* $Id: gTree.mli,v 1.46 2004/07/05 10:05:47 oandrieu Exp $ *)
 
 open Gobject
 open Gtk
@@ -7,84 +7,6 @@ open GContainer
 
 (** Tree and list widgets
    @gtkdoc gtk TreeWidget *)
-
-
-(** {3 Obsolete GtkTree/GtkTreeItem framework} *)
-
-(** @gtkdoc gtk GtkTreeItem
-    @deprecated use {!GTree.view} instead *)
-class tree_item_signals : tree_item obj ->
-  object
-    inherit GContainer.item_signals
-    method collapse : callback:(unit -> unit) -> GtkSignal.id
-    method expand : callback:(unit -> unit) -> GtkSignal.id
-  end
-
-(** @gtkdoc gtk GtkTreeItem
-    @deprecated use {!GTree.view} instead *)
-class tree_item : Gtk.tree_item obj ->
-  object
-    inherit GContainer.container
-    val obj : Gtk.tree_item obj
-    method event : event_ops
-    method as_item : Gtk.tree_item obj
-    method collapse : unit -> unit
-    method connect : tree_item_signals
-    method expand : unit -> unit
-    method remove_subtree : unit -> unit
-    method set_subtree : tree -> unit
-    method subtree : tree option
-  end
-
-(** @gtkdoc gtk GtkTree 
-    @deprecated use {!GTree.view} instead *)
-and tree_signals : Gtk.tree obj ->
-  object
-    inherit GContainer.container_signals
-    val obj : Gtk.tree obj
-    method select_child : callback:(tree_item -> unit) -> GtkSignal.id
-    method selection_changed : callback:(unit -> unit) -> GtkSignal.id
-    method unselect_child : callback:(tree_item -> unit) -> GtkSignal.id
-  end
-
-(** @gtkdoc gtk GtkTree 
-    @deprecated use {!GTree.view} instead *)
-and tree : Gtk.tree obj ->
-  object
-    inherit [tree_item] GContainer.item_container
-    val obj : Gtk.tree obj
-    method event : event_ops
-    method as_tree : Gtk.tree obj
-    method child_position : tree_item -> int
-    method clear_items : start:int -> stop:int -> unit
-    method connect : tree_signals
-    method insert : tree_item -> pos:int -> unit
-    method remove_items : tree_item list -> unit
-    method select_item : pos:int -> unit
-    method selection : tree_item list
-    method set_selection_mode : Tags.selection_mode -> unit
-    method set_view_lines : bool -> unit
-    method set_view_mode : [`LINE|`ITEM] -> unit
-    method unselect_item : pos:int -> unit
-    method private wrap : Gtk.widget obj -> tree_item
-  end
-
-(** @gtkdoc gtk GtkTreeItem
-    @deprecated use {!GTree.view} instead *)
-val tree_item :
-  ?label:string ->
-  ?packing:(tree_item -> unit) -> ?show:bool -> unit -> tree_item
-
-(** @gtkdoc gtk GtkTree 
-    @deprecated use {!GTree.view} instead *)
-val tree :
-  ?selection_mode:Tags.selection_mode ->
-  ?view_mode:[`LINE|`ITEM] ->
-  ?view_lines:bool ->
-  ?border_width:int ->
-  ?width:int ->
-  ?height:int -> ?packing:(widget -> unit) -> ?show:bool -> unit -> tree
-
 
 (** {3 New GtkTreeView/Model framework} *)
 
@@ -143,10 +65,12 @@ class model : ([> `treemodel] as 'a) obj ->
     method get_iter_first : tree_iter option
     method iter_next : tree_iter -> bool
     method iter_has_child : tree_iter -> bool
-    method iter_n_children : tree_iter -> int
-    method iter_children : ?nth:int -> tree_iter -> tree_iter
-    method iter_parent : tree_iter -> tree_iter
+    method iter_n_children : tree_iter option -> int
+    method iter_children : ?nth:int -> tree_iter option -> tree_iter 
+      (** @raise Invalid_argument if arguments do not designate a valid node *)
+    method iter_parent : tree_iter -> tree_iter option
     method foreach : (tree_path -> tree_iter -> bool) -> unit
+    method row_changed : tree_path -> tree_iter -> unit
   end
 
 (** @gtkdoc gtk GtkTreeSortable *)
@@ -165,8 +89,8 @@ class tree_sortable : ([> `treesortable|`treemodel] as 'a) obj ->
     method sort_column_changed : unit -> unit
     method get_sort_column_id : (int * Gtk.Tags.sort_type) option
     method set_sort_column_id : int -> Gtk.Tags.sort_type -> unit
-    method set_sort_func  : int -> (tree_sortable -> Gtk.tree_iter -> Gtk.tree_iter -> int) -> unit
-    method set_default_sort_func : (tree_sortable -> Gtk.tree_iter -> Gtk.tree_iter -> int) -> unit
+    method set_sort_func  : int -> (model -> Gtk.tree_iter -> Gtk.tree_iter -> int) -> unit
+    method set_default_sort_func : (model -> Gtk.tree_iter -> Gtk.tree_iter -> int) -> unit
     method has_default_sort_func : bool
   end
 
@@ -215,6 +139,9 @@ class list_store : Gtk.list_store ->
 
 (** @gtkdoc gtk GtkListStore *)
 val list_store : column_list -> list_store
+
+(** Convenience function to map a caml list into a {!GTree.list_store} with a single column *)
+val store_of_list : 'a Gobject.data_conv -> 'a list -> list_store * 'a column
 
 (** @gtkdoc gtk GtkTreeModelSort *)
 class model_sort : Gtk.tree_model_sort ->
@@ -322,6 +249,8 @@ class cell_layout : ([> Gtk.cell_layout] as 'a) Gtk.obj ->
     method pack :
       ?expand:bool -> 
       ?from:Tags.pack_type -> #cell_renderer -> unit
+   (** @param expand default value is [false]
+       @param from default value is [`START] *)
     method clear : unit -> unit
     method add_attribute : #cell_renderer -> string -> 'b column -> unit
     method clear_attributes : #cell_renderer -> unit
@@ -373,6 +302,8 @@ class view_column : tree_view_column obj ->
     method visible : bool
     method widget : widget option
     method width : int
+    method set_cell_data_func   : #cell_renderer -> (model -> Gtk.tree_iter -> unit) -> unit
+    method unset_cell_data_func : #cell_renderer -> unit
   end
 
 (** @gtkdoc gtk GtkTreeViewColumn *)
@@ -428,11 +359,13 @@ class view : tree_view obj ->
     method event : GObj.event_ops
     method expand_all : unit -> unit
     method expand_row : ?all:bool -> tree_path -> unit
+    (** @param all default value is [false] *)
     method expander_column : view_column option
+    method fixed_height_mode : bool
     method get_column : int -> view_column
-    method get_cursor : unit -> tree_path option * tree_view_column option
+    method get_cursor : unit -> tree_path option * view_column option
     method get_path_at_pos :
-      x:int -> y:int -> (tree_path * tree_view_column obj * int * int) option
+      x:int -> y:int -> (tree_path * view_column * int * int) option
     method hadjustment : GData.adjustment
     method headers_visible : bool
     method insert_column : view_column -> int -> int
@@ -451,8 +384,10 @@ class view : tree_view obj ->
     method set_cursor :
       ?cell:#cell_renderer ->
       ?edit:bool -> tree_path -> view_column -> unit (** @since GTK 2.2 *)
+    (** @param edit default value is [false] *)
     method set_enable_search : bool -> unit
     method set_expander_column : view_column option -> unit
+    method set_fixed_height_mode : bool -> unit
     method set_hadjustment : GData.adjustment -> unit
     method set_headers_clickable : bool -> unit
     method set_headers_visible : bool -> unit
@@ -470,6 +405,7 @@ val view :
   ?hadjustment:GData.adjustment ->
   ?vadjustment:GData.adjustment ->
   ?enable_search:bool ->
+  ?fixed_height_mode:bool ->
   ?headers_clickable:bool ->
   ?headers_visible:bool ->
   ?reorderable:bool ->
@@ -477,6 +413,12 @@ val view :
   ?search_column:int ->
   ?border_width:int -> ?width:int -> ?height:int ->
   ?packing:(widget -> unit) -> ?show:bool -> unit -> view
+(** @param enable_search default value is [true]
+    @param fixed_height_mode default value is [false]
+    @param headers_clickable default value is [false]
+    @param headers_visible default value is [true]
+    @param reorderable default value is [false]
+    @param rules_hint default value is [false] *)
 
 (** {4 Cell Renderers} *)
 

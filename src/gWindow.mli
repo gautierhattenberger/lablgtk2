@@ -1,4 +1,4 @@
-(* $Id: gWindow.mli,v 1.47 2004/01/13 06:40:25 garrigue Exp $ *)
+(* $Id: gWindow.mli,v 1.52 2004/07/05 10:05:47 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -102,6 +102,13 @@ val window :
   ?wm_class:string ->
   ?border_width:int ->
   ?width:int -> ?height:int -> ?show:bool -> unit -> window
+(** @param kind default value is [`TOPLEVEL]
+    @param allow_grow default value is [true]
+    @param allow_shrink default value is [false]
+    @param modal default value is [false]
+    @param resizable default value is [true]
+    @param type_hint default value is [`NORMAL]
+    @param position default value is [`NONE] *)
 
 val toplevel : #widget -> window option
 (** return the toplevel window of this widget, if existing *)
@@ -110,7 +117,7 @@ val toplevel : #widget -> window option
 
 (** @gtkdoc gtk GtkDialog *)
 class ['a] dialog_signals :
-  ([> Gtk.dialog] as 'b) obj -> (int * 'a) list ref ->
+  ([> Gtk.dialog] as 'b) obj -> decode:(int -> 'a) ->
   object
     inherit GContainer.container_signals
     val obj : 'b obj
@@ -124,7 +131,7 @@ class ['a] dialog_skel : ([>Gtk.dialog] as 'b) obj ->
     constraint 'a = [> `DELETE_EVENT]
     inherit window_skel
     val obj : 'b obj
-    method action_area : GPack.box
+    method action_area : GPack.button_box
     method event : event_ops
     method vbox : GPack.box
     method response : 'a -> unit
@@ -133,11 +140,13 @@ class ['a] dialog_skel : ([>Gtk.dialog] as 'b) obj ->
     method has_separator : bool
     method set_has_separator : bool -> unit
     method run : unit -> 'a
+    method private encode : 'a -> int
+    method private decode : int -> 'a
   end
 
 (** Create popup windows
    @gtkdoc gtk GtkDialog *)
-class ['a] dialog : [> Gtk.dialog] obj ->
+class ['a] dialog_ext : [> Gtk.dialog] obj ->
   object
     inherit ['a] dialog_skel
     method add_button : string -> 'a -> unit
@@ -146,9 +155,9 @@ class ['a] dialog : [> Gtk.dialog] obj ->
 
 (** Create popup windows
    @gtkdoc gtk GtkDialog *)
-class ['a] dialog_full : [> Gtk.dialog] obj ->
+class ['a] dialog : [> Gtk.dialog] obj ->
   object
-    inherit ['a] dialog
+    inherit ['a] dialog_ext
     method connect : 'a dialog_signals
   end
 
@@ -169,7 +178,14 @@ val dialog :
   ?wm_name:string ->
   ?wm_class:string ->
   ?border_width:int ->
-  ?width:int -> ?height:int -> ?show:bool -> unit -> 'a dialog_full
+  ?width:int -> ?height:int -> ?show:bool -> unit -> 'a dialog
+(** @param no_separator default value is [false]
+    @param destroy_with_parent default value is [false] *)
+
+(** Variation for safe typing *)
+type any_response = [GtkEnums.response | `OTHER of int]
+class dialog_any : [> Gtk.dialog] obj -> [any_response] dialog
+
 
 (** {3 GtkMessageDialog} *)
 
@@ -221,7 +237,7 @@ val message_dialog :
 (** @since GTK 2.4
     @gtkdoc gtk GtkFileChooserDialog *)
 class ['a] file_chooser_dialog_signals :
- ([> Gtk.file_chooser|Gtk.dialog] as 'b) Gtk.obj -> (int * 'a) list ref ->
+ ([> Gtk.file_chooser|Gtk.dialog] as 'b) Gtk.obj -> decode:(int -> 'a) ->
    object
      inherit ['a] dialog_signals
      inherit GFile.chooser_signals
@@ -233,16 +249,24 @@ class ['a] file_chooser_dialog_signals :
 class ['a] file_chooser_dialog :
  ([> Gtk.file_chooser|Gtk.dialog] as 'b) Gtk.obj -> 
  object
-   inherit ['a] dialog
+   inherit ['a] dialog_ext
    inherit GFile.chooser
    val obj : 'b Gtk.obj
    method connect : 'a file_chooser_dialog_signals
+
+   (** The following methods should be used to add the [OPEN] or
+      [SAVE] button of a FileChooserDialog *)
+   method add_select_button : string -> 'a -> unit
+
+   (** ditto with a stock id *)
+   method add_select_button_stock : GtkStock.id -> 'a -> unit
  end
 
 (** @since GTK 2.4
     @gtkdoc gtk GtkFileChooserDialog *)
 val file_chooser_dialog :
-  action:Gtk.Tags.file_chooser_action ->
+  action:GtkEnums.file_chooser_action ->
+  ?backend:string ->
   ?parent:#window_skel ->
   ?destroy_with_parent:bool ->
   ?title:string ->

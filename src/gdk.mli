@@ -1,4 +1,4 @@
-(* $Id: gdk.mli,v 1.36 2003/06/18 10:04:53 garrigue Exp $ *)
+(* $Id: gdk.mli,v 1.39 2004/03/15 05:12:15 garrigue Exp $ *)
 
 open Gobject
 
@@ -290,6 +290,7 @@ module GC :
 module Pixmap :
   sig
     val cast : 'a obj -> pixmap
+    val destroy : [> `gdkpixmap] obj -> unit
     val create :
       ?window:window -> width:int -> height:int -> ?depth:int -> unit -> pixmap
     val create_from_data :
@@ -343,6 +344,9 @@ module Draw :
     val string :
       [>`drawable] obj ->
       font:font -> gc -> x:int -> y:int -> string -> unit
+    val layout :
+      [>`drawable] obj -> gc -> x: int -> y: int -> Pango.layout ->
+      ?fore:color -> ?back:color -> unit
     val image :
       [>`drawable] obj -> gc -> ?xsrc:int -> ?ysrc:int ->
       ?xdest:int -> ?ydest:int -> ?width:int -> ?height:int -> image -> unit
@@ -369,7 +373,7 @@ module Rgb :
 module DnD :
   sig
     val drag_status :
-      drag_context -> Tags.drag_action list -> time:int32 -> unit
+      drag_context -> Tags.drag_action option -> time:int32 -> unit
     val drag_context_suggested_action : drag_context -> Tags.drag_action
     val drag_context_targets : drag_context -> atom list
   end

@@ -1,4 +1,4 @@
-/* $Id: ml_gtkpack.c,v 1.7 2003/06/24 09:20:04 garrigue Exp $ */
+/* $Id: ml_gtkpack.c,v 1.9 2004/03/05 23:03:42 oandrieu Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -92,6 +92,13 @@ ML_3 (gtk_button_box_set_child_size, GtkButtonBox_val,
       Int_val, Int_val, Unit)
 ML_3 (gtk_button_box_set_child_ipadding, GtkButtonBox_val,
       Int_val, Int_val, Unit)
+#ifdef HASGTK24
+ML_2 (gtk_button_box_get_child_secondary, GtkButtonBox_val, GtkWidget_val, Val_bool)
+ML_3 (gtk_button_box_set_child_secondary, GtkButtonBox_val, GtkWidget_val, Bool_val, Unit)
+#else
+Unsupported_24 (gtk_button_box_get_child_secondary)
+Unsupported_24 (gtk_button_box_set_child_secondary)
+#endif
 
 /* gtkfixed.h */
 

@@ -108,7 +108,12 @@ if test "$CAMLOPT" != no ; then
     fi
 fi
 
-# ocamldep, ocamllex and ocamlyacc should also be present in the path
+# ocamlrun, ocamldep, ocamllex and ocamlyacc should also be present in the path
+AC_CHECK_PROG(OCAMLRUN,ocamlrun,ocamlrun,no)
+if test "$OCAMLRUN" = no ; then
+	AC_MSG_ERROR(Cannot find ocamlrun.)
+fi
+
 AC_CHECK_PROG(OCAMLDEP,ocamldep,ocamldep,no)
 if test "$OCAMLDEP" = no ; then
 	AC_MSG_ERROR(Cannot find ocamldep.)
@@ -148,6 +153,11 @@ AC_CHECK_PROG(CAMLP4O,camlp4o,camlp4o,no)
 if test "$CAMLP4O" = no ; then
 	AC_MSG_ERROR(Cannot find camlp4o.)
 fi
+
+if expr "$OCAMLVERSION" '>=' '3.08' > /dev/null ; then
+   ODOC_DEF="-D OCAML_308"
+fi
+AC_SUBST(ODOC_DEF)
 
 # Check for which kind of threads is used
 THREADS_LIB="no"
@@ -276,8 +286,11 @@ fi
 if test $USE_RSVG = yes ; then
     USE_RSVG=1
     RSVGPKG=librsvg-2.0
+    LIBS=$RSVG_LIBS
+    AC_CHECK_FUNC(rsvg_handle_new_gz, [HAVE_SVGZ=-DHAVE_SVGZ], [HAVE_SVGZ=])
 else
     USE_RSVG=
+    HAVE_SVGZ=
 fi
 
 
@@ -362,6 +375,7 @@ AC_SUBST(LIBDIR)
 AC_SUBST(OCAMLBEST)
 AC_SUBST(OCAMLWIN32)
 AC_SUBST(OCAMLDEP)
+AC_SUBST(OCAMLRUN)
 AC_SUBST(OCAMLLEX)
 AC_SUBST(OCAMLYACC)
 AC_SUBST(THREADS_LIB)
@@ -378,6 +392,7 @@ AC_SUBST(USE_GL)
 AC_SUBST(USE_GNOME)
 AC_SUBST(USE_GLADE)
 AC_SUBST(USE_RSVG)
+AC_SUBST(HAVE_SVGZ)
 AC_SUBST(USE_GNOMECANVAS)
 AC_SUBST(USE_GNOMEUI)
 AC_SUBST(USE_PANEL)

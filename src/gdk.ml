@@ -1,4 +1,4 @@
-(* $Id: gdk.ml,v 1.63 2003/06/18 10:04:53 garrigue Exp $ *)
+(* $Id: gdk.ml,v 1.66 2004/03/15 05:12:15 garrigue Exp $ *)
 
 open StdLabels
 open Gaux
@@ -190,7 +190,10 @@ end
 
 module Image = struct
   type image_type =
-    [ `NORMAL|`SHARED|`FASTEST ] 
+    [ `NORMAL|`SHARED|`FASTEST ]
+
+  let cast w : image = Gobject.try_cast w "GdkImage"
+  let destroy = Gobject.unsafe_unref
 
   external create : kind: image_type -> visual: visual -> 
     width: int -> height: int -> image
@@ -202,7 +205,6 @@ module Image = struct
     = "ml_gdk_image_put_pixel"
   external get_pixel : image -> x: int -> y: int -> int
     = "ml_gdk_image_get_pixel"
-  external destroy : image -> unit = "ml_gdk_image_destroy"
   external width : image -> int = "ml_gdk_image_width"
   external height : image -> int = "ml_gdk_image_height"
   external depth : image -> int = "ml_gdk_image_depth"
@@ -411,6 +413,7 @@ end
 
 module Pixmap = struct
   let cast w : pixmap = Gobject.try_cast w "GdkPixmap"
+  let destroy = Gobject.unsafe_unref
   open Gpointer
   external create :
       window optboxed -> width:int -> height:int -> depth:int -> pixmap
@@ -518,6 +521,10 @@ module Draw = struct
   external string :
     [>`drawable] obj -> font: font -> gc -> x: int -> y: int -> string -> unit
     = "ml_gdk_draw_string_bc" "ml_gdk_draw_string"	
+  external layout :
+    [>`drawable] obj -> gc -> x: int -> y: int -> Pango.layout ->
+    ?fore:color -> ?back:color -> unit
+    = "ml_gdk_draw_layout_with_colors_bc" "ml_gdk_draw_layout_with_colors"
   external image_ : [>`drawable] obj -> gc -> image -> 
     xsrc: int -> ysrc: int -> xdest: int -> ydest: int -> 
     width: int -> height: int -> unit
@@ -569,7 +576,7 @@ module Rgb = struct
 end
 
 module DnD = struct
-  external drag_status : drag_context -> drag_action list -> time:int32 -> unit
+  external drag_status : drag_context -> drag_action option -> time:int32 -> unit
       = "ml_gdk_drag_status"
   external drag_context_suggested_action : drag_context -> drag_action
       = "ml_GdkDragContext_suggested_action"

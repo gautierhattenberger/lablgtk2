@@ -1,4 +1,4 @@
-(* $Id: gtk.ml,v 1.103 2004/01/04 19:14:57 oandrieu Exp $ *)
+(* $Id: gtk.ml,v 1.107 2004/05/09 14:39:14 oandrieu Exp $ *)
 
 open Gobject
 
@@ -98,8 +98,6 @@ module Tags = struct
     | `NO_REPARENT | `APP_PAINTABLE | `RECEIVES_DEFAULT | `DOUBLE_BUFFERED ]
   type size_group_mode =
     [ `NONE | `HORIZONTAL | `VERTICAL | `BOTH ]
-  type file_chooser_action =
-    [ `OPEN | `SAVE ]
 end
 open Tags
 
@@ -129,6 +127,8 @@ type alignment = [bin|`alignment]
 type button = [bin|`button]
 type toggle_button = [button|`togglebutton]
 type radio_button = [button|`togglebutton|`radiobutton]
+type color_button = [button|`colorbutton]
+type font_button = [button|`fontbutton]
 type option_menu = [button|`optionmenu]
 type event_box = [bin|`eventbox]
 type frame = [bin|`frame]
@@ -172,13 +172,19 @@ type paned = [container|`paned]
 type socket = [container|`socket]
 type table = [container|`table]
 type toolbar = [container|`toolbar]
+type tool_item = [bin|`toolitem]
+type separator_tool_item = [tool_item|`separatortoolitem]
+type tool_button = [tool_item|`toolbutton]
+type toggle_tool_button = [tool_button|`toggletoolbutton]
+type radio_tool_button = [toggle_tool_button|`radiotoolbutton]
 type tree = [container|`tree]
 type calendar = [widget|`calendar]
 type drawing_area = [widget|`drawingarea]
 type editable = [widget|`editable]
 type entry = [editable|`entry]
 type spin_button = [editable|`entry|`spinbutton]
-type text = [editable|`text]
+type old_editable = [editable|`oldeditable]
+type text = [old_editable|`text]
 type misc = [widget|`misc]
 type arrow = [misc|`arrow]
 type image = [misc|`image]

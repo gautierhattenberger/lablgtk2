@@ -1,4 +1,4 @@
-/* $Id: ml_rsvg.c,v 1.3 2003/02/21 21:00:01 monate Exp $ */
+/* $Id: ml_rsvg.c,v 1.5 2004/07/08 09:20:01 oandrieu Exp $ */
 /* Author: Olivier Andrieu */
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
@@ -12,18 +12,28 @@
 #include "wrappers.h"
 #include "ml_gdkpixbuf.h"
 #include "ml_gobject.h"
+#include "ml_glib.h"
 
 static
 void ml_rsvg_size_callback(gint *w, gint *h, gpointer user_data)
 {
   value *cb = user_data;
   value r;
-  r = callback2(*cb, Val_int(*w), Val_int(*h));
+  r = callback2_exn(*cb, Val_int(*w), Val_int(*h));
+  if(Is_exception_result(r)) return;
   *w = Int_val(Field(r, 0));
   *h = Int_val(Field(r, 1));
 }
 
 ML_0(rsvg_handle_new, Val_pointer)
+
+#ifdef HAVE_SVGZ
+#include <librsvg/rsvg-gz.h>
+ML_0 (rsvg_handle_new_gz, Val_pointer)
+#else
+CAMLprim value ml_rsvg_handle_new_gz()
+{ failwith ("Doesn't support GZipped SVG files"); return Val_unit; }
+#endif /* HAVE_SVGZ */
 
 #define RsvgHandle_val(val) ((RsvgHandle *)Pointer_val(val))
 
@@ -39,8 +49,10 @@ ML_1(rsvg_handle_free, RsvgHandle_val, Unit)
 
 CAMLprim value ml_rsvg_handle_close(value h)
 {
-  if(rsvg_handle_close(RsvgHandle_val(h), NULL) != TRUE)
-    failwith("rsvg_handle_close");
+  GError *err = NULL;
+  rsvg_handle_close(RsvgHandle_val(h), &err);
+  if (err != NULL)
+    ml_raise_gerror (err);
   return Val_unit;
 }
 
@@ -54,14 +66,16 @@ void check_substring(value s, value o, value l)
 
 CAMLprim value ml_rsvg_handle_write(value h, value s, value off, value len)
 {
+  GError *err = NULL;
   check_substring(s, off, len);
-  if(rsvg_handle_write(RsvgHandle_val(h), 
-		       String_val(s)+Int_val(off), Int_val(len), NULL) != TRUE)
-    failwith("rsvg_handle_write");
+  rsvg_handle_write(RsvgHandle_val(h), 
+		    String_val(s)+Int_val(off), Int_val(len), &err);
+  if (err != NULL)
+    ml_raise_gerror (err);
   return Val_unit;
 }
 
-ML_1(rsvg_handle_get_pixbuf, RsvgHandle_val, Val_GdkPixbuf)
+ML_1(rsvg_handle_get_pixbuf, RsvgHandle_val, Val_GdkPixbuf_new)
 
 #if (LIBRSVG_MAJOR_VERSION == 2) && (LIBRSVG_MINOR_VERSION >= 2)
 ML_2(rsvg_handle_set_dpi, RsvgHandle_val, Double_val, Unit)
@@ -71,3 +85,8 @@ Unsupported(rsvg_handle_set_dpi)
 Unsupported(rsvg_set_default_dpi)
 #endif
 
+CAMLprim value ml_rsvg_init (value unit)
+{
+  ml_register_exn_map(RSVG_ERROR, "ml_rsvg_exn");
+  return Val_unit;
+}

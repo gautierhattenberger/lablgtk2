@@ -1,4 +1,4 @@
-/* $Id: wrappers.c,v 1.24 2004/01/08 00:54:29 oandrieu Exp $ */
+/* $Id: wrappers.c,v 1.26 2004/03/17 00:16:24 oandrieu Exp $ */
 
 #include <string.h>
 #include <caml/mlvalues.h>
@@ -27,12 +27,22 @@ value alloc_memblock_indirected (asize_t size)
     return ret;
 }
 
-value ml_some (value v)
+CAMLprim value ml_some (value v)
 {
      CAMLparam1(v);
      value ret = alloc_small(1,0);
      Field(ret,0) = v;
      CAMLreturn(ret);
+}
+
+value ml_cons (value v, value l)
+{
+  CAMLparam2(v, l);
+  CAMLlocal1(cell);
+  cell = alloc_small(2, Tag_cons);
+  Field(cell, 0) = v;
+  Field(cell, 1) = l;
+  CAMLreturn(cell);
 }
 
 void ml_raise_null_pointer ()
@@ -51,7 +61,7 @@ value Val_pointer (void *ptr)
     return ret;
 }
 
-value copy_string_check (const char*str)
+CAMLprim value copy_string_check (const char*str)
 {
     if (!str) ml_raise_null_pointer ();
     return copy_string ((char*) str);
@@ -62,7 +72,7 @@ value copy_string_or_null (const char*str)
     return copy_string (str ? (char*) str : "");
 }
 
-value *ml_global_root_new (value v)
+CAMLprim value *ml_global_root_new (value v)
 {
     value *p = stat_alloc(sizeof(value));
     *p = v;

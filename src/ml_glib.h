@@ -1,4 +1,4 @@
-/* $Id: ml_glib.h,v 1.9 2003/12/10 10:49:57 oandrieu Exp $ */
+/* $Id: ml_glib.h,v 1.10 2004/03/24 00:49:00 oandrieu Exp $ */
 
 value copy_string_g_free (char *str); /* for g_strings only */
 
@@ -13,4 +13,5 @@ value Val_GSList (GSList *list, value_in);
 value Val_GSList_free (GSList *list, value_in);
 GSList *GSList_val (value list, value_out);
 
+void ml_register_exn_map (GQuark domain, char *caml_name);
 void ml_raise_gerror(GError *) Noreturn;

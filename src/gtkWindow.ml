@@ -1,4 +1,4 @@
-(* $Id: gtkWindow.ml,v 1.35 2003/10/30 02:36:01 garrigue Exp $ *)
+(* $Id: gtkWindow.ml,v 1.37 2004/03/05 21:30:32 oandrieu Exp $ *)
 
 open Gaux
 open Gobject
@@ -69,7 +69,7 @@ end
 
 module Dialog = struct
   include Dialog
-  external action_area : [>`dialog] obj -> box obj
+  external action_area : [>`dialog] obj -> button_box obj
       = "ml_GtkDialog_action_area"
   external vbox : [>`dialog] obj -> box obj
       = "ml_GtkDialog_vbox"
@@ -84,6 +84,7 @@ module Dialog = struct
   external run : [>`dialog] obj -> int
       = "ml_gtk_dialog_run"
   let std_response = Gpointer.encode_variant GtkEnums.response
+  let decode_response = Gpointer.decode_variant GtkEnums.response
 end
 
 module MessageDialog = struct
