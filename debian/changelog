@@ -1,3 +1,10 @@
+lablgtk2 (2.2.0+20040113-1) unstable; urgency=low
+
+  * New upstream CVS snapshot.
+  * Added new findlib 1.0.2 META file from Stefano.
+
+ -- Sven Luther <luther@debian.org>  Fri, 16 Jan 2004 12:17:24 +0100
+
 lablgtk2 (2.2.0-2) unstable; urgency=low
 
   * Since ocaml now is version 3.07+2, modified debian/rules to use ocamlc

@@ -1,29 +1,39 @@
 version="2.2.0"
+requires(mt) = "threads"
+requires(mt,mt_vm) = "threads.vm"
+requires(mt,mt_posix) = "threads.posix"
 directory="+lablgtk2"
-requires=""
-linkopts=""
+archive(byte) = "lablgtk.cma"
+archive(native) = "lablgtk.cmxa"
+archive(byte,mt) += "gtkThread.cmo"
+archive(native,mt) += "gtkThread.cmx"
 
-# bytecode, no thread support
-archive(byte)="lablgtk.cma"
-archive(byte,init)="lablgtk.cma gtkInit.cmo"
-archive(byte,glade)="lablgtk.cma lablglade.cma"
-archive(byte,glade,init)="lablgtk.cma lablglade.cma gtkInit.cmo"
+package "init" (
+  requires = "lablgtk2"
+  archive(byte) = "gtkInit.cmo"
+  archive(native) = "gtkInit.cmx"
+)
 
-# native code, no thread support
-archive(native)="lablgtk.cmxa"
-archive(native,init)="lablgtk.cmxa gtkInit.cmx"
-archive(native,glade)="lablgtk.cmxa lablglade.cmxa"
-archive(native,glade,init)="lablgtk.cmxa lablglade.cmxa gtkInit.cmx"
+package "glade" (
+  requires = "lablgtk2"
+  archive(byte)	= "lablglade.cma"
+  archive(native) = "lablglade.cmxa"
+)
 
-# bytecode, thread support
-archive(byte,mt)="lablgtk.cma gtkThread.cmo"
-archive(byte,init,mt)="lablgtk.cma gtkInit.cmo gtkThread.cmo"
-archive(byte,glade,mt)="lablgtk.cma lablglade.cma gtkThread.cmo"
-archive(byte,glade,init,mt)="lablgtk.cma lablglade.cma gtkInit.cmo gtkThread.cmo"
+package "gnomecanvas" (
+  requires = "lablgtk2"
+  archive(byte)	= "lablgnomecanvas.cma"
+  archive(native) = "lablgnomecanvas.cmxa"
+)
 
-# nativecode, thread support
-archive(native,mt)="lablgtk.cmxa gtkThread.cmx"
-archive(native,init,mt)="lablgtk.cmxa gtkInit.cmx gtkThread.cmx"
-archive(native,glade,mt)="lablgtk.cmxa lablglade.cmxa gtkThread.cmx"
-archive(native,glade,init,mt)="lablgtk.cmxa lablglade.cmxa gtkInit.cmx gtkThread.cmx"
+package "gtkgl" (
+  requires = "lablgtk2 lablgl"
+  archive(byte)	= "lablgtkgl.cma"
+  archive(native) = "lablgtkgl.cmxa"
+)
 
+package "rsvg" (
+  requires = "lablgtk2"
+  archive(byte)	= "lablrsvg.cma"
+  archive(native) = "labrsvg.cmxa"
+)
