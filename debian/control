@@ -19,7 +19,7 @@ Package: liblablgtk2-ocaml-dev
 Section: libdevel
 Architecture: any
 Depends: liblablgtk2-ocaml (= ${Source-Version}), ocaml-3.07, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.00-1)
-Conflicts: findlib (< 1.0.2)
+Conflicts: findlib (<< 1.0.2)
 Description: Ocaml bindings to Gtk+ version 2
  lablgtk2 contains bindings for gtk+ 2.x and ocaml.
  .
