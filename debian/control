@@ -24,11 +24,13 @@ Description: runtime libraries for ocaml bindings for Gtk+ version 2
  lablgtk2 contains bindings for gtk+ 2.x and OCaml.
  .
  This package include only the dynamic libraries needed for running dynamic
- bytecode executables using gnome functionalities.
+ bytecode executables using gnome functionalities (panel-appel, gnomeui,
+ gnome-canvas, rsvg).
 
 Package: liblablgtk2-ocaml-dev
 Section: libdevel
 Architecture: any
+Suggests: liblablgtk2-gnome-ocaml-dev
 Depends: liblablgtk2-ocaml (= ${Source-Version}), ocaml-3.08, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.01-1), libgtkspell-dev
 Conflicts: findlib (<< 1.0.2)
 Description: OCaml bindings to Gtk+ version 2
@@ -45,4 +47,4 @@ Description: OCaml bindings to Gtk+ version 2
  lablgtk2 contains bindings for gtk+ 2.x and OCaml.
  .
  This package contains the development files of lablgtk for libraries using
- gnome functionalities.
+ gnome functionalities (panel-appel, gnomeui, gnome-canvas, rsvg).

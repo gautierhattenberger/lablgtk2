@@ -1,7 +1,0 @@
-requires="lablgl lablgtk2"
-version="2.2.0"
-directory="+lablgtk2"
-
-archive(native)="lablgtkgl.cmxa"
-archive(byte)="lablgtkgl.cma"
-
