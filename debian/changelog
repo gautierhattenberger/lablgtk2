@@ -1,7 +1,7 @@
 lablgtk2 (2.2.0-2) unstable; urgency=low
 
   * Since ocaml now is version 3.07+2, modified debian/rules to use ocamlc
-    -where instead of ocamlc -version.
+    -where instead of ocamlc -version. (Closes: #216526)
 
  -- Sven Luther <luther@debian.org>  Mon, 20 Oct 2003 09:34:38 +0200
 
