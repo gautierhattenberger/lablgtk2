@@ -31,3 +31,9 @@ package "gtkgl" (
   archive(byte)	= "lablgtkgl.cma"
   archive(native) = "lablgtkgl.cmxa"
 )
+
+package "rsvg" (
+  requires = "lablgtk2"
+  archive(byte)	= "lablrsvg.cma"
+  archive(native) = "labrsvg.cmxa"
+)

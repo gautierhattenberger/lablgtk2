@@ -7,6 +7,8 @@
 
 export OCAML_LIBDIR=`ocamlc -where`
 
+DESTDIR = $(CURDIR)/debian/tmp
+
 # This is the debhelper compatibility version to use.
 export DH_COMPAT=3
 
@@ -35,7 +37,8 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	# Add here commands to configure the package.
-	./configure --with-gl --with-glade --with-rsvg --with-gnomecanvas --with-gtkspell --with-gnomeui --with-panel
+	./configure --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info \
+		--with-gl --with-glade --with-rsvg --with-gnomecanvas --with-gtkspell --with-gnomeui --with-panel
 
 	touch configure-stamp
 
@@ -69,24 +72,18 @@ install: build
 	dh_clean -k
 	dh_installdirs
 
-	# Add here commands to install the package into debian/tmp
-	#$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+	$(MAKE) install DESTDIR=$(DESTDIR)
 
-	# Add here commands to install the package into
-	# debian/liblablgtk2-ocaml-dev
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/liblablgtk2-ocaml-dev/	\
-		BINDIR=$(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/bin
-	cp debian/META		\
-		$(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
+	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
+
+	# TODO !!!!!!!!!
+	cp debian/META.gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
+
 	# This file is needed by lablgtk2-doc
-	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
+	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
 	
 	install -m 644 debian/liblablgtk2-ocaml-dev.override \
 		$(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/share/lintian/overrides/liblablgtk2-ocaml-dev
-
-	# And now move the liblablgtk2-ocaml files into their own package
-	dh_movefiles -pliblablgtk2-ocaml --sourcedir=debian/liblablgtk2-ocaml-dev
-
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -96,18 +93,13 @@ binary-indep: build install
 binary-arch: build install
 	dh_testdir -s
 	dh_testroot -s
-#	dh_movefiles -s
 
 #	dh_installdebconf -s
 	dh_installdocs -s
 	dh_installexamples -s
 	dh_installmenu -s
-#	dh_installlogrotate -s
-#	dh_installemacsen -s
-#	dh_installpam -s
-#	dh_installmime -s
-#	dh_installinit -s
-	dh_installcron -s
+	dh_movefiles -s
+	dh_install -s --sourcedir=$(DESTDIR) --list-missing
 	dh_installman -s
 	dh_installinfo -s
 #	dh_undocumented -s
@@ -118,7 +110,6 @@ binary-arch: build install
 	dh_fixperms -s
 	dh_makeshlibs -s
 	dh_installdeb -s
-#	dh_perl -s
 	dh_shlibdeps -s
 	dh_gencontrol -s
 	dh_md5sums -s

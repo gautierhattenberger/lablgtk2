@@ -1,5 +1,2 @@
 liblablgtk2-ocaml-dev: binary-without-manpage lablgladecc2
 liblablgtk2-ocaml-dev: binary-without-manpage lablgtk2
-liblablgtk2-ocaml-dev: cvsignore-file-in-package usr/share/doc/liblablgtk2-ocaml-dev/examples/glade/.cvsignore
-liblablgtk2-ocaml-dev: cvsignore-file-in-package usr/share/doc/liblablgtk2-ocaml-dev/examples/text/.cvsignore
-

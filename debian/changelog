@@ -1,3 +1,10 @@
+lablgtk2 (2.4.0+2004.11.19-4) unstable; urgency=low
+
+  * Split the gnome packages apart to avoid heavy dependencies on gnome libs,
+    closes: #290936.
+
+ -- Samuel Mimram <smimram@debian.org>  Mon, 17 Jan 2005 23:02:04 +0100
+
 lablgtk2 (2.4.0+2004.11.19-3) unstable; urgency=low
 
   * Added GnomeUI and Panel-Applet support. This should make the package build
