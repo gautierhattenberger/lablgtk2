@@ -1,3 +1,10 @@
+lablgtk2 (2.4.0-2) unstable; urgency=low
+
+  * Added gdkPixbuf patch from Christophe Pourbaix <c.pourbaix@brutele.be>
+    and Olivier Andrieu <andrieu@ijm.jussieu.fr>. (Closes: #263239)
+
+ -- Sven Luther <luther@debian.org>  Tue,  3 Aug 2004 22:06:24 +0200
+
 lablgtk2 (2.4.0-1) unstable; urgency=low
 
   * New upstream release.
