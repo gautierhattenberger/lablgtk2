@@ -1,3 +1,9 @@
+lablgtk2 (2.4.0+2004.11.19-1) unstable; urgency=low
+
+  * New upstream CVS snapshot.
+
+ -- Sven Luther <luther@debian.org>  Sat, 27 Nov 2004 18:18:54 +0100
+
 lablgtk2 (2.4.0-2) unstable; urgency=medium
 
   * Added gdkPixbuf patch from Christophe Pourbaix <c.pourbaix@brutele.be>
