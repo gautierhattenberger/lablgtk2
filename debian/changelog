@@ -1,4 +1,4 @@
-lablgtk2 (2.4.0+2004.11.19-1) unstable; urgency=low
+lablgtk2 (2.4.0+2005.02.18-1) unstable; urgency=low
 
   * Rebuilt against ocaml 3.08.3.
   * New upstream CVS snapshot.
