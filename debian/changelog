@@ -1,3 +1,9 @@
+lablgtk2 (2.2.0+20040113-2) unstable; urgency=low
+
+  * Forgot the findlib < 1.02 Conflict for updated META files.
+
+ -- Sven Luther <luther@debian.org>  Fri, 30 Jan 2004 14:03:21 +0100
+
 lablgtk2 (2.2.0+20040113-1) unstable; urgency=low
 
   * New upstream CVS snapshot.
