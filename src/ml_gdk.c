@@ -1,4 +1,4 @@
-/* $Id: ml_gdk.c,v 1.79 2004/06/15 21:42:30 oandrieu Exp $ */
+/* $Id: ml_gdk.c,v 1.81 2004/09/17 00:19:31 garrigue Exp $ */
 
 #include <string.h>
 #include <gdk/gdk.h>
@@ -35,6 +35,14 @@ void ml_raise_gdk (const char *errmsg)
   if (exn == NULL)
       exn = caml_named_value ("gdkerror");
   raise_with_string (*exn, (char*)errmsg);
+}
+
+CAMLprim value ml_gdk_init(value unit)
+{
+  /* Since these are declared const, must force gcc to call them! */
+  GType t =
+    gdk_color_get_type();
+  return Val_GType(t);
 }
 
 #include "gdk_tags.c"
@@ -537,7 +545,6 @@ CAMLprim value ml_gdk_gc_get_values (value gc)
 {
     CAMLparam0();
     GdkGCValues values;
-    int i;
     CAMLlocal2(ret, tmp);
 
     gdk_gc_get_values (GdkGC_val(gc), &values);

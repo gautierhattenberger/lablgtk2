@@ -1,4 +1,4 @@
-(* $Id: gText.mli,v 1.15 2004/07/05 10:05:47 oandrieu Exp $ *)
+(* $Id: gText.mli,v 1.17 2004/09/17 10:18:19 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -368,6 +368,7 @@ object
     ?iter:iter -> ?default_editable:bool -> GData.clipboard -> unit
   (** @param default_editable default value is [true] *)
   method place_cursor : where:iter -> unit
+  method select_range : iter -> iter -> unit (** @since GTK 2.4 *)
   method remove_all_tags : start:iter -> stop:iter -> unit
   method remove_selection_clipboard : GData.clipboard -> unit
   method remove_tag : tag -> start:iter -> stop:iter -> unit

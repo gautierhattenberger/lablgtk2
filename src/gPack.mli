@@ -1,4 +1,4 @@
-(* $Id: gPack.mli,v 1.33 2004/07/05 10:05:47 oandrieu Exp $ *)
+(* $Id: gPack.mli,v 1.36 2004/11/15 14:30:38 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -38,7 +38,8 @@ class box : ([> Gtk.box] as 'a) obj ->
     method connect : GContainer.container_signals
   end
 
-(** @gtkdoc gtk GtkBox *)
+(** @gtkdoc gtk GtkBox 
+    @param homogeneous default value is [false] *)
 val box :
   Tags.orientation ->
   ?homogeneous:bool ->
@@ -46,12 +47,18 @@ val box :
   ?border_width:int ->
   ?width:int ->
   ?height:int -> ?packing:(widget -> unit) -> ?show:bool -> unit -> box
+
+(** @gtkdoc gtk GtkVBox
+    @param homogeneous default value is [false] *)
 val vbox :
   ?homogeneous:bool ->
   ?spacing:int ->
   ?border_width:int ->
   ?width:int ->
   ?height:int -> ?packing:(widget -> unit) -> ?show:bool -> unit -> box
+
+(** @gtkdoc gtk GtkHVBox
+    @param homogeneous default value is [false] *)
 val hbox :
   ?homogeneous:bool ->
   ?spacing:int ->
@@ -285,6 +292,9 @@ class paned :
     method child1 : widget
     method child2 : widget
     method set_position : int -> unit
+    method position : int
+    method max_position : int (** @since GTK 2.4 *)
+    method min_position : int (** @since GTK 2.4 *)
   end
 
 (** @gtkdoc gtk GtkPaned *)

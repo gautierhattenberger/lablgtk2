@@ -1,4 +1,4 @@
-(* $Id: gMisc.ml,v 1.37 2003/08/15 11:08:42 garrigue Exp $ *)
+(* $Id: gMisc.ml,v 1.39 2004/09/21 11:29:37 oandrieu Exp $ *)
 
 open Gaux
 open Gobject
@@ -21,7 +21,7 @@ class statusbar_context obj ctx = object (self)
   method remove = Statusbar.remove obj context
   method flash ?(delay=1000) text =
     let msg = self#push text in
-    Glib.Timeout.add ~ms:delay ~callback:(fun () -> self#remove msg; false);
+    Glib.Timeout.add delay (fun () -> self#remove msg; false);
     ()
 end
 
@@ -41,7 +41,8 @@ class calendar_signals obj = object
 end
 
 class calendar obj = object
-  inherit widget (obj : Gtk.calendar obj)
+  inherit ['a] widget_impl (obj : Gtk.calendar obj)
+  inherit calendar_props
   method event = new GObj.event_ops obj
   method connect = new calendar_signals obj
   method select_month = Calendar.select_month obj
@@ -53,6 +54,8 @@ class calendar obj = object
   method date = Calendar.get_date obj
   method freeze () = Calendar.freeze obj
   method thaw () = Calendar.thaw obj
+  method num_marked_dates = Calendar.get_num_marked_dates obj
+  method is_day_marked = Calendar.is_day_marked obj
 end
 
 let calendar ?options ?packing ?show () =
@@ -113,6 +116,8 @@ class label_skel obj = object(self)
   inherit label_props
   method text = GtkMiscProps.Label.get_text self#obj
   method set_text = GtkMiscProps.Label.set_text self#obj
+  method selection_bounds = GtkMiscProps.Label.get_selection_bounds obj
+  method select_region = GtkMiscProps.Label.select_region obj
 end
 
 class label obj = object

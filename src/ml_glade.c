@@ -1,4 +1,4 @@
-/* $Id: ml_glade.c,v 1.8 2003/05/28 14:04:23 furuse Exp $ */
+/* $Id: ml_glade.c,v 1.9 2004/09/21 11:29:37 oandrieu Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -66,7 +66,7 @@ void ml_glade_callback_marshal (const gchar *handler_name,
     set(Field(vargs,4), Val_bool(after));
 #undef set
     
-    callback (*(value*)user_data, vargs);
+    callback_exn (*(value*)user_data, vargs);
 
     CAMLreturn0;
 }

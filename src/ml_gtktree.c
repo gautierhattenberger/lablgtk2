@@ -1,4 +1,4 @@
-/* $Id: ml_gtktree.c,v 1.30 2004/06/18 06:12:32 garrigue Exp $ */
+/* $Id: ml_gtktree.c,v 1.37 2004/11/10 19:54:03 oandrieu Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -28,7 +28,8 @@ CAMLprim value ml_gtktree_init(value unit)
         gtk_cell_renderer_text_get_type() +
         gtk_cell_renderer_toggle_get_type () +
         gtk_list_store_get_type() +
-        gtk_tree_model_sort_get_type()
+        gtk_tree_model_sort_get_type() +
+        gtk_tree_path_get_type()
 #ifdef HASGTK24
         + gtk_tree_model_filter_get_type()
 #endif
@@ -106,8 +107,8 @@ ML_2 (gtk_tree_model_iter_has_child, GtkTreeModel_val, GtkTreeIter_val, Val_bool
 #define GtkTreeIterOption(v) Option_val(v,GtkTreeIter_val,NULL)
 ML_2 (gtk_tree_model_iter_n_children, GtkTreeModel_val, GtkTreeIterOption,
       Val_int)
-ML_4 (gtk_tree_model_iter_nth_child, GtkTreeModel_val, GtkTreeIterOption, 
-      GtkTreeIter_val, Int_val, Val_bool)
+ML_4 (gtk_tree_model_iter_nth_child, GtkTreeModel_val, GtkTreeIter_val, 
+      GtkTreeIterOption, Int_val, Val_bool)
 ML_3 (gtk_tree_model_iter_parent, GtkTreeModel_val, GtkTreeIter_val,
       GtkTreeIter_val, Val_bool)
 static gboolean gtk_tree_model_foreach_func(GtkTreeModel *model, 
@@ -454,15 +455,36 @@ CAMLprim value ml_gtk_tree_view_get_path_at_pos(value treeview,
 #define GtkCellLayout_val(val) check_cast(GTK_CELL_LAYOUT,val)
 ML_3 (gtk_cell_layout_pack_start, GtkCellLayout_val, GtkCellRenderer_val, Bool_val, Unit)
 ML_3 (gtk_cell_layout_pack_end,   GtkCellLayout_val, GtkCellRenderer_val, Bool_val, Unit)
+ML_3 (gtk_cell_layout_reorder,   GtkCellLayout_val, GtkCellRenderer_val, Int_val, Unit)
 ML_1 (gtk_cell_layout_clear, GtkCellLayout_val, Unit)
 ML_4 (gtk_cell_layout_add_attribute, GtkCellLayout_val, GtkCellRenderer_val, String_val, Int_val, Unit)
 ML_2 (gtk_cell_layout_clear_attributes, GtkCellLayout_val, GtkCellRenderer_val, Unit)
+
+CAMLprim value ml_gtk_cell_layout_set_cell_data_func(value lay, value cr, value cb)
+{
+  if (Is_block(cb)) {
+    value *glob_root = ml_global_root_new(Field(cb, 0));
+    gtk_cell_layout_set_cell_data_func (GtkCellLayout_val(lay),
+				        GtkCellRenderer_val(cr),
+				        (GtkCellLayoutDataFunc) gtk_tree_cell_data_func,
+					glob_root,
+					ml_global_root_destroy);
+  }
+  else
+    gtk_cell_layout_set_cell_data_func (GtkCellLayout_val(lay), GtkCellRenderer_val(cr), 
+					NULL, NULL, NULL);
+
+  return Val_unit;
+}
+
 #else
 Unsupported_24(gtk_cell_layout_pack_start)
 Unsupported_24(gtk_cell_layout_pack_end)
+Unsupported_24(gtk_cell_layout_reorder)
 Unsupported_24(gtk_cell_layout_clear)
 Unsupported_24(gtk_cell_layout_add_attribute)
 Unsupported_24(gtk_cell_layout_clear_attributes)
+Unsupported_24(gtk_cell_layout_set_cell_data_func)
 #endif
 
 /* TreeModelSort */
@@ -482,7 +504,11 @@ CAMLprim value ml_gtk_tree_model_sort_convert_iter_to_child_iter(value m, value 
   return Val_GtkTreeIter(&dst_it);
 }
 ML_1 (gtk_tree_model_sort_reset_default_sort_func, GtkTreeModelSort_val, Unit)
+#ifdef HASGTK22
 ML_2 (gtk_tree_model_sort_iter_is_valid, GtkTreeModelSort_val, GtkTreeIter_val, Val_bool)
+#else
+Unsupported(gtk_tree_model_sort_iter_is_valid)
+#endif
 
 /* TreeSortable */
 #define GtkTreeSortable_val(val) check_cast(GTK_TREE_SORTABLE,val)

@@ -12,7 +12,7 @@
 (*                                                                       *)
 (*************************************************************************)
 
-(* $Id: jg_message.ml,v 1.2 2003/02/20 06:47:47 garrigue Exp $ *)
+(* $Id: jg_message.ml,v 1.3 2004/11/19 01:41:32 garrigue Exp $ *)
 
 open StdLabels
 
@@ -69,7 +69,7 @@ let formatted ~title ?on ?(ppf = Format.std_formatter)
 
 let ask ~title ?master ?(no=true) ?(cancel=true) text =
   let tl = GWindow.dialog ~title ~modal:true () in
-  Gaux.may tl#set_transient_for master;
+  Gaux.may (fun w -> tl#set_transient_for w#as_window) master;
   GMisc.label ~text ~packing:tl#vbox#add ~xpad:20 ~ypad:10
     ~width:250 ~justify:`LEFT ~line_wrap:true ~xalign:0. ();
   let r = ref `Cancel in

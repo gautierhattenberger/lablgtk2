@@ -1,4 +1,4 @@
-(* $Id: glib.mli,v 1.14 2004/07/16 01:40:24 garrigue Exp $ *)
+(* $Id: glib.mli,v 1.22 2004/11/10 21:08:26 oandrieu Exp $ *)
 
 (** Interface to Glib functions 
     @gtkdoc glib index *)
@@ -7,7 +7,6 @@ type unichar = int
 type unistring = unichar array
 
 exception GError of string
-exception Critical of string * string
 
 (** {3 Main Event Loop} *)
 
@@ -26,6 +25,8 @@ module Main : sig
   val setlocale : locale_category -> string option -> string 
 end
 
+val int_of_priority : [< `HIGH | `DEFAULT | `HIGH_IDLE | `DEFAULT_IDLE | `LOW] -> int
+
 (** @gtkdoc glib glib-The-Main-Event-Loop *)
 module Timeout : sig
   type id
@@ -36,9 +37,11 @@ end
 (** @gtkdoc glib glib-The-Main-Event-Loop *)
 module Idle : sig
   type id
-  val add : callback:(unit -> bool) -> id
+  val add : ?prio:int -> (unit -> bool) -> id
   val remove : id -> unit
 end
+
+(** {3 IO Channels} *)
 
 (** IO Channels
    @gtkdoc glib glib-IO-Channels *)
@@ -50,7 +53,7 @@ module Io : sig
   type id
   val channel_of_descr : Unix.file_descr -> channel
   val add_watch :
-    cond:condition -> callback:(unit -> bool) -> ?prio:int -> channel -> id
+    cond:condition list -> callback:(condition list -> bool) -> ?prio:int -> channel -> id
   val remove : id -> unit
   val read : channel -> buf:string -> pos:int -> len:int -> int
 end
@@ -59,11 +62,6 @@ end
 
 (** @gtkdoc glib glib-Message-Logging *)
 module Message : sig
-  (* Redirect output *)
-  type print_func = string -> unit
-  val set_print_handler : (string -> unit) -> print_func
-
-  (* Redirect log, or cause exception *)
   type log_level =
     [ `CRITICAL
     | `DEBUG
@@ -73,13 +71,20 @@ module Message : sig
     | `INFO
     | `MESSAGE
     | `WARNING]
-  val log_level : log_level -> int
+  val log_level : [< log_level|`CUSTOM of int] -> int
   type log_handler
   val set_log_handler :
-    domain:string ->
-    levels:log_level list -> (level:int -> string -> unit) -> log_handler
+    ?domain:string ->
+    levels:log_level list -> 
+    (level:int -> string -> unit) -> log_handler
   val remove_log_handler : log_handler -> unit
-  val handle_criticals : domain:string -> unit
+  val set_always_fatal : log_level list -> unit
+  val set_fatal_mask :
+    ?domain:string -> [log_level|`CUSTOM of int] list -> unit
+
+  val log :
+    ?domain:string ->
+    [log_level|`CUSTOM of int] -> ('a, unit, string, unit) format4 -> 'a
 end
 
 (*
@@ -93,10 +98,11 @@ end
 (** {3 Character Sets} *)
 
 (** Character Set Conversion 
-   @gtkdoc glib glib-Character-Set-Conversion *)
+    @gtkdoc glib glib-Character-Set-Conversion *)
 module Convert :  sig
   type error = 
-    | NO_CONVERSION (** Conversion between the requested character sets is not supported *)
+    | NO_CONVERSION
+        (** Conversion between the requested character sets is not supported *)
     | ILLEGAL_SEQUENCE (** Invalid byte sequence in conversion input *)
     | FAILED (** Conversion failed for some reason *)
     | PARTIAL_INPUT (** Partial character sequence at end of input *)
@@ -105,22 +111,45 @@ module Convert :  sig
   exception Error of error * string
 
   val convert :
-    string -> to_codeset:string -> from_codeset:string -> string (** @raise Error . *)
+    string -> to_codeset:string -> from_codeset:string -> string
+      (** @raise Error . *)
   val convert_with_fallback :
-    ?fallback:string -> to_codeset:string -> from_codeset:string -> string -> string (** @raise Error . *)
+    ?fallback:string ->
+    to_codeset:string -> from_codeset:string -> string -> string
+      (** @raise Error . *)
 
   (** All internal strings are encoded in utf8: you should use
-     the following conversion functions *)
+      the following conversion functions *)
 
-  val locale_from_utf8 : string -> string (** @raise Error . *)
+  val locale_from_utf8 : string -> string 
+    (** Converts the input string from [UTF-8] to the encoding of the
+        current locale. If the locale's encoding is [UTF-8], the string
+        is simply validated and returned unmodified.
+        @raise Error if the conversion fails
+        @raise Error if the string is not a valid [UTF-8] string *)
+
   val locale_to_utf8 : string -> string (** @raise Error . *)
+    (** Converts the input string from the encoding of the current locale
+        to [UTF-8]. If the locale's encoding is [UTF-8], the string is
+        simply validated and returned unmodified.
+        @raise Error if the conversion fails
+        @raise Error if the string is not a valid [UTF-8] string *)
+
   val filename_from_utf8 : string -> string (** @raise Error . *)
   val filename_to_utf8 : string -> string (** @raise Error . *)
-  val get_charset : unit -> bool * string (** @raise Error . *)
+  val filename_from_uri : string -> string option * string
+      (** @raise Error . *)
+  val filename_to_uri : ?hostname:string -> string -> string
+      (** @raise Error . *)
+
+  val get_charset : unit -> bool * string
+    (** Obtains the character set for the current locale.
+        @return the pair [u,s] where [u] is true if the character set is
+        [UTF-8] and [s] is the character set name *)
 end
 
 (** Unicode Manipulation
-   @gtkdoc glib glib-Unicode-Manipulation *)
+    @gtkdoc glib glib-Unicode-Manipulation *)
 module Unichar : sig 
   val to_lower : unichar -> unichar
   val to_upper : unichar -> unichar
@@ -146,27 +175,77 @@ module Unichar : sig
 end
 
 (** Unicode Manipulation
-   @gtkdoc glib glib-Unicode-Manipulation *)
+    @gtkdoc glib glib-Unicode-Manipulation *)
 module Utf8 : sig
-  (** Utf8 handling, and conversion to ucs4 *)
+  (** UTF-8 handling, and conversion to UCS-4 *)
 
-  (** If you read an utf8 string from somewhere, you should validate it,
-     or risk random segmentation faults *)
+  (** If you read an UTF-8 string from somewhere, you should validate it,
+      or risk random segmentation faults *)
   val validate : string -> bool
   val length : string -> int
 
-  (** [from_unichar 0xiii] converts an index [iii] (usually in hexadecimal form)
-     into a string containing the UTF-8 encoded character [0xiii]. See 
-     {{:http://www.unicode.org/}unicode.org} for charmaps.
-     Does not check that the given index is a valid unicode index. *)
+  (** [from_unichar 0xiii] converts a code point [iii] (usually in hexadecimal
+      form) into a string containing the UTF-8 encoded character [0xiii]. See 
+      {{:http://www.unicode.org/}unicode.org} for charmaps.
+      Does not check that the given code point is a valid unicode point. *)
   val from_unichar : unichar -> string
   val from_unistring : unistring -> string
+
+  (** [to_unichar_validated] decodes an UTF-8 encoded code point and checks
+      for incomplete characters, invalid characters and overlong encodings. 
+      @raise Convert.Error if invalid *)
+  val to_unichar_validated : string -> pos:int ref -> unichar
+
+  (** [to_unichar] decodes an UTF-8 encoded code point. Result is undefined 
+      if [pos] does not point to a valid UTF-8 encoded character. *)
   val to_unichar : string -> pos:int ref -> unichar
+
+  (** [to_unistring] decodes an UTF-8 encoded string into an array of
+      [unichar]. The string {e must} be valid. *)
   val to_unistring : string -> unistring
+
   val first_char : string -> unichar
+
+  val offset_to_pos : string -> pos:int -> off:int -> int
+
+  type normalize_mode = [ `DEFAULT | `DEFAULT_COMPOSE | `ALL | `ALL_COMPOSE ]
+  val normalize : string -> normalize_mode -> string
+
+  val uppercase : string -> string
+  val lowercase : string -> string
+
+  val casefold : string -> string
+  val collate : string -> string -> int
+  val collate_key : string -> string
 end
 
 (** @gtkdoc glib glib-Simple-XML-Subset-Parser *)
 module Markup : sig
-  val escape_text: string -> string
+  type error =
+    | BAD_UTF8
+    | EMPTY
+    | PARSE
+    | UNKNOWN_ELEMENT
+    | UNKNOWN_ATTRIBUTE
+    | INVALID_CONTENT
+  exception Error of error * string
+
+  val escape_text : string -> string
 end
+
+(** {3 Miscellaneous Utility Functions} *)
+
+val get_prgname : unit -> string
+val set_prgname : string -> unit
+val get_application_name : unit -> string (** @since GTK 2.2 *)
+val set_application_name : string -> unit (** @since GTK 2.2 *)
+
+val get_user_name : unit -> string
+val get_real_name : unit -> string
+
+val get_home_dir : unit -> string option
+val get_tmp_dir  : unit -> string
+
+val find_program_in_path : string -> string
+    (** @raise Not_found if the program is not found in the path
+        or is not executable *)

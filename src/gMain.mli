@@ -1,4 +1,4 @@
-(* $Id: gMain.mli,v 1.10 2004/07/16 01:40:24 garrigue Exp $ *)
+(* $Id: gMain.mli,v 1.13 2004/11/10 21:08:26 oandrieu Exp $ *)
 
 (** Library initialization, main event loop, and events *)
 
@@ -46,7 +46,7 @@ end
 
 module Idle : sig
   type id = Glib.Idle.id
-  val add : callback:(unit -> bool) -> id
+  val add : ?prio:int -> (unit -> bool) -> id
   val remove : id -> unit
 end
 
@@ -56,7 +56,7 @@ module Io : sig
   type id
   val channel_of_descr : Unix.file_descr -> channel
   val add_watch :
-    cond:condition -> callback:(unit -> bool) -> ?prio:int -> channel -> id
+    cond:condition list -> callback:(condition list -> bool) -> ?prio:int -> channel -> id
   val remove : id -> unit
   val read : channel -> buf:string -> pos:int -> len:int -> int
 end

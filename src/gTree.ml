@@ -1,4 +1,4 @@
-(* $Id: gTree.ml,v 1.50 2004/06/18 08:44:20 oandrieu Exp $ *)
+(* $Id: gTree.ml,v 1.56 2004/11/10 19:54:03 oandrieu Exp $ *)
 
 open StdLabels
 open Gaux
@@ -17,13 +17,13 @@ type 'a column = {index: int; conv: 'a data_conv; creator: int}
 
 class column_list = object (self)
   val mutable index = 0
-  val mutable kinds = []
+  val mutable types = []
   val mutable locked = false
-  method kinds = List.rev kinds
+  method types = List.rev types
   method add : 'a. 'a data_conv -> 'a column = fun conv ->
     if locked then failwith "GTree.column_list#add";
     let n = index in
-    kinds <- Data.get_fundamental conv :: kinds;
+    types <- Data.get_type conv :: types;
     index <- index + 1;
     {index = n; conv = conv; creator = Oo.id self}
   method id = Oo.id self
@@ -119,9 +119,7 @@ end
 
 let tree_store (cols : column_list) =
   cols#lock ();
-  let types =
-    List.map Type.of_fundamental cols#kinds in
-  let store = TreeStore.create (Array.of_list types) in
+  let store = TreeStore.create (Array.of_list cols#types) in
   Hashtbl.add model_ids(Gobject.get_oid store) cols#id;
   new tree_store store
 
@@ -148,9 +146,7 @@ end
 
 let list_store (cols : column_list) =
   cols#lock ();
-  let types =
-    List.map Type.of_fundamental cols#kinds in
-  let store = ListStore.create (Array.of_list types) in
+  let store = ListStore.create (Array.of_list cols#types) in
   Hashtbl.add model_ids (Gobject.get_oid store) cols#id;
   new list_store store
 
@@ -234,11 +230,22 @@ class cell_layout obj = object
   method pack :
     'a. ?expand:bool -> ?from:Tags.pack_type -> (#cell_renderer as 'a) -> unit =
       fun ?expand ?from crr -> GtkTree.CellLayout.pack obj ?expand ?from crr#as_renderer
+  method reorder : 
+    'a. (#cell_renderer as 'a) -> int -> unit = 
+       fun crr pos -> GtkTree.CellLayout.reorder obj crr#as_renderer pos
   method clear () = GtkTree.CellLayout.clear obj
   method add_attribute :
     'a 'b. (#cell_renderer as 'a) -> string -> 'b column -> unit =
       fun crr attr col ->
         GtkTree.CellLayout.add_attribute obj crr#as_renderer attr col.index
+  method set_cell_data_func :
+    'a. (#cell_renderer as 'a) -> (model -> Gtk.tree_iter -> unit) -> unit =
+    fun crr cb -> 
+      GtkTree.CellLayout.set_cell_data_func obj crr#as_renderer
+	(Some (fun m i -> cb (new model m) i))
+  method unset_cell_data_func : 'a. (#cell_renderer as 'a) -> unit = 
+    fun crr ->
+      GtkTree.CellLayout.set_cell_data_func obj crr#as_renderer None
   method clear_attributes :
     'a. (#cell_renderer as 'a) -> unit = 
       fun crr -> GtkTree.CellLayout.clear_attributes obj crr#as_renderer
@@ -261,6 +268,9 @@ class view_column (_obj : tree_view_column obj) = object
   (* in GTK 2.4 this will be in GtkCellLayout interface *)
   (* inherit cell_layout _obj *)
   method clear () = TreeViewColumn.clear obj
+  method reorder :
+    'a. (#cell_renderer as 'a) -> int -> unit = 
+      fun crr pos -> GtkTree.CellLayout.reorder obj crr#as_renderer pos
   method pack : 'a. ?expand:_ -> ?from:_ -> (#cell_renderer as 'a)-> _ =
     fun ?expand ?from  r -> TreeViewColumn.pack obj ?expand ?from r#as_renderer
   method add_attribute :
@@ -416,6 +426,7 @@ type cell_properties_text_only =
   | `FOREGROUND_SET of bool
   | `MARKUP of string
   | `RISE of int
+  | `SINGLE_PARAGRAPH_MODE of bool
   | `SIZE of int
   | `SIZE_POINTS of float
   | `STRETCH of Pango.Tags.stretch

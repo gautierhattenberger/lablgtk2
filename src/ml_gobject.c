@@ -1,4 +1,4 @@
-/* $Id: ml_gobject.c,v 1.23 2004/06/15 21:42:30 oandrieu Exp $ */
+/* $Id: ml_gobject.c,v 1.28 2004/09/21 11:29:37 oandrieu Exp $ */
 #include <stdio.h>
 #include <glib.h>
 #include <glib-object.h>
@@ -53,16 +53,7 @@ ML_1 (g_type_parent, GType_val, Val_GType)
 ML_1 (g_type_depth, GType_val, Val_int)
 ML_2 (g_type_is_a, GType_val, GType_val, Val_bool)
 ML_1 (G_TYPE_FUNDAMENTAL, GType_val, Val_fundamental_type)
-CAMLprim value ml_Fundamental_type_val(value fund)
-{
-  /* G_TYPE_CAML is not a constant, it's a function call, so it can't
-     be in the lookup_table.
-     It's not a true fundamental type because Gtk{Tree,List}Store won't
-     accept unknown fundamental types. */
-  if (fund == MLTAG_CAML)
-    return Val_GType(G_TYPE_CAML);
-  return Val_GType(Fundamental_type_val(fund));
-}
+ML_1 (Fundamental_type_val, (value), Val_GType)
 
 #ifdef HASGTK22
 CAMLprim value  ml_g_type_interface_prerequisites(value type)
@@ -84,35 +75,41 @@ CAMLprim value  ml_g_type_interface_prerequisites(value type)
 Unsupported(g_type_interface_prerequisites)
 #endif
 
-CAMLprim value ml_g_type_register_static(value parent_type,value type_name)
+CAMLprim value ml_g_type_register_static(value parent_type, value type_name)
 {
-  value res;
-  CAMLparam1(res);
   GTypeQuery query;
-  g_type_query(GType_val(parent_type),&query);
-  printf("Parent_name: %s\nClass_size: %d\nInstance Size: %d\n",
-	  query.type_name,query.class_size,query.instance_size);
-  {
-  const GTypeInfo info =
-    { query.class_size,
-      NULL, /* base_init */
-      NULL, /* base_finalize */
-      NULL, /*      (GClassInitFunc) tictactoe_class_init */
-      NULL, /* class_finalize */
-      NULL, /* class_data */
-      query.instance_size,
-      0,    /* n_preallocs */
-      NULL, /*(GInstanceInitFunc) tictactoe_init*/
-      NULL }; 
+  GType derived, parent;
 
-  res = Val_GType
-    (g_type_register_static(GType_val(parent_type),
-			    String_val(type_name),
-			    &info,
-			    0));
+  parent = GType_val (parent_type);
+  g_type_query (parent, &query);
+  if (query.type == G_TYPE_INVALID)
+    failwith ("g_type_register_static: invalid parent g_type");
+
+  {
+    const GTypeInfo info =
+      { query.class_size,
+	NULL, /* base_init */
+	NULL, /* base_finalize */
+	NULL, /* class_init */
+	NULL, /* class_finalize */
+	NULL, /* class_data */
+	query.instance_size,
+	0,    /* n_preallocs */
+	NULL, /* instance_init */
+	NULL }; 
+
+    /* the contents of the GTypeInfo struct seem to be copied,
+       so it should be ok to use a not really static one 
+       (ie one on the stack) */
+    derived = g_type_register_static(parent,
+				     String_val(type_name),
+				     &info,
+				     0);
   }
-  CAMLreturn(res);
+
+  return Val_GType (derived);
 }
+
 /* gclosure.h */
 
 Make_Val_final_pointer(GClosure, g_closure_ref, g_closure_unref, 0)
@@ -137,7 +134,7 @@ static void marshal (GClosure *closure, GValue *ret,
     Store_field(vargs, 1, Val_int(nargs));
     Store_field(vargs, 2, Val_GValue_wrap((GValue*)args));
 
-    callback ((value)closure->data, vargs);
+    callback_exn ((value)closure->data, vargs);
 
     CAMLreturn0;
 }
@@ -564,4 +561,26 @@ CAMLprim value ml_g_signal_emit_by_name (value obj, value sig, value params)
     free (iparams);
     if (!ret) ret = Val_unit;
     CAMLreturn(ret);
+}
+
+CAMLprim value ml_g_signal_override_class_closure(value vname, value vt, value vc)
+{
+  GType t = GType_val(vt);
+  guint signal_id = g_signal_lookup(String_val(vname), t);
+  g_signal_override_class_closure (signal_id, t, GClosure_val(vc));
+  return Val_unit;
+}
+
+CAMLprim value ml_g_signal_chain_from_overridden (value clos_argv)
+{
+  CAMLparam1(clos_argv);
+  value val;
+  GValue *ret, *args;
+
+  val  = Field(clos_argv, 0);
+  ret  = Tag_val(val) == Abstract_tag ? GValue_val (val) : NULL;
+  val  = Field(clos_argv, 2);
+  args = Tag_val(val) == Abstract_tag ? GValue_val (val) : NULL;
+  g_signal_chain_from_overridden (args, ret);
+  CAMLreturn(Val_unit);
 }

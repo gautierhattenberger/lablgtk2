@@ -1,4 +1,4 @@
-(* $Id: gdk.ml,v 1.66 2004/03/15 05:12:15 garrigue Exp $ *)
+(* $Id: gdk.ml,v 1.67 2004/09/17 00:19:31 garrigue Exp $ *)
 
 open StdLabels
 open Gaux
@@ -25,6 +25,9 @@ type device
 
 exception Error of string
 let _ = Callback.register_exception "gdkerror" (Error"")
+
+external _gdk_init : unit -> unit = "ml_gdk_init"
+let () = _gdk_init ()
 
 module Tags = struct
   type event_type =

@@ -1,4 +1,4 @@
-/* $Id: ml_gtk.c,v 1.134 2004/07/10 10:24:45 oandrieu Exp $ */
+/* $Id: ml_gtk.c,v 1.136 2004/09/21 11:29:37 oandrieu Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -451,7 +451,7 @@ static void clipboard_received_func (GtkClipboard *clipboard,
                                      gpointer data)
 {
   value arg = Val_pointer (selection_data);
-  callback (*(value*)data, arg);
+  callback_exn (*(value*)data, arg);
   ml_global_root_destroy (data);
 }
 CAMLprim value ml_gtk_clipboard_request_contents (value c, value a, value f)
@@ -466,7 +466,7 @@ static void clipboard_text_received_func (GtkClipboard *clipboard,
                                           gpointer data)
 {
   value arg = (text != NULL ? ml_some(copy_string(text)) : Val_unit);
-  callback (*(value*)data, arg);
+  callback_exn (*(value*)data, arg);
   ml_global_root_destroy (data);
 }
 CAMLprim value ml_gtk_clipboard_request_text (value c, value f)
@@ -507,7 +507,7 @@ static void ml_gtk_simple_callback (GtkWidget *w, gpointer data)
 {
     value val, *clos = (value*)data;
     val = Val_GtkWidget(w);
-    callback (*clos, val);
+    callback_exn (*clos, val);
 }
 CAMLprim value ml_gtk_container_foreach (value w, value clos)
 {
@@ -717,10 +717,17 @@ ML_2 (gtk_window_set_role, GtkWindow_val, String_val, Unit)
 ML_1 (gtk_window_get_role, GtkWindow_val, Val_optstring)
 
 /* gtkmessagedialog.h */
+#define GtkMessageDialog_val(v) check_cast(GTK_MESSAGE_DIALOG,v)
+
 ML_4 (gtk_message_dialog_new, Option_val(arg1,GtkWindow_val,NULL) Ignore,
       Insert(0) Message_type_val, Buttons_type_val,
       Insert(String_val(arg4)[0] != 0 ? "%s" : NULL) String_val,
       Val_GtkWidget_window)
+#ifdef HASGTK24
+ML_2 (gtk_message_dialog_set_markup, GtkMessageDialog_val, String_val, Unit)
+#else
+Unsupported_24(gtk_message_dialog_set_markup)
+#endif
 
 /* gtkcolorsel.h */
 

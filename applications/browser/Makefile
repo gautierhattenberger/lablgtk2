@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2003/02/21 08:07:40 garrigue Exp $
+# $Id: Makefile,v 1.11 2004/11/19 01:41:32 garrigue Exp $
 # Makefile for lablgtk.
 
 all: browser
@@ -15,7 +15,7 @@ RANLIB = ranlib
 include ../../config.make
 
 MLFLAGS = -I ../../src -I ocaml-src/utils -I ocaml-src/parsing \
-	-I ocaml-src/typing
+	-I ocaml-src/typing -I ocaml-src/toplevel
 ifdef DEBUG
 MLFLAGS += -custom -g -ccopt -g #-cclib -lcamlrund
 endif

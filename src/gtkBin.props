@@ -1,4 +1,4 @@
-(* $Id: gtkBin.props,v 1.3 2003/12/10 10:49:57 oandrieu Exp $ *)
+(* $Id: gtkBin.props,v 1.4 2004/09/03 17:40:35 oandrieu Exp $ *)
 
 prefix "Gtk"
 
@@ -21,6 +21,10 @@ class Alignment set wrap : Bin {
   "yalign"               gfloat               : Read / Write
   "xscale"               gfloat               : Read / Write
   "yscale"               gfloat               : Read / Write
+  "bottom-padding"       guint                : Read / Write / NoSet
+  "left-padding"         guint                : Read / Write / NoSet
+  "right-padding"        guint                : Read / Write / NoSet
+  "top-padding"          guint                : Read / Write / NoSet
 }
 
 class Frame set wrap : Bin {

@@ -1,4 +1,4 @@
-/* $Id: ml_gtkaction.c,v 1.4 2004/05/09 19:50:52 oandrieu Exp $*/
+/* $Id: ml_gtkaction.c,v 1.10 2004/10/02 01:09:43 garrigue Exp $*/
 
 #include <gtk/gtk.h>
 #include <caml/mlvalues.h>
@@ -46,6 +46,7 @@ ML_1 (gtk_action_get_proxies, GtkAction_val, gobject_list_of_GSList)
 ML_1 (gtk_action_connect_accelerator, GtkAction_val, Unit)
 ML_1 (gtk_action_disconnect_accelerator, GtkAction_val, Unit)
 ML_2 (gtk_action_set_accel_path, GtkAction_val, String_val, Unit)
+ML_2 (gtk_action_set_accel_group, GtkAction_val, GtkAccelGroup_val, Unit)
 ML_1 (gtk_action_is_sensitive, GtkAction_val, Val_bool)
 ML_1 (gtk_action_is_visible, GtkAction_val, Val_bool)
 ML_2 (gtk_action_block_activate_from, GtkAction_val, GtkWidget_val, Unit)
@@ -75,7 +76,7 @@ ML_1 (gtk_radio_action_get_current_value, GtkRadioAction_val, Val_int)
 ML_2 (gtk_action_group_get_action, GtkActionGroup_val, String_val, Val_GAnyObject)
 ML_1 (gtk_action_group_list_actions, GtkActionGroup_val, gobject_list_of_GList_free)
 ML_2 (gtk_action_group_add_action, GtkActionGroup_val, GtkAction_val, Unit)
-ML_3 (gtk_action_group_add_action_with_accel, GtkActionGroup_val, GtkAction_val, String_val, Unit)
+ML_3 (gtk_action_group_add_action_with_accel, GtkActionGroup_val, GtkAction_val, String_option_val, Unit)
 ML_2 (gtk_action_group_remove_action, GtkActionGroup_val, GtkAction_val, Unit)
 
 
@@ -85,21 +86,42 @@ ML_3 (gtk_ui_manager_insert_action_group, GtkUIManager_val, GtkActionGroup_val, 
 ML_2 (gtk_ui_manager_remove_action_group, GtkUIManager_val, GtkActionGroup_val, Unit)
 ML_1 (gtk_ui_manager_get_action_groups, GtkUIManager_val, gobject_list_of_GList)
 ML_1 (gtk_ui_manager_get_accel_group, GtkUIManager_val, Val_GtkAccelGroup)
-ML_2 (gtk_ui_manager_get_widget, GtkUIManager_val, String_val, Val_GtkWidget)
-ML_2 (gtk_ui_manager_get_action, GtkUIManager_val, String_val, Val_GAnyObject)
+CAMLprim value ml_gtk_ui_manager_get_widget (value m, value n)
+{
+  GtkWidget *w = gtk_ui_manager_get_widget (GtkUIManager_val(m), String_val(n));
+  if (w == NULL) raise_not_found();
+  return Val_GAnyObject(w);
+}
+CAMLprim value ml_gtk_ui_manager_get_action (value m, value n)
+{
+  GtkAction *a = gtk_ui_manager_get_action (GtkUIManager_val(m), String_val(n));
+  if (a == NULL) raise_not_found();
+  return Val_GAnyObject(a);
+}
 CAMLprim value ml_gtk_ui_manager_add_ui_from_string(value uim, value s)
 {
-  return Val_int(gtk_ui_manager_add_ui_from_string(GtkUIManager_val(uim),
-						   String_val(s), -1, NULL));
+  GError *error = NULL;
+  guint id;
+  id = gtk_ui_manager_add_ui_from_string(GtkUIManager_val(uim),
+					 String_val(s), string_length(s), 
+					 &error);
+  if (error != NULL) ml_raise_gerror (error);
+  return Val_int(id);
 }
 CAMLprim value ml_gtk_ui_manager_add_ui_from_file(value uim, value s)
 {
-  return Val_int(gtk_ui_manager_add_ui_from_file(GtkUIManager_val(uim),
-						 String_val(s), NULL));
+  GError *error = NULL;
+  guint id;
+  id = gtk_ui_manager_add_ui_from_file(GtkUIManager_val(uim),
+				       String_val(s), &error);
+  if (error != NULL) ml_raise_gerror (error);
+  return Val_int(id);
 }
 ML_2 (gtk_ui_manager_remove_ui, GtkUIManager_val, Int_val, Unit)
 ML_1 (gtk_ui_manager_ensure_update, GtkUIManager_val, Unit)
-/* ML_1 (gtk_ui_manager_new_merge_id, GtkUIManager_val, Val_int) */
+ML_1 (gtk_ui_manager_new_merge_id, GtkUIManager_val, Val_int)
+ML_7 (gtk_ui_manager_add_ui, GtkUIManager_val, Int_val, String_val, String_val, String_option_val, Ui_manager_item_type_val, Bool_val, Unit)
+ML_bc7(ml_gtk_ui_manager_add_ui)
 Make_Flags_val(Ui_manager_item_type_val)
 ML_2 (gtk_ui_manager_get_toplevels, GtkUIManager_val, Flags_Ui_manager_item_type_val, gobject_list_of_GSList_free)
 
@@ -112,6 +134,7 @@ Unsupported_24(gtk_action_get_proxies)
 Unsupported_24(gtk_action_connect_accelerator)
 Unsupported_24(gtk_action_disconnect_accelerator)
 Unsupported_24(gtk_action_set_accel_path)
+Unsupported_24(gtk_action_set_accel_group)
 Unsupported_24(gtk_action_is_sensitive)
 Unsupported_24(gtk_action_is_visible)
 Unsupported_24(gtk_action_block_activate_from)
@@ -137,5 +160,9 @@ Unsupported_24(gtk_ui_manager_add_ui_from_string)
 Unsupported_24(gtk_ui_manager_add_ui_from_file)
 Unsupported_24(gtk_ui_manager_remove_ui)
 Unsupported_24(gtk_ui_manager_ensure_update)
+Unsupported_24(gtk_ui_manager_add_ui)
+Unsupported_24(gtk_ui_manager_add_ui_bc)
+Unsupported_24(gtk_ui_manager_new_merge_id)
+Unsupported_24(gtk_ui_manager_new_merge_id_bc)
 
 #endif /* HASGTK24 */

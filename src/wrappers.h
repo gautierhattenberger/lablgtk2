@@ -1,7 +1,10 @@
-/* $Id: wrappers.h,v 1.57 2004/06/15 21:42:30 oandrieu Exp $ */
+/* $Id: wrappers.h,v 1.61 2004/11/10 19:54:03 oandrieu Exp $ */
 
 #ifndef _wrappers_
 #define _wrappers_
+
+/* Yell if a caml callback raised an exception */
+#define CAML_EXN_LOG(name) g_critical("%s: callback raised an exception", name)
 
 #include <caml/misc.h>
 #include <caml/mlvalues.h>
@@ -23,9 +26,9 @@ void ml_global_root_destroy (void *data);
 
 /* enums <-> polymorphic variants */
 typedef struct { value key; int data; } lookup_info;
-value ml_lookup_from_c (lookup_info *table, int data);
-int ml_lookup_to_c (lookup_info *table, value key);
-value ml_lookup_flags_getter (lookup_info *table, int data);
+value ml_lookup_from_c (const lookup_info table[], int data);
+int ml_lookup_to_c (const lookup_info table[], value key);
+value ml_lookup_flags_getter (const lookup_info table[], int data);
 
 /* Compatibility */
 #include <gtk/gtkversion.h>

@@ -1,9 +1,9 @@
-(* $Id: csview.ml,v 1.16 2004/06/18 05:46:36 garrigue Exp $ *)
+(* $Id: csview.ml,v 1.17 2004/11/10 00:53:26 garrigue Exp $ *)
 
 (* Compile with
      ocamlc -pp camlp4o -I +lablgtk2 lablgtk.cma csview.ml -o csview
    or run with
-     lablgtk2 camlp4.cma csview.ml <file.csv>
+     lablgtk2 camlp4o.cma csview.ml <file.csv>
 *)
 
 open StdLabels
