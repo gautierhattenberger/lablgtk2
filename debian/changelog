@@ -1,3 +1,12 @@
+lablgtk2 (2.4.0+2005.02.18-2) unstable; urgency=low
+
+  * Split the gnome bindings apart to avoid heavy dependencies on gnome libs.
+  * Using chrpath to remove the rpath from dlllablgnomeui.so and
+    dlllablpanel.so.
+  * Updated Standards-Version to 3.6.1.1.
+
+ -- Samuel Mimram <smimram@debian.org>  Sun,  8 May 2005 16:09:00 +0200
+
 lablgtk2 (2.4.0+2005.02.18-1) unstable; urgency=low
 
   * Rebuilt against ocaml 3.08.3.
@@ -8,7 +17,7 @@ lablgtk2 (2.4.0+2005.02.18-1) unstable; urgency=low
 lablgtk2 (2.4.0+2004.11.19-3) unstable; urgency=low
 
   * Added GnomeUI and Panel-Applet support. This should make the package build
-    again.
+    again, closes: #253712.
 
  -- Samuel Mimram <smimram@debian.org>  Fri, 14 Jan 2005 20:17:31 +0100
 

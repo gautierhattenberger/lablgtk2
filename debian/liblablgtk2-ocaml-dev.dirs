@@ -1,5 +1,4 @@
 usr/bin
 usr/lib/ocaml/3.08.3/lablgtk2
 usr/lib/ocaml/3.08.3/lablgtkgl2
-usr/lib/ocaml/3.08.3/stublibs
 usr/share/lintian/overrides
