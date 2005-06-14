@@ -1,5 +1,6 @@
-/* $Id: ml_gdkpixbuf.h,v 1.4 2004/08/23 21:37:40 oandrieu Exp $ */
+/* $Id: ml_gdkpixbuf.h,v 1.5 2005/05/03 20:50:21 oandrieu Exp $ */
 
 #define GdkPixbuf_val(val)       (check_cast(GDK_PIXBUF, val))
-#define Val_GdkPixbuf(val)       Val_GAnyObject(val)
-#define Val_GdkPixbuf_new(val)   Val_GAnyObject_new(val)
+value Val_GdkPixbuf_ (GdkPixbuf *, gboolean);
+#define Val_GdkPixbuf(p)         Val_GdkPixbuf_(p, FALSE)
+#define Val_GdkPixbuf_new(p)     Val_GdkPixbuf_(p, TRUE)

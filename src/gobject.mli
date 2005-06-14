@@ -1,4 +1,4 @@
-(* $Id: gobject.mli,v 1.18 2004/11/25 00:04:36 oandrieu Exp $ *)
+(* $Id: gobject.mli,v 1.19 2005/03/20 11:15:24 garrigue Exp $ *)
 
 type -'a obj
 type g_type
@@ -164,6 +164,8 @@ module Data :
     val gobject_by_name : string -> 'a obj data_conv
     val caml : 'a data_conv
     val caml_option : 'a option data_conv
+    val wrap :
+      inj:('a -> 'b) -> proj:('b -> 'a) -> 'b data_conv -> 'a data_conv
     val of_value : 'a data_conv -> g_value -> 'a
     val to_value : 'a data_conv -> 'a -> g_value
     val get_type : 'a data_conv -> g_type

@@ -1,4 +1,4 @@
-(* $Id: gtkEdit.props,v 1.9 2005/01/02 13:14:58 oandrieu Exp $ *)
+(* $Id: gtkEdit.props,v 1.10 2005/03/07 20:19:50 oandrieu Exp $ *)
 
 prefix "Gtk"
 
@@ -51,6 +51,7 @@ class Entry set wrap wrapsig : Editable {
   "scroll-offset"        gint                 : Read
   "selection-bound"      gint                 : Read / NoWrap
   "width-chars"          gint                 : Read / Write
+  "xalign"		 gfloat		      : Read / Write
   method append_text : "string -> unit"
   method prepend_text : "string -> unit"
   method text_length : "int"

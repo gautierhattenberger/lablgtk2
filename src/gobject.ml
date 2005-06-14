@@ -1,4 +1,4 @@
-(* $Id: gobject.ml,v 1.31 2004/12/10 02:06:03 garrigue Exp $ *)
+(* $Id: gobject.ml,v 1.32 2005/03/20 11:15:24 garrigue Exp $ *)
 
 open StdLabels
 open Gaux
@@ -278,6 +278,10 @@ module Data = struct
 	     | `NONE -> None
              | _ -> failwith "Gobject.get_caml") ;
       inj = (function None -> `POINTER None | Some v -> `CAML (Obj.repr v)) }
+  let wrap ~inj ~proj conv =
+    { kind = conv.kind;
+      proj = (fun x -> proj (conv.proj x));
+      inj = (fun x -> conv.inj (inj x)) }
 
   let of_value conv v =
     conv.proj (Value.get_conv conv.kind v)
