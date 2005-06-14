@@ -1,3 +1,9 @@
+lablgtk2 (2.4.0+2005.06.13-1) unstable; urgency=low
+
+  * New upstream CVS snapshot.
+
+ -- Stefano Zacchiroli <zack@debian.org>  Mon, 13 Jun 2005 15:08:48 +0200
+
 lablgtk2 (2.4.0+2005.02.18-3) unstable; urgency=low
 
   * Put wildcards in liblablgtk2-gnome-ocaml-dev.files in order not to install
