@@ -1,4 +1,4 @@
-/* $Id: ml_gdk.c,v 1.82 2004/12/02 02:44:43 garrigue Exp $ */
+/* $Id: ml_gdk.c,v 1.83 2005/06/02 00:20:06 garrigue Exp $ */
 
 #include <string.h>
 #include <gdk/gdk.h>
@@ -29,7 +29,7 @@
 #define GDK_WINDOW_TYPE_HINT_DOCK GDK_WINDOW_TYPE_HINT_NORMAL
 #endif
 
-void ml_raise_gdk (const char *errmsg)
+CAMLprim void ml_raise_gdk (const char *errmsg)
 {
   static value * exn = NULL;
   if (exn == NULL)
