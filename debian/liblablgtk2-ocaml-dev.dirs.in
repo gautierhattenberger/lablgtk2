@@ -1,0 +1,4 @@
+usr/bin
+usr/lib/ocaml/#OcamlABI#/lablgtk2
+usr/lib/ocaml/#OcamlABI#/lablgtkgl2
+usr/share/lintian/overrides

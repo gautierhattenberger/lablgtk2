@@ -5,12 +5,10 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+OCAMLABK = `ocamlc -version`
 export OCAML_LIBDIR=`ocamlc -where`
 
 DESTDIR = $(CURDIR)/debian/tmp
-
-# This is the debhelper compatibility version to use.
-export DH_COMPAT=3
 
 # We want to use dpatch.
 include /usr/share/dpatch/dpatch.make
@@ -35,6 +33,10 @@ major=2
 
 configure: configure-stamp
 configure-stamp:
+	for t in `find . -name \*.in`; do				\
+		sed -e 's%#OcamlABI#%$(OCAMLABI)%' $$t >$${t%.in};	\
+	done
+
 	dh_testdir
 
 	./configure --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info \
@@ -115,7 +117,7 @@ binary-arch: build install
 	dh_makeshlibs -s
 	dh_installdeb -s
 	dh_shlibdeps -s
-	dh_gencontrol -s
+	dh_gencontrol -s -- -VF:OcamlABI="$(OCAMLABI)"
 	dh_md5sums -s
 	dh_builddeb -s
 
