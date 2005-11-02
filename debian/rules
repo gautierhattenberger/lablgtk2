@@ -120,7 +120,7 @@ binary-arch: build install
 	dh_makeshlibs -s
 	dh_installdeb -s
 	dh_shlibdeps -s
-	dh_gencontrol -s -- -VF:OcamlABI="$(OCAMLABI)"
+	dh_gencontrol -s -- -VF:OCamlABI="$(OCAMLABI)"
 	dh_md5sums -s
 	dh_builddeb -s
 
