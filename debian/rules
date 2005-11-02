@@ -5,7 +5,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-OCAMLABK = `ocamlc -version`
+OCAMLABI = ${shell ocamlc -version}
 export OCAML_LIBDIR=`ocamlc -where`
 
 DESTDIR = $(CURDIR)/debian/tmp
@@ -31,10 +31,13 @@ major=2
 #major=`ls src/.libs/lib*.so.* | \
 # awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
 
+debian/control:
+	sed -e 's%#OcamlABI#%$(OCAMLABI)%' $@.in > $@
+
 configure: configure-stamp
 configure-stamp:
-	for t in `find . -name \*.in`; do				\
-		sed -e 's%#OcamlABI#%$(OCAMLABI)%' $$t >$${t%.in};	\
+	for t in `find . -name \*.in | grep -v debian/control.in`; do \
+		sed -e 's%#OcamlABI#%$(OCAMLABI)%' $$t >$${t%.in}; \
 	done
 
 	dh_testdir
