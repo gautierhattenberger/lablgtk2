@@ -36,7 +36,7 @@ debian/control:
 
 configure: configure-stamp
 configure-stamp:
-	for t in `find . -name \*.in | grep -v debian/control.in`; do \
+	for t in `find debian/ -name \*.in | grep -v debian/control.in`; do \
 		sed -e 's%#OcamlABI#%$(OCAMLABI)%' $$t >$${t%.in}; \
 	done
 
