@@ -1,10 +1,20 @@
-lablgtk2 (2.4.0+2005.06.13-2) unstable; urgency=low
+lablgtk2 (2.6.0-1) unstable; urgency=low
+
+  [ Samuel Mimram ]
 
   * Rebuild with OCaml 3.09.0.
   * No longer hardcoding OCaml's ABI in debian/* files (thanks Sven Luther).
   * Updated standards version to 3.6.2, no changes needed.
 
- -- Samuel Mimram <smimram@debian.org>  Wed, 16 Nov 2005 23:50:37 +0100
+  [ Stefano Zacchiroli ]
+
+  * New upstream release
+  * debian/META*
+    - bumped versions
+  * debian/control.in
+    - bumped lablgl deps to the minimum version rebuilt with OCaml 3.09.0
+
+ -- Debian OCaml Maintainers <debian-ocaml-maint@lists.debian.org>  Wed, 16 Nov 2005 23:50:37 +0100
 
 lablgtk2 (2.4.0+2005.06.13-1) unstable; urgency=low
 

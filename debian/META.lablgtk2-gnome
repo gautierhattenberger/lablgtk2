@@ -1,4 +1,4 @@
-version="2.40"
+version="2.6.0"
 directory="+lablgtk2"
 requires = "lablgtk2"
 
