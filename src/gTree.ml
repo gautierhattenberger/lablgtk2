@@ -1,4 +1,4 @@
-(* $Id: gTree.ml,v 1.60 2005/01/04 00:19:05 oandrieu Exp $ *)
+(* $Id: gTree.ml,v 1.61 2005/08/18 12:47:28 oandrieu Exp $ *)
 
 open StdLabels
 open Gaux
@@ -93,6 +93,9 @@ class tree_sortable obj = object
       (fun m it_a it_b -> cmp (new model m) it_a it_b)
   method has_default_sort_func = GtkTree.TreeSortable.has_default_sort_func obj
 end
+
+let default_sort_column_id  = -1
+let unsorted_sort_column_id = -2
 
 class tree_store obj = object
   inherit tree_sortable obj

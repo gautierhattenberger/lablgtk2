@@ -1,4 +1,4 @@
-(* $Id: gWindow.mli,v 1.54 2004/12/02 21:58:49 oandrieu Exp $ *)
+(* $Id: gWindow.mli,v 1.55 2005/08/25 18:11:31 oandrieu Exp $ *)
 
 open Gtk
 open GObj
@@ -273,9 +273,6 @@ class about_dialog :
     method set_version : string -> unit
     method set_website : string -> unit
     method set_website_label : string -> unit
-
-    method set_email_hook : (string -> unit) -> unit
-    method set_url_hook : (string -> unit) -> unit
   end
 
 (** Display information about an application. 
@@ -318,7 +315,6 @@ val about_dialog :
   ?wm_class:string ->
   ?border_width:int ->
   ?width:int -> ?height:int -> ?show:bool -> unit -> about_dialog
-
 
 (** {3 File Chooser Dialog} *)
 

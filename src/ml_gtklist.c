@@ -1,4 +1,4 @@
-/* $Id: ml_gtklist.c,v 1.8 2003/06/19 07:12:53 garrigue Exp $ */
+/* $Id: ml_gtklist.c,v 1.9 2005/06/30 09:10:00 garrigue Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -15,7 +15,7 @@
 #include "ml_gtk.h"
 #include "gtk_tags.h"
 
-static Make_Flags_val (Button_action_val)
+Make_Flags_val (Button_action_val)
 
 /* Init all */
 

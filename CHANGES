@@ -1,5 +1,36 @@
-$Id: CHANGES,v 1.317 2005/06/13 01:08:11 garrigue Exp $
+$Id: CHANGES,v 1.325 2005/10/27 00:46:51 garrigue Exp $
 
+In lablgtk2-20051027 (2.6.0):
+
+2005.10.25 [Jacques]
+  * fix GtkThread.sync (Robert Schneck-McConnell)
+
+2005.10.17 [Jacques]
+  * new recompilation approach for Windows
+
+2005.10.03 [Olivier]
+  * fix refcounting of pixbufs in GdkPixbuf
+
+2005.09.24 [Olivier]
+  * wrap gdk_cursor_new_from_pixbuf
+
+2005.08.25 [Olivier]
+  * gtk_about_dialog_set_{url,email}_hook are not methods : fix the 
+    external type declaration and remove from the GWindow.about_dialog class.
+
+2005.08.18 [Olivier]
+  * add special sort_column_id values in GTree to select default sort
+    function or disable sorting
+  * add a couple of utility functions in Glib :
+      - getenv, setenv, unsetenv (2.4)
+      - get_user_data_dir, etc. (2.6) 
+  * change the generated code of gdk-pixbuf-mlsource a bit.
+
+In lablgtk2-20050701:
+2005.06.30 [Jacques]
+  * export same symbols under unix and windows
+
+In lablgtk2-20050613:
 2005.06.13 [Jacques]
   * define GText.buffer_skel and GText.view_skel
 

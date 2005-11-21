@@ -1,4 +1,4 @@
-/* $Id: ml_glib.c,v 1.48 2004/12/02 02:44:43 garrigue Exp $ */
+/* $Id: ml_glib.c,v 1.52 2005/08/26 11:55:51 oandrieu Exp $ */
 
 #include <string.h>
 #include <locale.h>
@@ -34,15 +34,35 @@ CAMLprim value ml_glib_init(value unit)
 ML_2(setlocale, Locale_category_val, String_option_val, Val_optstring)
 
 /* Utility functions */
-value copy_string_g_free (char *str)
+value copy_string_v (const gchar * const *v)
+{
+  CAMLparam0();
+  CAMLlocal4(h,p,c,s);
+  h = p = Val_emptylist;
+  while (*v != NULL)
+    {
+      s = copy_string (*v);
+      c = alloc_small (2, 0);
+      Field (c, 0) = s;
+      Field (c, 1) = Val_emptylist;
+      if (p == Val_emptylist)
+	h = c;
+      else
+	Store_field(p, 1, c);
+      p = c;
+      v++;
+    }
+  CAMLreturn(h);
+}
+
+CAMLprim value copy_string_g_free (char *str)
 {
     value res = copy_string_check (str);
     g_free (str);
     return res;
 }
 
-void ml_raise_glib (const char *errmsg) Noreturn;
-void ml_raise_glib (const char *errmsg)
+static void ml_raise_glib (const char *errmsg)
 {
   static value * exn = NULL;
   if (exn == NULL)
@@ -50,7 +70,7 @@ void ml_raise_glib (const char *errmsg)
   raise_with_string (*exn, (char*)errmsg);
 }
 
-value Val_GList (GList *list, value (*func)(gpointer))
+CAMLprim value Val_GList (GList *list, value (*func)(gpointer))
 {
   CAMLparam0 ();
   CAMLlocal4 (new_cell, result, last_cell, cell);
@@ -69,14 +89,14 @@ value Val_GList (GList *list, value (*func)(gpointer))
   CAMLreturn (cell);
 }
 
-value Val_GList_free (GList *list, value (*func)(gpointer))
+CAMLprim value Val_GList_free (GList *list, value (*func)(gpointer))
 {
   value res = Val_GList (list, func);
   g_list_free (list);
   return res;
 }
 
-GList *GList_val (value list, gpointer (*func)(value))
+CAMLprim GList *GList_val (value list, gpointer (*func)(value))
 {
     CAMLparam1(list);
     GList *res = NULL;
@@ -95,7 +115,7 @@ struct exn_data {
   value *caml_exn;
 };
 
-void ml_register_exn_map (GQuark domain, char *caml_name)
+CAMLprim void ml_register_exn_map (GQuark domain, char *caml_name)
 {
   struct exn_data *exn_data = stat_alloc (sizeof *exn_data);
   exn_data->domain = domain;
@@ -148,7 +168,7 @@ static void ml_raise_generic_gerror (GError *err)
   raise_with_arg (*exn, msg);
 }
 
-void ml_raise_gerror(GError *err)
+CAMLprim void ml_raise_gerror(GError *err)
 {
   value *caml_exn;
   g_assert (err);
@@ -287,7 +307,7 @@ static gboolean ml_g_io_channel_watch(GIOChannel *s, GIOCondition c,
     return Bool_val(res);
 }
 
-static Make_Flags_val(Io_condition_val)
+Make_Flags_val(Io_condition_val)
 
 CAMLprim value ml_g_io_add_watch(value cond, value clos, value prio, value io)
 {
@@ -320,17 +340,9 @@ CAMLprim value ml_g_io_channel_read(value io, value str, value offset,
   return Val_unit;
 }
 
-/* Thread initialization ? */
-/*
-ML_1(g_thread_init, NULL Ignore, Unit)
-ML_0(gdk_threads_enter, Unit)
-ML_0(gdk_threads_leave, Unit)
-*/
+/* single-linked lists */
 
-/* This is not used, but could be someday... */
-
-/* The day has come .... */
-value Val_GSList (GSList *list, value (*func)(gpointer))
+CAMLprim value Val_GSList (GSList *list, value (*func)(gpointer))
 {
   CAMLparam0();
   CAMLlocal4 (new_cell, result, last_cell, cell);
@@ -349,14 +361,14 @@ value Val_GSList (GSList *list, value (*func)(gpointer))
   CAMLreturn(cell);
 }
 
-value Val_GSList_free (GSList *list, value (*func)(gpointer))
+CAMLprim value Val_GSList_free (GSList *list, value (*func)(gpointer))
 {
   value res = Val_GSList (list, func);
   g_slist_free (list);
   return res;
 }
 
-GSList *GSList_val (value list, gpointer (*func)(value))
+CAMLprim GSList *GSList_val (value list, gpointer (*func)(value))
 {
     GSList *res = NULL;
     GSList **current = &res;
@@ -538,3 +550,37 @@ CAMLprim value ml_g_find_program_in_path (value p)
   g_free(s);
   return v;
 }
+
+CAMLprim value ml_g_getenv (value v)
+{
+  const gchar *s = g_getenv(String_val(v));
+  if (s == NULL) raise_not_found();
+  return copy_string(s);
+}
+
+#ifdef HASGTK24
+CAMLprim value ml_g_setenv (value v, value s, value o)
+{
+  if (! g_setenv(String_val(v), String_val(s), Bool_val(o)))
+    failwith("g_setenv");
+  return Val_unit;
+}
+ML_1 (g_unsetenv, String_val, Unit)
+#else
+Unsupported_24(g_setenv)
+Unsupported_24(g_unsetenv)
+#endif /* HASGTK24 */
+
+#ifdef HASGTK26
+ML_0 (g_get_user_cache_dir, copy_string)
+ML_0 (g_get_user_data_dir, copy_string)
+ML_0 (g_get_user_config_dir, copy_string)
+ML_0 (g_get_system_data_dirs, copy_string_v)
+ML_0 (g_get_system_config_dirs, copy_string_v)
+#else
+Unsupported_26(g_get_user_cache_dir)
+Unsupported_26(g_get_user_data_dir)
+Unsupported_26(g_get_user_config_dir)
+Unsupported_26(g_get_system_data_dirs)
+Unsupported_26(g_get_system_config_dirs)
+#endif /* HASGTK26 */

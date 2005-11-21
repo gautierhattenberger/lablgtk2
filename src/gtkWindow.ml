@@ -1,4 +1,4 @@
-(* $Id: gtkWindow.ml,v 1.39 2004/12/02 21:58:49 oandrieu Exp $ *)
+(* $Id: gtkWindow.ml,v 1.40 2005/08/25 18:11:31 oandrieu Exp $ *)
 
 open Gaux
 open Gobject
@@ -99,6 +99,9 @@ end
 module AboutDialog = struct
   include AboutDialog
   external create : unit -> Gtk.about_dialog obj = "ml_gtk_about_dialog_new"
+
+  external set_email_hook : (string -> unit) -> unit = "ml_gtk_about_dialog_set_email_hook"
+  external set_url_hook   : (string -> unit) -> unit = "ml_gtk_about_dialog_set_url_hook"
 end
 
 module FileSelection = struct

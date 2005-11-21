@@ -1,4 +1,4 @@
-/* $Id: ml_pango.c,v 1.14 2005/01/03 23:49:26 oandrieu Exp $ */
+/* $Id: ml_pango.c,v 1.15 2005/06/30 07:54:36 garrigue Exp $ */
 
 #include <stdio.h>
 #include <pango/pango.h>
@@ -182,7 +182,7 @@ CAMLprim value ml_pango_layout_get_pixel_size(value layout)
   Field(res,1) = Val_int(height);
   return res;
 }
-value Val_PangoRectangle(PangoRectangle *rect)
+CAMLexport value Val_PangoRectangle(PangoRectangle *rect)
 {
   value res = alloc_tuple(4);
   Field(res,0) = Val_int(rect->x); Field(res,1) = Val_int(rect->y);

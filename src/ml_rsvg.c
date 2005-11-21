@@ -1,4 +1,4 @@
-/* $Id: ml_rsvg.c,v 1.6 2004/08/27 11:22:15 oandrieu Exp $ */
+/* $Id: ml_rsvg.c,v 1.7 2005/08/18 12:45:29 oandrieu Exp $ */
 /* Author: Olivier Andrieu */
 
 #include <gdk-pixbuf/gdk-pixbuf.h>
@@ -70,7 +70,7 @@ CAMLprim value ml_rsvg_handle_write(value h, value s, value off, value len)
   GError *err = NULL;
   check_substring(s, off, len);
   rsvg_handle_write(RsvgHandle_val(h), 
-		    String_val(s)+Int_val(off), Int_val(len), &err);
+		    (guchar *) String_val(s)+Int_val(off), Int_val(len), &err);
   if (err != NULL)
     ml_raise_gerror (err);
   return Val_unit;

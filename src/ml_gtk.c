@@ -1,4 +1,4 @@
-/* $Id: ml_gtk.c,v 1.140 2004/12/10 02:01:18 garrigue Exp $ */
+/* $Id: ml_gtk.c,v 1.142 2005/06/30 09:10:00 garrigue Exp $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -31,10 +31,10 @@ void ml_raise_gtk (const char *errmsg)
 
 #include "gtk_tags.c"
 
-static Make_Flags_val (Dest_defaults_val)
-static Make_Flags_val (Target_flags_val)
+Make_Flags_val (Dest_defaults_val)
+Make_Flags_val (Target_flags_val)
 
-value Val_GtkWidget_func(gpointer w)
+CAMLexport value Val_GtkWidget_func(gpointer w)
 {
   return (Val_GtkWidget((GtkWidget*)w));
 }
@@ -67,7 +67,7 @@ ML_1 (gtk_object_ref_and_sink, GtkObject_val, Unit)
 
 /* gtkaccelgroup.h */
 
-static Make_OptFlags_val (Accel_flag_val)
+Make_OptFlags_val (Accel_flag_val)
 
 #define Signal_name_val(val) String_val(Field(val,0))
 
