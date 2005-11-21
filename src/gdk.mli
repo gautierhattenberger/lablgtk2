@@ -1,4 +1,4 @@
-(* $Id: gdk.mli,v 1.39 2004/03/15 05:12:15 garrigue Exp $ *)
+(* $Id: gdk.mli,v 1.40 2005/09/24 19:21:42 oandrieu Exp $ *)
 
 open Gobject
 
@@ -483,5 +483,7 @@ module Cursor : sig
   val create_from_pixmap :
     pixmap -> mask:bitmap ->
     fg:color -> bg:color -> x:int -> y:int -> cursor
+  val create_from_pixbuf :
+    [`pixbuf] Gobject.obj -> x:int -> y:int -> cursor (** @since GTK 2.4 *)
   val destroy : cursor -> unit
 end

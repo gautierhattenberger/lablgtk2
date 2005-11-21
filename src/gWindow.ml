@@ -1,4 +1,4 @@
-(* $Id: gWindow.ml,v 1.57 2004/12/02 21:58:49 oandrieu Exp $ *)
+(* $Id: gWindow.ml,v 1.58 2005/08/25 18:11:31 oandrieu Exp $ *)
 
 open Gaux
 open Gtk
@@ -225,8 +225,6 @@ class about_dialog obj =
     method authors = AboutDialog.get_authors obj
     method set_documenters = AboutDialog.set_documenters obj
     method documenters = AboutDialog.get_documenters obj
-    method set_url_hook = AboutDialog.set_url_hook obj
-    method set_email_hook = AboutDialog.set_email_hook obj
     initializer
       tbl <- [ rclose, `CLOSE ] @ tbl
   end

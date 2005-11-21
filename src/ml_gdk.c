@@ -1,4 +1,4 @@
-/* $Id: ml_gdk.c,v 1.83 2005/06/02 00:20:06 garrigue Exp $ */
+/* $Id: ml_gdk.c,v 1.86 2005/09/24 19:21:42 oandrieu Exp $ */
 
 #include <string.h>
 #include <gdk/gdk.h>
@@ -19,6 +19,7 @@
 #include "ml_gobject.h"
 #include "ml_pango.h"
 #include "ml_gdk.h"
+#include "ml_gdkpixbuf.h"
 #include "gdk_tags.h"
 
 
@@ -114,7 +115,7 @@ Make_Extractor (GdkVisual,GdkVisual_val,blue_prec,Val_int)
 /* Image */
 
 #ifndef UnsafeImage
-GdkImage *GdkImage_val(value val)
+CAMLexport GdkImage *GdkImage_val(value val)
 {
     if (!Field(val,1)) ml_raise_gdk ("attempt to use destroyed GdkImage");
     return check_cast(GDK_IMAGE,val);
@@ -272,12 +273,24 @@ ML_1 (gdk_cursor_new, GdkCursorType_val, Val_GdkCursor_new)
 ML_6 (gdk_cursor_new_from_pixmap, GdkPixmap_val, GdkPixmap_val,
       GdkColor_val, GdkColor_val, Int_val, Int_val, Val_GdkCursor_new)
 ML_bc6 (ml_gdk_cursor_new_from_pixmap)
+#ifdef HASGTK24
+CAMLprim value
+ml_gdk_cursor_new_from_pixbuf (value pb, value x, value y)
+{
+  GdkCursor *c = gdk_cursor_new_from_pixbuf (gdk_display_get_default (),
+					     GdkPixbuf_val(pb),
+					     Int_val(x), Int_val(y));
+  return Val_GdkCursor_new (c);
+}
+#else
+Unsupported_24(gdk_cursor_new_from_pixbuf)
+#endif
 ML_1 (gdk_cursor_destroy, GdkCursor_val, Unit)
 
 /* Pixmap */
 
 
-GdkPixmap *GdkPixmap_val(value val)
+CAMLexport GdkPixmap *GdkPixmap_val(value val)
 {
     if (!Field(val,1)) ml_raise_gdk ("attempt to use destroyed GdkPixmap");
     return check_cast(GDK_PIXMAP,val);
@@ -389,7 +402,7 @@ CAMLprim value ml_gdk_property_change (value window, value property, value type,
 }
 
 /* copy X11 property data */
-CAMLprim value copy_xdata (gint format, guchar *xdata, gulong nitems)
+CAMLprim value copy_xdata (gint format, void *xdata, gulong nitems)
 {
     CAMLparam0();
     CAMLlocal2(ret, data);
@@ -466,7 +479,7 @@ ML_2 (gdk_property_delete, GdkWindow_val, GdkAtom_val, Unit)
 #define PointArrayLen_val(val) Int_val(Field(val,0))
 Make_Val_final_pointer (GdkRegion, Ignore, gdk_region_destroy, 0)
 #define Val_GdkRegion_copy(r) (Val_GdkRegion(gdk_region_copy(r)))
-GdkRegion *GdkRegion_val(value val)
+CAMLexport GdkRegion *GdkRegion_val(value val)
 {
     if (!Field(val,1)) ml_raise_gdk ("attempt to use destroyed GdkRegion");
     return (GdkRegion*)(Field(val,1));
@@ -521,21 +534,23 @@ CAMLprim value ml_gdk_gc_set_dashes(value gc, value offset, value dashes)
   CAMLlocal1(tmp);
   int l = 0;
   int i;
-  char *cdashes;
+  gint8 *cdashes;
   for(tmp = dashes; tmp != Val_int(0); tmp = Field(tmp,1)){
     l++;
   }
   if( l == 0 ){ ml_raise_gdk("line dashes must have at least one element"); }
-  cdashes = malloc(sizeof(char) * l);
+  cdashes = stat_alloc(sizeof (gint8) * l);
   for(i=0, tmp= dashes; i<l; i++, tmp = Field(tmp,1)){
     int d;
     d = Int_val(Field(tmp,0));
-    if( d<0 && d>255 ){
+    if( d<0 || d>255 ){
+      stat_free (cdashes);
       ml_raise_gdk("line dashes must be [0..255]");
     }
-    cdashes[i] = (char)d;
+    cdashes[i] = d;
   }
   gdk_gc_set_dashes( GdkGC_val(gc), Int_val(offset), cdashes, l);
+  /* stat_free (cdashes); ? */
   CAMLreturn(Val_unit);
 }
   
@@ -829,7 +844,7 @@ ML_3 (gdk_drag_status, GdkDragContext_val, GdkDragAction_optval, Int32_val,
       Unit)
 Make_Extractor (GdkDragContext, GdkDragContext_val, suggested_action,
                 Val_gdkDragAction)
-value val_int(gpointer i)
+static value val_int(gpointer i)
 {
   return Val_int (GPOINTER_TO_INT(i));
 }

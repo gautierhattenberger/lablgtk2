@@ -1,4 +1,4 @@
-(* $Id: gtkThread.ml,v 1.14 2004/10/18 03:49:43 garrigue Exp $ *)
+(* $Id: gtkThread.ml,v 1.16 2005/10/25 01:22:14 garrigue Exp $ *)
 
 open GtkMain
 
@@ -33,7 +33,7 @@ let sync f x =
     Condition.signal c
   in
   async j x;
-  Condition.wait c m;
+  while !res = None do Condition.wait c m done;
   match !res with Some y -> y | None -> assert false
 
 (* We check first whether there are some event pending, and run

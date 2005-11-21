@@ -1,4 +1,4 @@
-(* $Id: gdk.ml,v 1.67 2004/09/17 00:19:31 garrigue Exp $ *)
+(* $Id: gdk.ml,v 1.68 2005/09/24 19:21:42 oandrieu Exp $ *)
 
 open StdLabels
 open Gaux
@@ -736,5 +736,8 @@ module Cursor = struct
     pixmap -> mask:bitmap ->
     fg:color -> bg:color -> x:int -> y:int -> cursor
     = "ml_gdk_cursor_new_from_pixmap_bc" "ml_gdk_cursor_new_from_pixmap"
+  external create_from_pixbuf :
+    [`pixbuf] Gobject.obj -> x:int -> y:int -> cursor
+    = "ml_gdk_cursor_new_from_pixbuf" (** @since GTK 2.4 *)
   external destroy : cursor -> unit = "ml_gdk_cursor_destroy"
 end

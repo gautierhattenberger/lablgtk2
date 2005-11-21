@@ -1,4 +1,4 @@
-(* $Id: gTree.mli,v 1.57 2005/02/07 09:29:16 oandrieu Exp $ *)
+(* $Id: gTree.mli,v 1.58 2005/08/18 12:47:28 oandrieu Exp $ *)
 
 open Gobject
 open Gtk
@@ -93,6 +93,11 @@ class tree_sortable : ([> `treesortable|`treemodel] as 'a) obj ->
     method set_default_sort_func : (model -> Gtk.tree_iter -> Gtk.tree_iter -> int) -> unit
     method has_default_sort_func : bool
   end
+
+(** Special value for the [#set_sort_column_id] method of {!GTree.tree_sortable}. *)
+
+val default_sort_column_id  : int
+val unsorted_sort_column_id : int
 
 (** @gtkdoc gtk GtkTreeStore *)
 class tree_store : Gtk.tree_store ->

@@ -1,13 +1,13 @@
-/* $Id: ml_pango.h,v 1.4 2004/03/01 09:07:30 garrigue Exp $ */
+/* $Id: ml_pango.h,v 1.6 2005/10/17 11:52:03 garrigue Exp $ */
 
 #include "pango_tags.h"
 
 #define PangoFontDescription_val(val) ((PangoFontDescription*)Pointer_val(val))
-value Val_PangoFontDescription_new(PangoFontDescription* it);
+CAMLexport value Val_PangoFontDescription_new(PangoFontDescription* it);
 #define Val_PangoFontDescription(desc) \
   (Val_PangoFontDescription_new(pango_font_description_copy(desc)))
 
-value ml_PangoStyle_Val (value val);
+CAMLexport value ml_PangoStyle_Val (value val);
 
 #define Val_PangoLanguage Val_pointer
 #define PangoLanguage_val Pointer_val
@@ -23,3 +23,5 @@ value ml_PangoStyle_Val (value val);
 
 #define PangoLayout_val(val) check_cast(PANGO_LAYOUT, val)
 #define Val_PangoLayout Val_GAnyObject
+
+CAMLexport value Val_PangoRectangle(PangoRectangle *rect);

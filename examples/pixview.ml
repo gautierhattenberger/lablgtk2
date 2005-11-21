@@ -1,4 +1,4 @@
-(* $Id: pixview.ml,v 1.3 2003/02/20 06:47:48 garrigue Exp $ *)
+(* $Id: pixview.ml,v 1.4 2005/06/30 11:12:06 garrigue Exp $ *)
 
 (* An image viewer, supporting all formats allowed by GdkPixbuf *)
 
@@ -7,7 +7,12 @@ let pb =
     Printf.eprintf "usage : %s <file>\n" Sys.argv.(0);
     exit 2;
   end;
-  GdkPixbuf.from_file Sys.argv.(1)
+  try GdkPixbuf.from_file Sys.argv.(1)
+  with GdkPixbuf.GdkPixbufError(_,msg) as exn ->
+    let d = GWindow.message_dialog ~message:msg ~message_type:`ERROR
+        ~buttons:GWindow.Buttons.close ~show:true () in
+    d#run ();
+    raise exn
 
 let pm, _ = GdkPixbuf.create_pixmap pb
 
