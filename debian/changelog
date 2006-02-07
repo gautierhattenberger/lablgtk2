@@ -1,3 +1,9 @@
+lablgtk2 (2.6.0-3) UNRELEASED; urgency=low
+
+  * Removing rpath from dlllabgtk2.so and others, closes: #351722.
+
+ -- Samuel Mimram <smimram@debian.org>  Tue,  7 Feb 2006 10:05:14 +0000
+
 lablgtk2 (2.6.0-2) unstable; urgency=low
 
   * Rebuilt against OCaml 3.09.1, bumped deps accordingly.

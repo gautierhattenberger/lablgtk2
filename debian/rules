@@ -78,8 +78,7 @@ install: build
 	$(MAKE) install DESTDIR=$(DESTDIR)
 
 	# Remove RPATHs
-	chrpath -d $(DESTDIR)/$(OCAML_LIBDIR)/stublibs/dlllablgnomeui.so
-	chrpath -d $(DESTDIR)/$(OCAML_LIBDIR)/stublibs/dlllablpanel.so
+	cd $(DESTDIR)/$(OCAML_LIBDIR)/stublibs/; for f in *.so; do chrpath -d $$f; done
 
 	# Install METAs
 	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
