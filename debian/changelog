@@ -8,7 +8,7 @@ lablgtk2 (2.6.0-3) unstable; urgency=low
     which is useless in newer librsvg versions because svgz support is now
     builtin (see #348920).
 
- -- Julien Cristau <julien.cristau@ens-lyon.org>  Thu,  9 Feb 2006 19:21:36 +0100
+ -- Samuel Mimram <smimram@debian.org>  Thu,  9 Feb 2006 18:41:15 +0000
 
 lablgtk2 (2.6.0-2) unstable; urgency=low
 
