@@ -1,3 +1,11 @@
+lablgtk2 (2.6.0-4) unstable; urgency=low
+
+  * Split opengl-specific parts of the package in liblablgtk2-gl-ocaml(-dev),
+    closes: #365317.
+  * Removed the outdated README.Debian.
+
+ -- Samuel Mimram <smimram@debian.org>  Sat, 29 Apr 2006 11:54:44 +0000
+
 lablgtk2 (2.6.0-3) unstable; urgency=low
 
   [ Samuel Mimram ]

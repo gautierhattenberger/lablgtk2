@@ -20,12 +20,6 @@ package "glade" (
   archive(native) = "lablglade.cmxa"
 )
 
-package "gtkgl" (
-  requires = "lablgtk2 lablgl"
-  archive(byte) = "lablgtkgl.cma"
-  archive(native) = "lablgtkgl.cmxa"
-)
-
 package "gtkspell" (
   requires = "lablgtk2"
   archive(byte) = "lablgtkspell.cma"

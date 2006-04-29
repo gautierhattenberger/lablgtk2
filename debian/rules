@@ -22,14 +22,6 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-# shared library versions, option 1
-version=2.0.5
-major=2
-# option 2, assuming the library is created as src/.libs/libfoo.so.2.0.5 or so
-#version=`ls src/.libs/lib*.so.* | \
-# awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}'`
-#major=`ls src/.libs/lib*.so.* | \
-# awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
 
 debian/control:
 	sed -e 's%#OcamlABI#%$(OCAMLABI)%' $@.in > $@
@@ -82,13 +74,15 @@ install: build
 
 	# Install METAs
 	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
+	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev$(OCAML_LIBDIR)/METAS
 	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/METAS
 
 	# This file is needed by lablgtk2-doc
 	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
 
 	# Examples
-	cp -r examples/rsvg examples/panel examples/canvas $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/usr/share/doc/liblablgtk2-gnome-ocaml-dev/examples
+	cp -r examples/GL/*  $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/usr/share/doc/liblablgtk2-gl-ocaml-dev/examples/
+	cp -r examples/rsvg examples/panel examples/canvas $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/usr/share/doc/liblablgtk2-gnome-ocaml-dev/examples/
 
 	# Lintian override
 	install -m 644 debian/liblablgtk2-ocaml-dev.override $(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/share/lintian/overrides/liblablgtk2-ocaml-dev
@@ -104,7 +98,7 @@ binary-arch: build install
 
 #	dh_installdebconf -s
 	dh_installdocs -s
-	dh_installexamples -s --exclude='.cvsignore' --exclude='rsvg' --exclude='panel' --exclude='canvas'
+	dh_installexamples -s --exclude='.cvsignore' --exclude='rsvg' --exclude='panel' --exclude='canvas' --exclude='GL'
 	dh_installmenu -s
 	dh_movefiles -s
 	dh_install -s --sourcedir=$(DESTDIR) --list-missing
