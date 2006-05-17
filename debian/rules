@@ -5,7 +5,8 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-OCAMLABI = ${shell ocamlc -version}
+OCAMLABI = $(shell ocamlc -version)
+OFILES = $(patsubst %.in,%,$(shell ls debian/*.in))
 export OCAML_LIBDIR=`ocamlc -where`
 
 DESTDIR = $(CURDIR)/debian/tmp
@@ -22,15 +23,11 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-
-debian/control:
-	sed -e 's%#OcamlABI#%$(OCAMLABI)%' $@.in > $@
+ocamlinit:
+	for f in $(OFILES); do sed -e 's/@OCamlABI@/$(OCAMLABI)/g' $$f.in > $$f; done
 
 configure: configure-stamp
 configure-stamp:
-	for t in `find debian/ -name \*.in | grep -v debian/control.in`; do \
-		sed -e 's%#OcamlABI#%$(OCAMLABI)%' $$t >$${t%.in}; \
-	done
 
 	dh_testdir
 
@@ -74,14 +71,12 @@ install: build
 
 	# Install METAs
 	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
-	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev$(OCAML_LIBDIR)/METAS
 	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/METAS
 
 	# This file is needed by lablgtk2-doc
 	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
 
 	# Examples
-	cp -r examples/GL/*  $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/usr/share/doc/liblablgtk2-gl-ocaml-dev/examples/
 	cp -r examples/rsvg examples/panel examples/canvas $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/usr/share/doc/liblablgtk2-gnome-ocaml-dev/examples/
 
 	# Lintian override

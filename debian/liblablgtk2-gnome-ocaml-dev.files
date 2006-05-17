@@ -1,0 +1,16 @@
+usr/lib/ocaml/3.09.2/lablgtk2/rsvg.*
+usr/lib/ocaml/3.09.2/lablgtk2/gnomeCanvas.*
+usr/lib/ocaml/3.09.2/lablgtk2/gnoCanvas.*
+usr/lib/ocaml/3.09.2/lablgtk2/gnomeDruid.*
+usr/lib/ocaml/3.09.2/lablgtk2/gnoDruid.*
+usr/lib/ocaml/3.09.2/lablgtk2/panel.*
+usr/lib/ocaml/3.09.2/lablgtk2/lablgnomecanvas.*
+usr/lib/ocaml/3.09.2/lablgtk2/lablgnomeui.*
+usr/lib/ocaml/3.09.2/lablgtk2/lablpanel.*
+usr/lib/ocaml/3.09.2/lablgtk2/lablrsvg.*
+usr/lib/ocaml/3.09.2/lablgtk2/liblablgnomecanvas.*
+usr/lib/ocaml/3.09.2/lablgtk2/liblablgnomeui.*
+usr/lib/ocaml/3.09.2/lablgtk2/liblablpanel.*
+usr/lib/ocaml/3.09.2/lablgtk2/liblablrsvg.*
+usr/lib/ocaml/3.09.2/lablgtk2/gnomeui_tags.h
+usr/lib/ocaml/3.09.2/lablgtk2/panel_tags.h
