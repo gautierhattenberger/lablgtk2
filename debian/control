@@ -3,7 +3,7 @@ Section: libdevel
 Priority: optional
 Maintainer: Debian OCaml Maintainers <debian-ocaml-maint@lists.debian.org>
 Uploaders: Sven Luther <luther@debian.org>, Samuel Mimram <smimram@debian.org>, Stefano Zacchiroli <zack@debian.org>
-Build-Depends: debhelper (>> 3.0.0), ocaml (>= 3.09.2), libncurses5-dev, xlibs|xlib6g, debhelper, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.02-1), librsvg2-dev, libgnomecanvas2-dev, libgtkspell-dev, libgnomeui-dev, libpanel-applet2-dev, dpatch, chrpath
+Build-Depends: debhelper (>> 3.0.0), ocaml (>= 3.09.2), libncurses5-dev, xlibs|xlib6g, debhelper, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.02-1), librsvg2-dev, libgnomecanvas2-dev, libgtkspell-dev, libgnomeui-dev, libpanel-applet2-dev, dpatch
 Standards-Version: 3.7.2
 
 Package: liblablgtk2-ocaml

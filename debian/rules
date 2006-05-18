@@ -64,9 +64,6 @@ install: build
 
 	$(MAKE) install DESTDIR=$(DESTDIR)
 
-	# Remove RPATHs
-	cd $(DESTDIR)/$(OCAML_LIBDIR)/stublibs/; for f in *.so; do chrpath -d $$f; done
-
 	# Install METAs
 	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
 	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
