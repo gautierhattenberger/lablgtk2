@@ -25,7 +25,7 @@ Description: runtime libraries for OCaml bindings to Gnome
  lablgtk2 contains bindings for gtk+ 2.x and Objective Caml.
  .
  This package include only the dynamic libraries needed for running dynamic
- bytecode executables using gnome functionalities (panel-appel, gnomeui,
+ bytecode executables using gnome functionalities (panel-applet, gnomeui,
  gnome-canvas, rsvg).
 
 Package: liblablgtk2-ocaml-dev

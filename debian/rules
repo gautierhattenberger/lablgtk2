@@ -5,16 +5,15 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-OCAMLABI = $(shell ocamlc -version)
-OFILES = $(patsubst %.in,%,$(shell ls debian/*.in))
-export OCAML_LIBDIR=`ocamlc -where`
+OCAMLABI := $(shell ocamlc -version)
+OFILES := $(patsubst %.in,%,$(shell ls debian/*.in))
+OCAML_LIBDIR := $(shell ocamlc -where)
 
 DESTDIR = $(CURDIR)/debian/tmp
 
 # We want to use dpatch.
 include /usr/share/dpatch/dpatch.make
 PACKAGE = lablgtk
-
 
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -g
@@ -27,8 +26,7 @@ ocamlinit:
 	for f in $(OFILES); do sed -e 's/@OCamlABI@/$(OCAMLABI)/g' $$f.in > $$f; done
 
 configure: configure-stamp
-configure-stamp:
-
+configure-stamp: ocamlinit
 	dh_testdir
 
 	./configure --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info \
@@ -70,11 +68,12 @@ install: build
 	cd $(DESTDIR)/$(OCAML_LIBDIR)/stublibs/; for f in *.so; do chrpath -d $$f; done
 
 	# Install METAs
-	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
-	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/METAS
+	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
+	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
+	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_LIBDIR)/METAS
 
 	# This file is needed by lablgtk2-doc
-	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev$(OCAML_LIBDIR)/lablgtk2
+	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
 
 	# Examples
 	cp -r examples/rsvg examples/panel examples/canvas $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/usr/share/doc/liblablgtk2-gnome-ocaml-dev/examples/
@@ -93,13 +92,12 @@ binary-arch: build install
 
 #	dh_installdebconf -s
 	dh_installdocs -s
-	dh_installexamples -s --exclude='.cvsignore' --exclude='rsvg' --exclude='panel' --exclude='canvas' --exclude='GL'
+	dh_installexamples -s --exclude='.cvsignore' --exclude='rsvg' --exclude='panel' --exclude='canvas'
 	dh_installmenu -s
 	dh_movefiles -s
 	dh_install -s --sourcedir=$(DESTDIR) --list-missing
 	dh_installman -s
 	dh_installinfo -s
-#	dh_undocumented -s
 	dh_installchangelogs CHANGES -s
 	dh_link -s
 	dh_strip -s
