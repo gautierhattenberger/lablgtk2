@@ -1,9 +1,11 @@
-lablgtk2 (2.6.0-6) UNRELEASED; urgency=low
+lablgtk2 (2.6.0-6) unstable; urgency=low
 
+  * Split back the opengl-specific parts of the package in
+    liblablgtk2-gl-ocaml(-dev), closes: #365317.
   * rpaths shouldn't be generated anymore so we don't need to remove them
     anymore.
 
- -- Samuel Mimram <smimram@debian.org>  Thu, 18 May 2006 16:27:29 +0000
+ -- Samuel Mimram <smimram@debian.org>  Fri, 16 Jun 2006 08:20:07 +0000
 
 lablgtk2 (2.6.0-5) unstable; urgency=low
 

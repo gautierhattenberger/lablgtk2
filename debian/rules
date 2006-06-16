@@ -66,13 +66,14 @@ install: build
 
 	# Install METAs
 	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
-	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
+	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
 	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_LIBDIR)/METAS
 
 	# This file is needed by lablgtk2-doc
 	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
 
 	# Examples
+	cp -r examples/GL/*  $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/usr/share/doc/liblablgtk2-gl-ocaml-dev/examples/
 	cp -r examples/rsvg examples/panel examples/canvas $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/usr/share/doc/liblablgtk2-gnome-ocaml-dev/examples/
 
 	# Lintian override
@@ -89,7 +90,7 @@ binary-arch: build install
 
 #	dh_installdebconf -s
 	dh_installdocs -s
-	dh_installexamples -s --exclude='.cvsignore' --exclude='rsvg' --exclude='panel' --exclude='canvas'
+	dh_installexamples -s --exclude='.cvsignore' --exclude='rsvg' --exclude='panel' --exclude='canvas' --exclude='GL'
 	dh_installmenu -s
 	dh_movefiles -s
 	dh_install -s --sourcedir=$(DESTDIR) --list-missing
