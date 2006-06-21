@@ -1,4 +1,4 @@
-lablgtk2 (2.6.0-7) UNRELEASED; urgency=low
+lablgtk2 (2.6.0-7) unstable; urgency=low
 
   * Removed unnecessary build dependency on xlibs|xlib6g, closes: #374664.
 
