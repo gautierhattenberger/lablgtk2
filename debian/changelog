@@ -1,3 +1,9 @@
+lablgtk2 (2.6.0-7) UNRELEASED; urgency=low
+
+  * Removed unnecessary build dependency on xlibs|xlib6g, closes: #374664.
+
+ -- Samuel Mimram <smimram@debian.org>  Wed, 21 Jun 2006 07:46:07 +0000
+
 lablgtk2 (2.6.0-6) unstable; urgency=low
 
   * Split back the opengl-specific parts of the package in
