@@ -1,0 +1,9 @@
+# See uscan(1) for format
+
+# Compulsory line, this is a version 3 file
+version=3
+
+http://wwwfun.kurims.kyoto-u.ac.jp/soft/lsl/lablgtk.html \
+  dist/lablgtk-(\d+\.[\d.]+)\.tar\.gz
+  # forcing the '.' in version number to skip CVS snapshots
+
