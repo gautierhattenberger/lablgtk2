@@ -5,8 +5,10 @@ lablgtk2 (2.6.0-8) experimental; urgency=low
   * bump debhelper and compatibility level to 5
   * debian/control
     - add build-dep on camlp4, now in a separate package
+    - s/Source-Version/binary:Version/
+    - remove some duplicate dependencies
 
- -- Stefano Zacchiroli <zack@debian.org>  Mon, 16 Jul 2007 13:33:01 +0200
+ -- Stefano Zacchiroli <zack@debian.org>  Mon, 16 Jul 2007 13:38:13 +0200
 
 lablgtk2 (2.6.0-7) unstable; urgency=low
 
