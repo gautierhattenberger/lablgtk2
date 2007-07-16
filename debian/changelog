@@ -1,3 +1,9 @@
+lablgtk2 (2.6.0-9) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Stefano Zacchiroli <zack@debian.org>  Mon, 16 Jul 2007 11:41:00 +0000
+
 lablgtk2 (2.6.0-8) experimental; urgency=low
 
   * rebuild with OCaml 3.10
