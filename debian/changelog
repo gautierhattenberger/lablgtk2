@@ -1,3 +1,9 @@
+lablgtk2 (2.6.0-11) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Sylvain Le Gall <gildor@debian.org>  Tue, 04 Sep 2007 00:03:23 +0200
+
 lablgtk2 (2.6.0-10) unstable; urgency=low
 
   * Tighten build dependency on liblabgl to make it build with the first
