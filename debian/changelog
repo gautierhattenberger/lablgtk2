@@ -1,8 +1,10 @@
-lablgtk2 (2.6.0-10) UNRELEASED; urgency=low
+lablgtk2 (2.6.0-10) unstable; urgency=low
 
-  * UNRELEASED UNRELEASED
+  * Tighten build dependency on liblabgl to make it build with the first
+    lablgl library which will have ocaml 3.10.0 ABI
+  * Generate ocamldoc documentation
 
- -- Sylvain Le Gall <gildor@debian.org>  Mon, 03 Sep 2007 17:47:16 +0200
+ -- Sylvain Le Gall <gildor@debian.org>  Mon, 03 Sep 2007 23:12:34 +0200
 
 lablgtk2 (2.6.0-9) unstable; urgency=low
 
