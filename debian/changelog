@@ -1,3 +1,9 @@
+lablgtk2 (2.6.0-10) UNRELEASED; urgency=low
+
+  * UNRELEASED UNRELEASED
+
+ -- Sylvain Le Gall <gildor@debian.org>  Mon, 03 Sep 2007 17:47:16 +0200
+
 lablgtk2 (2.6.0-9) unstable; urgency=low
 
   * add myself to uploader
