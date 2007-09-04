@@ -1,3 +1,9 @@
+lablgtk2 (2.6.0-12) UNRELEASED; urgency=low
+
+  * NOT RELEASED YET
+
+ -- Sylvain Le Gall <gildor@debian.org>  Tue, 04 Sep 2007 18:06:24 +0200
+
 lablgtk2 (2.6.0-11) unstable; urgency=low
 
   * Build-depends on ocaml 3.10.0-8 to be able to generate *.doc-
