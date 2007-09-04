@@ -1,8 +1,9 @@
-lablgtk2 (2.6.0-11) UNRELEASED; urgency=low
+lablgtk2 (2.6.0-11) unstable; urgency=low
 
-  * NOT RELEASED YET
+  * Build-depends on ocaml 3.10.0-8 to be able to generate *.doc-
+    base.ocamldoc-apiref
 
- -- Sylvain Le Gall <gildor@debian.org>  Tue, 04 Sep 2007 00:03:23 +0200
+ -- Sylvain Le Gall <gildor@debian.org>  Tue, 04 Sep 2007 17:57:12 +0200
 
 lablgtk2 (2.6.0-10) unstable; urgency=low
 
