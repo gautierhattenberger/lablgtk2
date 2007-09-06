@@ -88,11 +88,10 @@ binary-arch: build install
 	dh_testdir -s
 	dh_testroot -s
 
-#	dh_installdebconf -s
 	dh_installexamples -s --exclude='.cvsignore' --exclude='rsvg' --exclude='panel' --exclude='canvas' --exclude='GL'
 	dh_installmenu -s
 	dh_movefiles -s
-	dh_install -s --sourcedir=$(DESTDIR) --list-missing
+	dh_install -s --sourcedir=$(DESTDIR)
 	# Doc generation (TODO: use CDBS)
 	OCAMLDOC_PKG="liblablgtk2-ocaml-dev liblablgtk2-gl-ocaml-dev liblablgtk2-gnome-ocaml-dev"; \
 	OCAMLDOC_INCLUDE=`for i in $$OCAMLDOC_PKG; do find debian/$$i/$(OCAML_LIBDIR)/ -type d -exec echo -I \{} \; ; done`; \
