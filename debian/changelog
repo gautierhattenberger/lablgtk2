@@ -1,3 +1,11 @@
+lablgtk2 (2.6.0-13) unstable; urgency=low
+
+  * Revert previous change (the problem was not there) and remove *.cmx
+    *.cmxa and *.o from dh_install files. Use a move in the debian/rules to
+     transfer things if and only if on non native arches.
+
+ -- Sylvain Le Gall <gildor@debian.org>  Fri, 07 Sep 2007 00:07:37 +0200
+
 lablgtk2 (2.6.0-12) unstable; urgency=low
 
   * On non native arches, there is no *.cmx, don't fail at dh_install
