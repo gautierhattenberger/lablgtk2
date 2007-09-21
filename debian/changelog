@@ -1,8 +1,12 @@
 lablgtk2 (2.6.0-14) UNRELEASED; urgency=low
 
+  [ Sylvain Le Gall ]
   * NOT RELEASED YET
 
- -- Sylvain Le Gall <gildor@debian.org>  Fri, 07 Sep 2007 14:56:09 +0200
+  [ Stefano Zacchiroli ]
+  * add Homepage field to debian/control
+
+ -- Stefano Zacchiroli <zack@debian.org>  Fri, 21 Sep 2007 13:58:20 +0200
 
 lablgtk2 (2.6.0-13) unstable; urgency=low
 
