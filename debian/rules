@@ -52,7 +52,7 @@ clean: unpatch
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
-	-$(MAKE) clean
+	[ ! -f config.make ] || $(MAKE) clean
 
 	dh_clean config.make
 
