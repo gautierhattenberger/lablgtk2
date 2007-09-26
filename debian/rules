@@ -76,7 +76,7 @@ install: build
 	# Examples
 	cp -r examples/GL/*  $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/usr/share/doc/liblablgtk2-gl-ocaml-dev/examples/
 	cp -r examples/rsvg examples/panel examples/canvas $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/usr/share/doc/liblablgtk2-gnome-ocaml-dev/examples/
-	cp -r examples/sourceview $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/usr/share/doc/liblablgtksourceview-ocaml-dev/examples/
+	cp -r examples/sourceview $(CURDIR)/debian/liblablgtksourceview-ocaml-dev/usr/share/doc/liblablgtksourceview-ocaml-dev/examples/
 
 	# Lintian override
 	install -m 644 debian/liblablgtk2-ocaml-dev.override $(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/share/lintian/overrides/liblablgtk2-ocaml-dev
