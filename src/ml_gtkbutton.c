@@ -1,4 +1,26 @@
-/* $Id: ml_gtkbutton.c,v 1.7 2004/05/09 14:39:14 oandrieu Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_gtkbutton.c 1355 2007-08-08 13:17:06Z ben_99_9 $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -35,6 +57,15 @@ CAMLprim value ml_gtkbutton_init(value unit)
         gtk_toggle_tool_button_get_type() +
         gtk_radio_tool_button_get_type() +
 #endif
+#ifdef HASGTK26
+        gtk_menu_tool_button_get_type() +
+#endif
+#ifdef HASGTK210
+        gtk_link_button_get_type () +
+#endif
+#ifdef HASGTK212
+        gtk_scale_button_get_type () +
+#endif
         0;
     return Val_GType(t);
 }
@@ -43,7 +74,7 @@ CAMLprim value ml_gtkbutton_init(value unit)
 #define GtkButton_val(val) check_cast(GTK_BUTTON,val)
 /*
 ML_0 (gtk_button_new, Val_GtkWidget_sink)
-ML_1 (gtk_button_new_with_label, String_val, Val_GtkWidget_sink)
+ML_1 (gtk_butTon_new_with_label, String_val, Val_GtkWidget_sink)
 ML_1 (gtk_button_new_with_mnemonic, String_val, Val_GtkWidget_sink)
 ML_1 (gtk_button_new_from_stock, String_val, Val_GtkWidget_sink)
 */
@@ -163,3 +194,44 @@ Unsupported_24(gtk_toolbar_set_drop_highlight_item)
 Unsupported_24(gtk_toolbar_get_tooltips)
 Unsupported_24(gtk_toolbar_get_relief_style)
 #endif /* HASGTK24 */
+
+#ifdef HASGTK26
+#define GtkMenuToolButton_val(val) check_cast(GTK_MENU_TOOL_BUTTON,val)
+ML_4 (gtk_menu_tool_button_set_arrow_tooltip, GtkMenuToolButton_val, GtkTooltips_val, String_val, String_val, Unit)
+#else
+Unsupported_26(gtk_menu_tool_button_set_arrow_tooltip)
+#endif /* HASGTK26 */
+
+/* gtklinkbutton.h */ 
+#ifdef HASGTK210
+ML_1(gtk_link_button_new, String_val, Val_GtkWidget_sink)
+ML_2(gtk_link_button_new_with_label, String_val, String_val, Val_GtkWidget_sink)
+static void ml_g_link_button_func(GtkLinkButton *button,
+                                  const gchar *link,
+                                  gpointer user_data) {
+  value *clos = user_data;
+  CAMLparam0();
+  CAMLlocal2(ml_link,ret);
+  ml_link = Val_string(link);
+  ret = callback2_exn(*clos, Val_GtkWidget(button),ml_link);
+  if (Is_exception_result(ret)) {
+    CAML_EXN_LOG("gtk_link_button_func");
+  }
+  CAMLreturn0;
+}
+
+CAMLprim value ml_gtk_link_button_set_uri_hook (value clos) {
+  value *clos_p = ml_global_root_new (clos);
+  
+  gtk_link_button_set_uri_hook
+    (ml_g_link_button_func, 
+     clos_p,
+     ml_global_root_destroy);
+
+  return Val_unit;
+}
+#else
+Unsupported_210(gtk_link_button_set_uri_hook)
+Unsupported_210(gtk_link_button_new)
+Unsupported_210(gtk_link_button_new_with_label)
+#endif

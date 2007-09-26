@@ -1,4 +1,26 @@
-(* $Id: gtkStock.ml,v 1.11 2005/01/03 23:49:26 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gtkStock.ml 1355 2007-08-08 13:17:06Z ben_99_9 $ *)
 
 open Gobject
 open Gtk
@@ -38,6 +60,7 @@ type gtk_stock_id = [
   | `FIND 
   | `FIND_AND_REPLACE 
   | `FLOPPY 
+  | `FULLSCREEN                 (** since GTK 2.8 *)
   | `GOTO_BOTTOM 
   | `GOTO_FIRST 
   | `GOTO_LAST 
@@ -52,12 +75,14 @@ type gtk_stock_id = [
   | `INDEX 
   | `INDENT 			(** since GTK 2.4 *)
   | `UNINDENT 			(** since GTK 2.4 *)
+  | `INFO                       (** since GTK 2.8 *)
   | `ITALIC 
   | `JUMP_TO 
   | `JUSTIFY_CENTER 
   | `JUSTIFY_FILL 
   | `JUSTIFY_LEFT 
   | `JUSTIFY_RIGHT 
+  | `LEAVE_FULLSCREEN           (** since GTK 2.8 *)
   | `MISSING_IMAGE 
   | `MEDIA_FORWARD 		(** since GTK 2.6 *)
   | `MEDIA_NEXT 		(** since GTK 2.6 *)
@@ -72,6 +97,10 @@ type gtk_stock_id = [
   | `NO 
   | `OK 
   | `OPEN 
+  | `ORIENTATION_LANDSCAPE      (** since GTK 2.10 *)
+  | `ORIENTATION_PORTRAIT       (** since GTK 2.10 *)
+  | `ORIENTATION_REVERSE_LANDSCAPE (** since GTK 2.10 *)
+  | `ORIENTATION_REVERSE_PORTRAIT (** since GTK 2.10 *)
   | `PASTE 
   | `PREFERENCES 
   | `PRINT 
@@ -84,6 +113,7 @@ type gtk_stock_id = [
   | `REVERT_TO_SAVED 
   | `SAVE 
   | `SAVE_AS 
+  | `SELECT_ALL                (** since GTK 2.10 *)
   | `SELECT_COLOR 
   | `SELECT_FONT 
   | `SORT_ASCENDING 
@@ -149,6 +179,7 @@ let () =
       `FIND, "gtk-find";
       `FIND_AND_REPLACE, "gtk-find-and-replace";
       `FLOPPY, "gtk-floppy";
+      `FULLSCREEN, "gtk-fullscreen"; 
       `GOTO_BOTTOM, "gtk-goto-bottom";
       `GOTO_FIRST, "gtk-goto-first";
       `GOTO_LAST, "gtk-goto-last";
@@ -162,6 +193,7 @@ let () =
       `HOME, "gtk-home";
       `INDEX, "gtk-index";
       `INDENT, "gtk-indent";
+      `INFO, "gtk-info";
       `UNINDENT, "gtk-unindent";
       `ITALIC, "gtk-italic";
       `JUMP_TO, "gtk-jump-to";
@@ -169,6 +201,7 @@ let () =
       `JUSTIFY_FILL, "gtk-justify-fill";
       `JUSTIFY_LEFT, "gtk-justify-left";
       `JUSTIFY_RIGHT, "gtk-justify-right";
+      `LEAVE_FULLSCREEN, "gtk-leave-fullscreen"; (*@ *)
       `MISSING_IMAGE, "gtk-missing-image";
       `MEDIA_FORWARD, "gtk-media-forward";
       `MEDIA_NEXT, "gtk-media-next";
@@ -183,6 +216,10 @@ let () =
       `NO, "gtk-no";
       `OK, "gtk-ok";
       `OPEN, "gtk-open";
+      `ORIENTATION_PORTRAIT, "gtk-orientation-portrait";
+      `ORIENTATION_LANDSCAPE, "gtk-orientation-landscape";
+      `ORIENTATION_REVERSE_LANDSCAPE, "gtk-orientation-reverse-landscape";
+      `ORIENTATION_REVERSE_PORTRAIT, "gtk-orientation-reverse-portrait";
       `PASTE, "gtk-paste";
       `PREFERENCES, "gtk-preferences";
       `PRINT, "gtk-print";
@@ -195,6 +232,7 @@ let () =
       `REVERT_TO_SAVED, "gtk-revert-to-saved";
       `SAVE, "gtk-save";
       `SAVE_AS, "gtk-save-as";
+      `SELECT_ALL, "gtk-select-all";  (*@ *)
       `SELECT_COLOR, "gtk-select-color";
       `SELECT_FONT, "gtk-select-font";
       `SORT_ASCENDING, "gtk-sort-ascending";

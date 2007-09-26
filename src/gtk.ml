@@ -1,4 +1,26 @@
-(* $Id: gtk.ml,v 1.115 2004/12/05 13:18:34 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gtk.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
 
 open Gobject
 
@@ -128,6 +150,8 @@ type toggle_button = [button|`togglebutton]
 type radio_button = [button|`togglebutton|`radiobutton]
 type color_button = [button|`colorbutton]
 type font_button = [button|`fontbutton]
+type link_button = [button|`linkbutton]
+type scale_button = [button|`scalebutton]
 type option_menu = [button|`optionmenu]
 type event_box = [bin|`eventbox]
 type frame = [bin|`frame]
@@ -144,6 +168,7 @@ type tree_item = [item|`treeitem]
 type scrolled_window = [bin|`scrolledwindow]
 type viewport = [bin|`viewport]
 type window = [bin|`window]
+type assistant = [window|`assistant]
 type dialog = [window|`dialog]
 type message_dialog = [dialog|`messagedialog]
 type color_selection_dialog = [dialog|`colorselectiondialog]
@@ -176,6 +201,7 @@ type separator_tool_item = [tool_item|`separatortoolitem]
 type tool_button = [tool_item|`toolbutton]
 type toggle_tool_button = [tool_button|`toggletoolbutton]
 type radio_tool_button = [toggle_tool_button|`radiotoolbutton]
+type menu_tool_button = [tool_button|`menutoolbutton]
 type tree = [container|`tree]
 type calendar = [widget|`calendar]
 type drawing_area = [widget|`drawingarea]

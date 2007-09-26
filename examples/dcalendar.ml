@@ -1,4 +1,13 @@
-(* $Id: dcalendar.ml,v 1.11 2004/11/29 02:18:32 garrigue Exp $ *)
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: dcalendar.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 (* A small calendar *)
 (* Needs Unix module, so use with lablgtk_t *)

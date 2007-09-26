@@ -1,4 +1,26 @@
-/* $Id: ml_gtktext.c,v 1.23 2005/06/30 09:10:00 garrigue Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_gtktext.c 1347 2007-06-20 07:40:34Z guesdon $ */
 /* Author: Benjamin Monate */
 
 #include <stdio.h>
@@ -21,6 +43,7 @@
 #include "ml_gobject.h"
 #include "ml_gdkpixbuf.h"
 #include "ml_pango.h"
+#include "ml_gtktext.h"
 #include "gtk_tags.h"
 #include "gdk_tags.h"
 
@@ -39,33 +62,12 @@ CAMLprim value ml_gtktext_init(value unit)
     return Val_GType(t);
 }
 
-#define GtkTextMark_val(val) check_cast(GTK_TEXT_MARK,val)
-#define Val_GtkTextMark(val) (Val_GObject((GObject*)val))
-#define Val_GtkTextMark_new(val) (Val_GObject_new((GObject*)val))
-
-
 CAMLprim value Val_GtkTextMark_func(gpointer val){
   return(Val_GtkTextMark(val));
 }
 static value Val_GtkTextMark_opt(GtkTextMark *mrk) {
   return Val_option(mrk, Val_GtkTextMark);
 }
-        
-#define GtkTextTag_val(val) check_cast(GTK_TEXT_TAG,val)
-#define Val_GtkTextTag(val) (Val_GObject((GObject*)val))
-#define Val_GtkTextTag_new(val) (Val_GObject_new((GObject*)val))
-
-#define GtkTextTagTable_val(val) check_cast(GTK_TEXT_TAG_TABLE,val)
-#define Val_GtkTextTagTable(val)  (Val_GObject((GObject*)val))
-#define Val_GtkTextTagTable_new(val) (Val_GObject_new((GObject*)val))
-
-#define GtkTextBuffer_val(val) check_cast(GTK_TEXT_BUFFER,val)
-#define Val_GtkTextBuffer(val)  (Val_GObject((GObject*)val))
-#define Val_GtkTextBuffer_new(val) (Val_GObject_new((GObject*)val))
-
-#define GtkTextChildAnchor_val(val) check_cast(GTK_TEXT_CHILD_ANCHOR,val)
-#define Val_GtkTextChildAnchor(val)  (Val_GObject((GObject*)val))
-#define Val_GtkTextChildAnchor_new(val) (Val_GObject_new((GObject*)val))
 
 /* TextIter are not GObjects. They are stack allocated. */
 /* This is the Custom_block version for latter...
@@ -97,17 +99,11 @@ CAMLprim value Val_GtkTextIter(GtkTextIter* it){
 ML_1 (gtk_text_iter_copy, GtkTextIter_val, Val_GtkTextIter_mine)
 */
 
-/* "Lighter" version: allocate in the ocaml heap */
-#define GtkTextIter_val(val) ((GtkTextIter*)MLPointer_val(val))
-#define Val_GtkTextIter(it) (copy_memblock_indirected(it,sizeof(GtkTextIter)))
+
 CAMLprim value ml_gtk_text_iter_copy (value it) {
   /* Only valid if in old generation and compaction off */
   return Val_GtkTextIter(GtkTextIter_val(it));
 }
-#define alloc_GtkTextIter() (alloc_memblock_indirected(sizeof(GtkTextIter))
-
-#define GtkTextView_val(val) check_cast(GTK_TEXT_VIEW,val)
-
 
 /* gtktextmark */
 

@@ -1,4 +1,26 @@
-/* $Id: ml_glib.c,v 1.52 2005/08/26 11:55:51 oandrieu Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_glib.c 1382 2007-09-26 07:41:01Z garrigue $ */
 
 #include <string.h>
 #include <locale.h>
@@ -98,12 +120,10 @@ CAMLprim value Val_GList_free (GList *list, value (*func)(gpointer))
 
 CAMLprim GList *GList_val (value list, gpointer (*func)(value))
 {
-    CAMLparam1(list);
     GList *res = NULL;
-    if (list == Val_unit) CAMLreturn (res);
     for (; Is_block(list); list = Field(list,1))
       res = g_list_append (res, func(Field(list,0)));
-    CAMLreturn (res);
+    return (res);
 }
 
 /* Error handling */
@@ -373,15 +393,12 @@ CAMLprim GSList *GSList_val (value list, gpointer (*func)(value))
     GSList *res = NULL;
     GSList **current = &res;
     value cell = list;
-    if (list == Val_unit) return res;
-    Begin_root (cell);
-    while (cell != Val_unit) {
+    while (Is_block(cell)) {
 	*current = g_slist_alloc ();
 	(*current)->data = func(Field(cell,0));
 	cell = Field(cell,1);
 	current = &(*current)->next;
     }
-    End_roots ();
     return res;
 }
 
@@ -525,7 +542,7 @@ ML_1 (g_markup_escape_text, SizedString_val, copy_string_g_free)
 
 ML_0 (g_get_prgname, copy_string_or_null)
 ML_1 (g_set_prgname, String_val, Unit)
-#ifndef DISABLE_GTK22
+#ifdef HASGTK22
 ML_0 (g_get_application_name, copy_string_or_null)
 ML_1 (g_set_application_name, String_val, Unit)
 #else
@@ -584,3 +601,5 @@ Unsupported_26(g_get_user_config_dir)
 Unsupported_26(g_get_system_data_dirs)
 Unsupported_26(g_get_system_config_dirs)
 #endif /* HASGTK26 */
+
+ML_1(g_usleep,Long_val,Unit)

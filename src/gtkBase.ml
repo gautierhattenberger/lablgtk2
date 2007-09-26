@@ -1,4 +1,26 @@
-(* $Id: gtkBase.ml,v 1.49 2005/02/18 04:21:30 garrigue Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gtkBase.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
 
 open Gaux
 open Gobject
@@ -258,10 +280,16 @@ module Clipboard = struct
   external get : Gdk.atom -> clipboard = "ml_gtk_clipboard_get"
   external clear : clipboard -> unit = "ml_gtk_clipboard_clear"
   external set_text : clipboard -> string -> unit = "ml_gtk_clipboard_set_text"
+  external set_image : clipboard -> GdkPixbuf.pixbuf -> unit
+      = "ml_gtk_clipboard_set_image"
   external wait_for_contents : clipboard -> target:Gdk.atom -> selection_data
       = "ml_gtk_clipboard_wait_for_contents"
   external wait_for_text : clipboard -> string option
       = "ml_gtk_clipboard_wait_for_text"
+  external wait_for_image : clipboard -> GdkPixbuf.pixbuf option
+      = "ml_gtk_clipboard_wait_for_image"
+  external wait_for_targets : clipboard -> Gdk.atom list
+      = "ml_gtk_clipboard_wait_for_targets"
   external request_contents :
       clipboard -> target:Gdk.atom -> callback:(selection_data -> unit) -> unit
       = "ml_gtk_clipboard_request_contents"
@@ -299,6 +327,9 @@ module Selection = struct
   external convert :
     [> `widget] obj -> sel:Gdk.atom -> target:Gdk.atom -> time:int32 -> bool
     = "ml_gtk_selection_convert"
+  external clear_targets :
+    [>`widget] obj -> sel:Gdk.atom -> unit
+    = "ml_gtk_selection_clear_targets"
 end
 
 module DnD = struct

@@ -1,4 +1,26 @@
-(* $Id: gData.mli,v 1.22 2004/07/05 10:05:47 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gData.mli 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open Gtk
 
@@ -76,13 +98,25 @@ val tooltips : ?delay:int -> unit -> tooltips
 
 (** Storing data on clipboards
    @gtkdoc gtk gtk-Clipboards *)
-class clipboard : Gtk.clipboard Lazy.t ->
+class clipboard_skel : Gtk.clipboard Lazy.t ->
   object
     method as_clipboard : Gtk.clipboard
     method clear : unit -> unit
     method get_contents : target:Gdk.atom -> GObj.selection_data
+    method set_image : GdkPixbuf.pixbuf -> unit
     method set_text : string -> unit
+    method image : GdkPixbuf.pixbuf option
     method text : string option
+    method targets : Gdk.atom list
+  end
+
+class clipboard : selection:Gdk.atom ->
+  object
+    inherit clipboard_skel
+    method set_contents :
+      targets:string list ->
+      get:(GObj.selection_context -> info:int -> time:int32 -> unit) ->
+      clear:(unit -> unit) -> unit
   end
 
 (** @gtkdoc gtk gtk-Clipboards *)

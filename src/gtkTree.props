@@ -1,4 +1,4 @@
-(* $Id: gtkTree.props,v 1.16 2005/01/04 00:19:05 oandrieu Exp $ *)
+(* $Id: gtkTree.props 1369 2007-09-25 02:56:09Z garrigue $ *)
 
 prefix "Gtk"
 
@@ -215,11 +215,17 @@ class TreeModelFilter : GObject {
 
 
 class IconView set wrap wrapsig : Container {
+  "column-spacing"       gint                  : Read / Write / NoSet
+  "columns"              gint                  : Read / Write
+  "item-width"           gint                  : Read / Write / NoSet
+  "margin"               gint                  : Read / Write / NoSet
   "markup-column"        gint                  : Read / Write / NoWrap / NoSet
   "model"                GtkTreeModel_opt      : Read / Write / NoWrap
   "orientation"          GtkOrientation        : Read / Write
   "pixbuf-column"        gint                  : Read / Write / NoWrap / NoSet
+  "row-spacing"          gint                  : Read / Write / NoSet
   "selection-mode"       GtkSelectionMode      : Read / Write
+  "spacing"              gint                  : Read / Write / NoSet
   "text-column"          gint                  : Read / Write / NoWrap / NoSet
 
   signal item_activated : GtkTreePath

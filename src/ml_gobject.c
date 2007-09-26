@@ -1,4 +1,26 @@
-/* $Id: ml_gobject.c,v 1.30 2005/06/30 07:54:36 garrigue Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_gobject.c 1369 2007-09-25 02:56:09Z garrigue $ */
 #include <stdio.h>
 #include <glib.h>
 #include <glib-object.h>
@@ -17,8 +39,18 @@
 
 /* gobject.h */
 
-Make_Val_final_pointer(GObject, g_object_ref, g_object_unref, 0)
-Make_Val_final_pointer_ext (GObject, _new, Ignore, g_object_unref, 20)
+static gboolean ml_g_object_unref0 (gpointer p)
+{ g_object_unref((GObject*)p); return 0; }
+
+CAMLexport void ml_g_object_unref_later (GObject *p)
+{
+    g_timeout_add_full(G_PRIORITY_HIGH_IDLE, 0, ml_g_object_unref0,
+                       (gpointer)(p), NULL);
+}
+
+
+Make_Val_final_pointer(GObject, g_object_ref, ml_g_object_unref_later, 0)
+Make_Val_final_pointer_ext (GObject, _new, Ignore, ml_g_object_unref_later, 20)
 ML_1 (G_TYPE_FROM_INSTANCE, GObject_val, Val_int)
 // ML_1 (g_object_ref, GObject_val, Unit)
 CAMLprim value ml_g_object_unref (value val)
@@ -118,9 +150,10 @@ Make_Val_final_pointer(GClosure, g_closure_ref, g_closure_unref, 0)
 Make_Val_final_pointer_ext(GClosure, _sink , g_closure_ref_and_sink,
                            g_closure_unref, 20)
 
-static void notify_destroy(gpointer clos_p, GClosure *c)
+static void notify_destroy(gpointer unit, GClosure *c)
 {
-    remove_global_root((value*)clos_p);
+    // printf("release %p\n", &c->data);
+    remove_global_root((value*)&c->data);
 }
 
 static void marshal (GClosure *closure, GValue *ret,
@@ -142,8 +175,9 @@ static void marshal (GClosure *closure, GValue *ret,
 CAMLprim value ml_g_closure_new (value clos)
 {
     GClosure* closure = g_closure_new_simple(sizeof(GClosure), (gpointer)clos);
+    // printf("register %p\n", &closure->data);
     register_global_root((value*)&closure->data);
-    g_closure_add_finalize_notifier(closure, &closure->data, notify_destroy);
+    g_closure_add_invalidate_notifier(closure, NULL, notify_destroy);
     g_closure_set_marshal(closure, marshal);
     return Val_GClosure_sink(closure);
 }
@@ -165,7 +199,7 @@ CAMLprim value ml_g_value_new(void)
     value ret = alloc_custom(&ml_custom_GValue, sizeof(value)+sizeof(GValue),
                              20, 1000);
     /* create an MLPointer */
-    Field(ret,1) = 2;
+    Field(ret,1) = (value)2;
     ((GValue*)&Field(ret,2))->g_type = 0;
     return ret;
 }
@@ -208,7 +242,7 @@ CAMLprim value ml_g_value_shift (value args, value index)
 static void ml_final_gboxed (value val)
 {
     gpointer p = Pointer_val(val);
-    if (p != NULL) g_boxed_free (Field(val,2), p);
+    if (p != NULL) g_boxed_free ((GType)Field(val,2), p);
     p = NULL;
 }
 static struct custom_operations ml_custom_gboxed =
@@ -218,14 +252,14 @@ CAMLprim value Val_gboxed(GType t, gpointer p)
 {
     value ret = alloc_custom(&ml_custom_gboxed, 2*sizeof(value), 10, 1000);
     Store_pointer(ret, g_boxed_copy (t,p));
-    Field(ret,2) = t;
+    Field(ret,2) = (value)t;
     return ret;
 }
 CAMLprim value Val_gboxed_new(GType t, gpointer p)
 {
     value ret = alloc_custom(&ml_custom_gboxed, 2*sizeof(value), 10, 1000);
     Store_pointer(ret, p);
-    Field(ret,2) = t;
+    Field(ret,2) = (value)t;
     return ret;
 }
 
@@ -239,7 +273,7 @@ static value g_value_get_variant (GValue *val)
     CAMLlocal1(tmp);
     value ret = MLTAG_NONE;
     GType type;
-    int tag = -1;
+    value tag = (value)0;
 
     if (! G_IS_VALUE(val))
       invalid_argument("Gobject.Value.get");
@@ -311,7 +345,7 @@ static value g_value_get_variant (GValue *val)
       tmp = copy_int64 (DATA.v_int64);
       break;
     }
-    if (tag != -1) {
+    if ((long)tag != 0) {
         ret = alloc_small(2,0);
         Field(ret,0) = tag;
         Field(ret,1) = tmp;
@@ -348,12 +382,12 @@ static void g_value_set_variant (GValue *val, value arg)
     case G_TYPE_ULONG:
     case G_TYPE_ENUM:
     case G_TYPE_FLAGS:
-      switch (tag) {
-      case MLTAG_INT:
+      switch ((long)tag) {
+      case (long)MLTAG_INT:
 	DATA.v_long = Int_val(data); return;
-      case MLTAG_INT32:
+      case (long)MLTAG_INT32:
 	DATA.v_long = Int32_val(data); return;
-      case MLTAG_LONG:
+      case (long)MLTAG_LONG:
 	DATA.v_long = Nativeint_val(data); return;
       };
       break;

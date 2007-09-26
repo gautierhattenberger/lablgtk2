@@ -1,4 +1,13 @@
-(* $Id: tree_store.ml,v 1.7 2004/11/19 00:00:44 garrigue Exp $ *)
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: tree_store.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open StdLabels
 

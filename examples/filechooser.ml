@@ -1,3 +1,11 @@
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
 
 let default d = function
   | None -> d
@@ -28,7 +36,7 @@ let text_filter () =
 
 let ask_for_file parent =
   let dialog = GWindow.file_chooser_dialog 
-      ~action:`OPEN 
+      ~action:`OPEN
       ~title:"Open File"
       ~parent () in
   dialog#add_button_stock `CANCEL `CANCEL ;

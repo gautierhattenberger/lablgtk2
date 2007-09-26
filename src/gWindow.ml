@@ -1,4 +1,26 @@
-(* $Id: gWindow.ml,v 1.58 2005/08/25 18:11:31 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gWindow.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open Gaux
 open Gtk
@@ -92,6 +114,7 @@ let rec list_rassoc k = function
   | [] -> raise Not_found
 
 let resp = Dialog.std_response
+
 let rnone = resp `NONE
 and rreject = resp `REJECT
 and raccept = resp `ACCEPT
@@ -128,7 +151,15 @@ class ['a] dialog_skel obj = object
   val mutable tbl = [rdelete, `DELETE_EVENT]
   val mutable id = 0
   method private encode (v : 'a) = list_rassoc v tbl
-  method private decode r = List.assoc r tbl
+  method private decode r = 
+    try 
+      List.assoc r tbl 
+    with Not_found -> 
+      Format.eprintf 
+        "Warning: unknown response id:%d in dialog. \
+                  Please report to lablgtk dev team.@." 
+        r;
+      `DELETE_EVENT
 end
 
 class ['a] dialog_ext obj = object (self)
@@ -190,7 +221,7 @@ module Buttons = struct
   type color_selection = [`OK | `CANCEL | `HELP | `DELETE_EVENT]
   type file_selection = [`OK | `CANCEL | `HELP | `DELETE_EVENT]
   type font_selection = [`OK | `CANCEL | `APPLY | `DELETE_EVENT]
-  type about = [`CLOSE | `DELETE_EVENT]
+  type about = [`CANCEL | `CLOSE | `DELETE_EVENT]
 end
 
 class ['a] message_dialog obj ~(buttons : 'a buttons) = object (self)
@@ -226,7 +257,7 @@ class about_dialog obj =
     method set_documenters = AboutDialog.set_documenters obj
     method documenters = AboutDialog.get_documenters obj
     initializer
-      tbl <- [ rclose, `CLOSE ] @ tbl
+      tbl <- [ rcancel, `CANCEL ; rclose, `CLOSE ] @ tbl
   end
 
 let about_dialog ?authors =

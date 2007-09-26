@@ -1,4 +1,26 @@
-(* $Id: gtkTree.ml,v 1.47 2005/02/07 09:29:16 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gtkTree.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
 
 open Gaux
 open Gtk
@@ -291,6 +313,9 @@ module TreeView = struct
   external expand_row :
     [>`treeview] obj -> tree_path -> all:bool -> unit
     = "ml_gtk_tree_view_expand_row"
+  external expand_to_path :
+    [>`treeview] obj -> tree_path -> unit
+    = "ml_gtk_tree_view_expand_to_path"
   external collapse_row : [>`treeview] obj -> tree_path -> unit
     = "ml_gtk_tree_view_collapse_row"
   external row_expanded : [>`treeview] obj -> tree_path -> bool
@@ -310,6 +335,10 @@ module TreeView = struct
     [>`treeview] obj -> x:int -> y:int ->
     (tree_path * tree_view_column obj * int * int) option
     = "ml_gtk_tree_view_get_path_at_pos"
+  external get_cell_area :
+    [>`treeview] obj -> ?path:tree_path ->
+    ?col:tree_view_column obj -> unit -> Gdk.Rectangle.t
+    = "ml_gtk_tree_view_get_cell_area"
   external set_row_separator_func :
     [>`treeview] obj ->
     (Gtk.tree_model -> Gtk.tree_iter -> bool) option -> unit

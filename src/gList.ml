@@ -1,4 +1,26 @@
-(* $Id: gList.ml,v 1.34 2003/08/15 11:08:42 garrigue Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gList.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open StdLabels
 open Gaux
@@ -71,7 +93,6 @@ class ['a] clist obj = object (self)
   method focus_row = CList.get_focus_row obj
   method hadjustment = new GData.adjustment (CList.get_hadjustment obj)
   method vadjustment = new GData.adjustment (CList.get_vadjustment obj)
-  method set_button_actions = CList.set_button_actions obj
   method freeze () = CList.freeze obj
   method thaw () = CList.thaw obj
   method column_title = CList.get_column_title obj

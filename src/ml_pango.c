@@ -1,4 +1,26 @@
-/* $Id: ml_pango.c,v 1.15 2005/06/30 07:54:36 garrigue Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_pango.c 1347 2007-06-20 07:40:34Z guesdon $ */
 
 #include <stdio.h>
 #include <pango/pango.h>
@@ -101,15 +123,15 @@ CAMLprim value ml_Pango_scale_val (value val)
 {
   double r;
   if (Is_block(val)) return Field(val,1); /* `CUSTOM */
-  switch(val)
+  switch((long)val)
     {
-    case MLTAG_XX_SMALL: r = PANGO_SCALE_XX_SMALL ;break;
-    case MLTAG_X_SMALL:	 r = PANGO_SCALE_X_SMALL ;break;
-    case MLTAG_SMALL:	 r = PANGO_SCALE_SMALL ;break;
-    case MLTAG_MEDIUM:	 r = PANGO_SCALE_MEDIUM ;break;
-    case MLTAG_LARGE:	 r = PANGO_SCALE_LARGE ;break;
-    case MLTAG_X_LARGE:	 r = PANGO_SCALE_X_LARGE ;break;
-    case MLTAG_XX_LARGE: r = PANGO_SCALE_XX_LARGE ;break;
+    case (long)MLTAG_XX_SMALL: r = PANGO_SCALE_XX_SMALL ;break;
+    case (long)MLTAG_X_SMALL:	 r = PANGO_SCALE_X_SMALL ;break;
+    case (long)MLTAG_SMALL:	 r = PANGO_SCALE_SMALL ;break;
+    case (long)MLTAG_MEDIUM:	 r = PANGO_SCALE_MEDIUM ;break;
+    case (long)MLTAG_LARGE:	 r = PANGO_SCALE_LARGE ;break;
+    case (long)MLTAG_X_LARGE:	 r = PANGO_SCALE_X_LARGE ;break;
+    case (long)MLTAG_XX_LARGE: r = PANGO_SCALE_XX_LARGE ;break;
     default: printf("Bug in ml_PangoScale_val. Please report");
       r=1;
       break;

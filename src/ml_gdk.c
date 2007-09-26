@@ -1,8 +1,30 @@
-/* $Id: ml_gdk.c,v 1.86 2005/09/24 19:21:42 oandrieu Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_gdk.c 1369 2007-09-25 02:56:09Z garrigue $ */
 
 #include <string.h>
 #include <gdk/gdk.h>
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(_WIN32) || defined(__MINGW32__)
 #include <gdk/gdkwin32.h>
 #else
 #include <gdk/gdkx.h>
@@ -274,21 +296,46 @@ ML_6 (gdk_cursor_new_from_pixmap, GdkPixmap_val, GdkPixmap_val,
       GdkColor_val, GdkColor_val, Int_val, Int_val, Val_GdkCursor_new)
 ML_bc6 (ml_gdk_cursor_new_from_pixmap)
 #ifdef HASGTK24
-CAMLprim value
-ml_gdk_cursor_new_from_pixbuf (value pb, value x, value y)
-{
-  GdkCursor *c = gdk_cursor_new_from_pixbuf (gdk_display_get_default (),
-					     GdkPixbuf_val(pb),
-					     Int_val(x), Int_val(y));
-  return Val_GdkCursor_new (c);
-}
+ML_3 (gdk_cursor_new_from_pixbuf, Insert(gdk_display_get_default ())
+      GdkPixbuf_val, Int_val, Int_val, Val_GdkCursor_new)
 #else
 Unsupported_24(gdk_cursor_new_from_pixbuf)
 #endif
-ML_1 (gdk_cursor_destroy, GdkCursor_val, Unit)
+#ifdef HASGTK28
+ML_1 (gdk_cursor_get_image, GdkCursor_val, Val_GdkPixbuf_new)
+#else
+Unsupported_28(gdk_cursor_get_image)
+#endif
+
+/* Display */
+#ifdef HASGTK22
+ML_0 (gdk_display_get_default, Val_GdkDisplay)
+CAMLprim value ml_gdk_display_get_window_at_pointer (value display)
+{
+  gint x;
+  gint y;
+  GdkWindow *gwin;
+
+  if ((gwin = gdk_display_get_window_at_pointer
+       (GdkDisplay_val (display), &x, &y)))
+  { /* return Some */
+    CAMLparam0 ();
+    CAMLlocal1(tup);
+
+    tup = alloc_tuple(3);
+    Store_field(tup,0,Val_GdkWindow(gwin));
+    Store_field(tup,1,Val_int(x));
+    Store_field(tup,2,Val_int(y));
+    CAMLreturn(ml_some (tup));
+  }
+  return Val_unit;
+}
+#else
+Unsupported_22(gdk_display_get_default)
+Unsupported_22(gdk_display_get_window_at_pointer)
+#endif
 
 /* Pixmap */
-
 
 CAMLexport GdkPixmap *GdkPixmap_val(value val)
 {
@@ -405,8 +452,9 @@ CAMLprim value ml_gdk_property_change (value window, value property, value type,
 CAMLprim value copy_xdata (gint format, void *xdata, gulong nitems)
 {
     CAMLparam0();
-    CAMLlocal2(ret, data);
-    long tag;
+    CAMLlocal1(data);
+    value ret = MLTAG_NONE;
+    value tag;
     unsigned int i;
     switch (format) {
     case 8:
@@ -434,7 +482,6 @@ CAMLprim value copy_xdata (gint format, void *xdata, gulong nitems)
         Field(ret,0) = tag;
         Field(ret,1) = data;
     }
-    else ret = tag;
     CAMLreturn(ret);
 }
 
@@ -804,12 +851,15 @@ Make_Extractor (GdkEventConfigure, GdkEvent_arg(Configure), y, Val_int)
 Make_Extractor (GdkEventConfigure, GdkEvent_arg(Configure), width, Val_int)
 Make_Extractor (GdkEventConfigure, GdkEvent_arg(Configure), height, Val_int)
 
-Make_Extractor (GdkEventProperty, GdkEvent_arg(Property), atom, Val_int)
+Make_Extractor (GdkEventProperty, GdkEvent_arg(Property), atom, Val_GdkAtom)
 Make_Extractor (GdkEventProperty, GdkEvent_arg(Property), state, Val_int)
 
-Make_Extractor (GdkEventSelection, GdkEvent_arg(Selection), selection, Val_int)
-Make_Extractor (GdkEventSelection, GdkEvent_arg(Selection), target, Val_int)
-Make_Extractor (GdkEventSelection, GdkEvent_arg(Selection), property, Val_int)
+Make_Extractor (GdkEventSelection, GdkEvent_arg(Selection), selection,
+                Val_GdkAtom)
+Make_Extractor (GdkEventSelection, GdkEvent_arg(Selection), target,
+                Val_GdkAtom)
+Make_Extractor (GdkEventSelection, GdkEvent_arg(Selection), property,
+                Val_GdkAtom)
 Make_Extractor (GdkEventSelection, GdkEvent_arg(Selection), requestor, Val_XID)
 
 Make_Extractor (GdkEventProximity, GdkEvent_arg(Proximity),

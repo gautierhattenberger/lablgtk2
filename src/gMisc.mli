@@ -1,4 +1,26 @@
-(* $Id: gMisc.mli,v 1.42 2005/01/03 23:49:26 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gMisc.mli 1357 2007-08-09 12:32:26Z ben_99_9 $ *)
 
 open Gtk
 open GObj
@@ -169,6 +191,7 @@ class image : 'a obj ->
     inherit misc
     constraint 'a = [> Gtk.image]
     val obj : 'a obj
+    method clear : unit -> unit (** since Gtk 2.8 *)
     method storage_type : image_type
     method set_image : Gdk.image -> unit
     method set_pixmap : GDraw.pixmap -> unit
@@ -178,10 +201,12 @@ class image : 'a obj ->
     method set_stock : GtkStock.id -> unit
     method set_icon_set : icon_set -> unit
     method set_icon_size : Tags.icon_size -> unit
+    method set_pixel_size : int -> unit
     method image : Gdk.image
     method pixmap : GDraw.pixmap
     method mask : Gdk.bitmap option
     method pixbuf : GdkPixbuf.pixbuf
+    method pixel_size : int
     method stock : GtkStock.id
     method icon_set : icon_set
     method icon_size : Tags.icon_size
@@ -192,6 +217,7 @@ val image :
   ?file:string ->
   ?image:Gdk.image ->
   ?pixbuf:GdkPixbuf.pixbuf ->
+  ?pixel_size:int ->
   ?pixmap:Gdk.pixmap ->
   ?mask:Gdk.bitmap ->
   ?stock:GtkStock.id ->

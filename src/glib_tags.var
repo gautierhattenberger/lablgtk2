@@ -1,4 +1,4 @@
-(* $Id: glib_tags.var,v 1.6 2004/09/14 09:47:27 oandrieu Exp $ *)
+(* $Id: glib_tags.var 1199 2004-09-14 09:47:27Z oandrieu $ *)
 
 (* package "glib" *)
 

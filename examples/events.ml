@@ -1,4 +1,13 @@
-(* $Id: events.ml,v 1.8 2003/12/10 10:49:56 oandrieu Exp $ *)
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: events.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 (* This is a direct translation to Gtk2.
    This is actually meaningless, as the new text widget lets you

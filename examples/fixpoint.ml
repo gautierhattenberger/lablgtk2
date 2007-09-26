@@ -1,4 +1,13 @@
-(* $Id: fixpoint.ml,v 1.11 2000/05/22 03:14:57 garrigue Exp $ *)
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: fixpoint.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open GMain
 

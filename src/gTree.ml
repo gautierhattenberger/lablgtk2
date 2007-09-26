@@ -1,4 +1,26 @@
-(* $Id: gTree.ml,v 1.61 2005/08/18 12:47:28 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gTree.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
 
 open StdLabels
 open Gaux
@@ -369,6 +391,7 @@ class view obj = object
   method expand_all () = TreeView.expand_all obj
   method collapse_all () = TreeView.collapse_all obj
   method expand_row ?(all=false) = TreeView.expand_row obj ~all
+  method expand_to_path = TreeView.expand_to_path obj
   method collapse_row = TreeView.collapse_row obj
   method row_expanded = TreeView.row_expanded obj
   method set_cursor : 'a. ?cell:(#cell_renderer as 'a) -> _ =
@@ -386,6 +409,8 @@ class view obj = object
     match TreeView.get_path_at_pos obj ~x ~y with
       Some (p, c, x, y) -> Some (p, new view_column c, x, y)
     | None -> None
+  method get_cell_area ?path ?col () =
+    TreeView.get_cell_area obj ?path ?col:(Gaux.may_map as_column col) ()
   method set_row_separator_func fo =
     TreeView.set_row_separator_func obj 
       (Gaux.may_map (fun f m -> f (new model m)) fo)

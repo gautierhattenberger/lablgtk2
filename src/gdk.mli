@@ -1,4 +1,26 @@
-(* $Id: gdk.mli,v 1.40 2005/09/24 19:21:42 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gdk.mli 1369 2007-09-25 02:56:09Z garrigue $ *)
 
 open Gobject
 
@@ -20,6 +42,7 @@ type drag_context = [`dragcontext] Gobject.obj
 type cursor
 type xid = int32
 type device
+type display
 
 exception Error of string
 
@@ -485,5 +508,12 @@ module Cursor : sig
     fg:color -> bg:color -> x:int -> y:int -> cursor
   val create_from_pixbuf :
     [`pixbuf] Gobject.obj -> x:int -> y:int -> cursor (** @since GTK 2.4 *)
-  val destroy : cursor -> unit
+  val get_image : cursor -> [`pixbuf] obj             (** @since GTK 2.8 *)
+  (* val destroy : cursor -> unit   -- done by GC *)
+end
+module Display : sig
+    (** @since Gtk+-2.2 *)
+
+  val default : unit -> display
+  val window_at_pointer : ?display:display -> unit -> (window * int * int) option
 end

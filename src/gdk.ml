@@ -1,4 +1,26 @@
-(* $Id: gdk.ml,v 1.68 2005/09/24 19:21:42 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gdk.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
 
 open StdLabels
 open Gaux
@@ -22,6 +44,7 @@ type drag_context = [`dragcontext] Gobject.obj
 type cursor
 type xid = int32
 type device
+type display
 
 exception Error of string
 let _ = Callback.register_exception "gdkerror" (Error"")
@@ -737,7 +760,23 @@ module Cursor = struct
     fg:color -> bg:color -> x:int -> y:int -> cursor
     = "ml_gdk_cursor_new_from_pixmap_bc" "ml_gdk_cursor_new_from_pixmap"
   external create_from_pixbuf :
-    [`pixbuf] Gobject.obj -> x:int -> y:int -> cursor
+    [`pixbuf] obj -> x:int -> y:int -> cursor
     = "ml_gdk_cursor_new_from_pixbuf" (** @since GTK 2.4 *)
-  external destroy : cursor -> unit = "ml_gdk_cursor_destroy"
+  external get_image : cursor -> [`pixbuf] obj
+    = "ml_gdk_cursor_get_image"       (** @since GTK 2.8 *)
+end
+
+module Display = struct
+    (* since Gtk+-2.2 *)
+
+  external default :
+    unit -> display
+    = "ml_gdk_display_get_default"
+  external get_window_at_pointer :
+    display -> (window * int * int) option
+    = "ml_gdk_display_get_window_at_pointer"
+  let window_at_pointer ?display () =
+    get_window_at_pointer
+      (match display with None -> default ()
+      | Some disp -> disp)
 end

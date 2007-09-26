@@ -1,6 +1,7 @@
 API CHANGES
 -----------
-
+GPack.notebook#append_page and GPack.notebook#insert_page :
+        return int instead of unit
 GAction.action_group#add_action :
     removed `accel' optional parameter
 GBin.alignment :
@@ -27,7 +28,11 @@ GnoDruid :
 
 API ADDITIONS
 -------------
-
+Glib.usleep
+GAssistant.*
+GWindow.about_dialog (set_)?wrap_licence
+GSourceView
+GButton.link_button
 GAction.action_skel#set_accel_group
 GAction.action_group#add_action_with_accel
 GAction.ui_manager#new_merge_id

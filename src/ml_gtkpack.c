@@ -1,4 +1,26 @@
-/* $Id: ml_gtkpack.c,v 1.10 2005/06/30 09:10:00 garrigue Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_gtkpack.c 1382 2007-09-26 07:41:01Z garrigue $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -115,12 +137,26 @@ ML_4 (gtk_layout_put, GtkLayout_val, GtkWidget_val, Int_val, Int_val, Unit)
 ML_4 (gtk_layout_move, GtkLayout_val, GtkWidget_val, Int_val, Int_val, Unit)
 ML_1 (gtk_layout_freeze, GtkLayout_val, Unit)
 ML_1 (gtk_layout_thaw, GtkLayout_val, Unit)
+Make_Extractor(gtk_layout, GtkLayout_val, bin_window, Val_GdkWindow)
 
 /* gtknotebook.h */
 
 #define GtkNotebook_val(val) check_cast(GTK_NOTEBOOK,val)
-ML_5 (gtk_notebook_insert_page_menu, GtkNotebook_val, GtkWidget_val,
-      GtkWidget_val, GtkWidget_val, Int_val, Unit)
+#ifdef HASGTK24
+ML_5 (gtk_notebook_insert_page_menu, GtkNotebook_val, GtkWidget_val, GtkWidget_val, GtkWidget_val, Option_val(arg5,Int_val,(-1)) Ignore, Val_int)
+#else
+CAMLprim value ml_gtk_notebook_insert_page_menu(value nb, value w1, 
+                                                value w2, value w3, 
+                                                value pos)
+{
+  gtk_notebook_insert_page_menu(GtkNotebook_val(nb),
+                                GtkWidget_val(w1),
+                                GtkWidget_val(w2),
+                                GtkWidget_val(w3),
+                                Option_val(pos,Int_val,-1));
+  return Val_int(gtk_notebook_get_current_page(GtkNotebook_val(nb)));
+}
+#endif
 ML_2 (gtk_notebook_remove_page, GtkNotebook_val, Int_val, Unit)
 
 ML_1 (gtk_notebook_get_current_page, GtkNotebook_val, Val_int)

@@ -1,4 +1,4 @@
-(* $Id: gtkPack.props,v 1.5 2004/11/15 14:30:38 oandrieu Exp $ *)
+(* $Id: gtkPack.props 1369 2007-09-25 02:56:09Z garrigue $ *)
 
 prefix "Gtk"
 
@@ -64,6 +64,7 @@ class Layout set : Container {
   method move : "[>`widget] obj -> x:int -> y:int -> unit"
   method freeze
   method thaw
+  method bin_window : "Gdk.window"
 }
 
 conversions {
@@ -83,7 +84,7 @@ class Notebook set wrap : Container {
   "tab-vborder"          guint                : Read / Write / NoSet
   method insert_page_menu :
      "[>`widget] obj -> tab_label:[>`widget] optobj ->
-      menu_label:[>`widget] optobj -> pos:int -> unit"
+      menu_label:[>`widget] optobj -> ?pos:int -> int"
       (* default is append to end *)
   method remove_page : "int -> unit"
   method get_current_page : "int"

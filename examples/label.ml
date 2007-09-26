@@ -1,4 +1,13 @@
-(* $Id: label.ml,v 1.7 2003/07/09 01:59:40 garrigue Exp $ *)
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: label.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 (* Embedding xpm data into an ML file *)
 

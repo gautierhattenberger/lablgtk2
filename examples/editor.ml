@@ -1,4 +1,13 @@
-(* $Id: editor.ml,v 1.26 2004/07/01 12:29:50 garrigue Exp $ *)
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: editor.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 (* Uses the deprecated old text widget. See editor2.ml for the new one *)
 

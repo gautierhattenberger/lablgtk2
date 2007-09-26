@@ -1,4 +1,26 @@
-(* $Id: gBin.ml,v 1.24 2004/12/02 02:44:43 garrigue Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gBin.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open Gaux
 open Gtk
@@ -35,6 +57,15 @@ end
 
 let event_box =
   pack_container [] ~create:(fun pl -> new event_box (EventBox.create pl))
+
+class invisible obj = object
+  inherit bin obj
+  method connect = new container_signals_impl obj
+  method event = new GObj.event_ops (obj :> Gtk.invisible obj)
+end
+
+let invisible =
+  pack_container [] ~create:(fun pl -> new invisible (Invisible.create pl))
 
 class handle_box_signals (obj : [> handle_box] obj) = object
   inherit container_signals_impl obj

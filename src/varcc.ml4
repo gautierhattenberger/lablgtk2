@@ -1,5 +1,5 @@
 (* -*- caml -*- *)
-(* $Id: varcc.ml4,v 1.11 2004/08/19 12:33:57 oandrieu Exp $ *)
+(* $Id: varcc.ml4 1320 2006-07-04 03:23:40Z garrigue $ *)
 
 (* Compile a list of variant tags into CPP defines *) 
 
@@ -92,7 +92,7 @@ let declaration ~hc ~cc = parser
           if !first then begin
             oh "/* %s : tags and macros */\n" name; first := false
           end;
-	  oh "#define MLTAG_%s\tVal_int(%d)\n" tag hash;
+	  oh "#define MLTAG_%s\t((value)(%d*2+1))\n" tag hash;
       end;
     if List.mem "noconv" flags then () else
     (* compute C name *)

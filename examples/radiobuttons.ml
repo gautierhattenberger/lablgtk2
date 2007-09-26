@@ -1,4 +1,13 @@
-(* $Id: radiobuttons.ml,v 1.19 2000/05/22 03:14:58 garrigue Exp $ *)
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: radiobuttons.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open GMain
 

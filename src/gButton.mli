@@ -1,4 +1,26 @@
-(* $Id: gButton.mli,v 1.33 2004/07/05 10:05:47 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gButton.mli 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open Gtk
 open GObj
@@ -25,6 +47,15 @@ class button_skel : 'a obj ->
     method use_underline : bool
     method grab_default : unit -> unit
     method event : event_ops
+    method set_focus_on_click : bool -> unit
+    method focus_on_click : bool
+    method image : GObj.widget             (** @since GTK 2.6 *)
+    method set_image : GObj.widget -> unit (** @since GTK 2.6 *)
+    method unset_image : unit -> unit      (** @since GTK 2.6 *)
+    method set_xalign : float -> unit  (** @since GTK 2.4 *)
+    method xalign     : float          (** @since GTK 2.4 *)
+    method set_yalign : float -> unit  (** @since GTK 2.4 *)
+    method yalign     : float          (** @since GTK 2.4 *)
   end
 
 (** @gtkdoc gtk GtkButton *)
@@ -462,3 +493,48 @@ val radio_tool_button :
   ?expand:bool ->
   ?packing:(tool_item_o -> unit) ->
   ?show:bool -> unit -> radio_tool_button
+
+(** @gtkdoc gtk GtkMenuToolButton
+    @since GTK 2.6 *)
+class menu_tool_button :
+  ([> Gtk.menu_tool_button] as 'a) obj ->
+  object
+    inherit tool_button
+    val obj : 'a obj
+    method menu : Gtk.menu Gtk.obj
+    method set_menu : Gtk.menu Gtk.obj -> unit
+    method set_arrow_tooltip : GData.tooltips -> string -> string -> unit
+  end
+
+(** @gtkdoc gtk GtkMenuToolButton
+    @since GTK 2.6 *)
+val menu_tool_button :
+  ?menu:<as_menu:Gtk.menu Gtk.obj;..> ->
+  ?label:string ->
+  ?stock:GtkStock.id ->
+  ?use_underline:bool ->
+  ?homogeneous:bool ->
+  ?expand:bool ->
+  ?packing:(tool_item_o -> unit) -> 
+  ?show:bool -> unit -> menu_tool_button
+
+
+(** @gtkdoc gtk GtkLinkButton
+    @since GTK 2.10 *)
+class link_button :
+  ([> Gtk.link_button] as 'a) Gtk.obj ->
+  object
+    inherit button_skel
+    val obj : 'a Gtk.obj
+    method uri : string
+    method set_uri : string -> unit
+  end
+
+(** A button for URL
+    @gtkdoc gtk GtkLinkButton
+    @since GTK 2.10 *)
+
+val link_button :
+  ?label:string ->
+  string ->
+  ?packing:(widget -> unit) -> ?show:bool -> unit -> link_button

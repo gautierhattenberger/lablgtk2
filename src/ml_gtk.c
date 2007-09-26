@@ -1,4 +1,26 @@
-/* $Id: ml_gtk.c,v 1.142 2005/06/30 09:10:00 garrigue Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_gtk.c 1382 2007-09-26 07:41:01Z garrigue $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -52,6 +74,7 @@ CAMLprim value ml_gtkwindow_init(value unit)
         gtk_font_selection_dialog_get_type() 
 #ifndef _WIN32
         + gtk_plug_get_type()
+        + gtk_socket_get_type()
 #endif
 ;
     return Val_GType(t);
@@ -60,8 +83,9 @@ CAMLprim value ml_gtkwindow_init(value unit)
 /* gtkobject.h */
 
 #define gtk_object_ref_and_sink(w) (g_object_ref(w), gtk_object_sink(w))
+#define ml_gtk_object_unref_later(w) ml_g_object_unref_later((GObject*)(w))
 Make_Val_final_pointer_ext(GtkObject, _sink , gtk_object_ref_and_sink,
-                           g_object_unref, 20)
+                           ml_gtk_object_unref_later, 20)
 ML_1 (GTK_OBJECT_FLAGS, GtkObject_val, Val_int)
 ML_1 (gtk_object_ref_and_sink, GtkObject_val, Unit)
 
@@ -334,8 +358,28 @@ ML_1 (gtk_widget_push_visual, GdkVisual_val, Unit)
 ML_1 (gtk_widget_push_colormap, GdkColormap_val, Unit)
 ML_0 (gtk_widget_pop_visual, Unit)
 ML_0 (gtk_widget_pop_colormap, Unit)
+ML_4 (gtk_widget_render_icon, GtkWidget_val, String_val, Icon_size_val,
+      String_option_val, Val_GdkPixbuf)
 
-ML_4 (gtk_widget_render_icon, GtkWidget_val, String_val, Icon_size_val, String_option_val, Val_GdkPixbuf)
+CAMLprim value ml_gtk_widget_style_get_property (value w, value n)
+{
+    CAMLparam2 (w, n);
+    CAMLlocal1 (ret);
+    GtkWidget *widget = GtkWidget_val (w);
+    gchar *name = String_val (n);
+    GParamSpec * pspec;
+    pspec = gtk_widget_class_find_style_property
+               (GTK_WIDGET_GET_CLASS (widget), name);
+    if (pspec) {
+        value ret = ml_g_value_new ();
+        GValue *gv = GValueptr_val (ret);
+        g_value_init (gv, G_PARAM_SPEC_VALUE_TYPE (pspec));
+        gtk_widget_style_get_property (widget, name, gv);
+    } else {
+        invalid_argument("Gobject.Widget.style_get_property");
+    }
+    CAMLreturn (ret);
+}
 
 /* gtkdnd.h */
 
@@ -434,6 +478,8 @@ ML_4 (gtk_selection_add_target, GtkWidget_val, GdkAtom_val,
 ML_4 (gtk_selection_convert, GtkWidget_val, GdkAtom_val,
       GdkAtom_val, Int32_val, Val_bool)
 
+ML_2 (gtk_selection_clear_targets, GtkWidget_val, GdkAtom_val, Unit)
+
 /* gtkclipboard.h */
 
 ML_1 (gtk_clipboard_get, GdkAtom_val, Val_pointer)
@@ -446,6 +492,17 @@ CAMLprim value ml_gtk_clipboard_wait_for_text (value c)
   const char *res = gtk_clipboard_wait_for_text (GtkClipboard_val(c));
   return (res != NULL ? ml_some(copy_string_g_free((char*)res)) : Val_unit);
 }
+#ifdef HASGTK26
+ML_2 (gtk_clipboard_set_image, GtkClipboard_val, GdkPixbuf_val, Unit)
+CAMLprim value ml_gtk_clipboard_wait_for_image (value c)
+{
+  GdkPixbuf *res = gtk_clipboard_wait_for_image (GtkClipboard_val(c));
+  return (res != NULL ? ml_some(Val_GdkPixbuf_new(res)) : Val_unit);
+}
+#else
+Unsupported_26(gtk_clipboard_set_image)
+Unsupported_26(gtk_clipboard_wait_for_image)
+#endif
 static void clipboard_received_func (GtkClipboard *clipboard,
                                      GtkSelectionData *selection_data,
                                      gpointer data)
@@ -490,6 +547,32 @@ static void clipboard_clear_func (GtkClipboard *clipboard, gpointer data)
   ml_global_root_destroy (data);
 }
 */
+
+#ifdef HASGTK22
+CAMLprim value ml_gtk_clipboard_wait_for_targets (value c)
+{
+  CAMLparam0 ();
+  CAMLlocal3 (new_cell, result, last_cell);
+  GdkAtom *targets;
+  gint n_targets;
+
+  gtk_clipboard_wait_for_targets (GtkClipboard_val(c), &targets, &n_targets);
+  last_cell = Val_unit;
+  if (targets != NULL) {
+    while (n_targets > 0) {
+      result = Val_GdkAtom(targets[--n_targets]);
+      new_cell = alloc_small(2,0);
+      Field(new_cell,0) = result;
+      Field(new_cell,1) = last_cell;
+      last_cell = new_cell;
+    }
+  }
+  g_free(targets);
+  CAMLreturn (last_cell);
+}
+#else
+Unsupported_22(gtk_clipboard_wait_for_targets)
+#endif
 
 /* gtkcontainer.h */
 
@@ -542,18 +625,25 @@ ML_1 (gtk_item_toggle, GtkItem_val, Unit)
 
 /* gtkdialog.h */
 
-static void window_unref (GtkObject *w)
+static gboolean window_unref (gpointer w)
 {
     /* If the window exists, has no parent, is still not visible,
        and has only two references (mine and toplevel_list),
        then destroy it. */
     if (GTK_WINDOW(w)->has_user_ref_count && !GTK_WIDGET_VISIBLE(w)
         && G_OBJECT(w)->ref_count == 2)
-        gtk_object_destroy (w);
-    gtk_object_unref(w);
+        gtk_object_destroy ((GtkObject*)w);
+    gtk_object_unref((GtkObject*)w);
+    return 0;
 }
-Make_Val_final_pointer_ext (GtkObject, _window, gtk_object_ref, window_unref,
-                            20)
+static void window_unref_later (GtkObject *p)
+{
+     g_timeout_add_full(G_PRIORITY_HIGH_IDLE, 0, window_unref,
+                        (gpointer)(p), NULL);
+}
+
+Make_Val_final_pointer_ext (GtkObject, _window, gtk_object_ref,
+                            window_unref_later, 20)
 #define Val_GtkWidget_window(w) Val_GtkObject_window(GTK_OBJECT(w))
 
 #define GtkDialog_val(val) check_cast(GTK_DIALOG,val)
@@ -721,6 +811,7 @@ ML_1 (gtk_window_get_role, GtkWindow_val, Val_optstring)
 
 ML_4 (gtk_message_dialog_new, Option_val(arg1,GtkWindow_val,NULL) Ignore,
       Insert(0) Message_type_val, Buttons_type_val,
+      /* The NULL below causes a spurious warning, but is correct */
       Insert(String_val(arg4)[0] != 0 ? "%s" : NULL) String_val,
       Val_GtkWidget_window)
 #ifdef HASGTK24
@@ -873,6 +964,14 @@ Unsupported(gtk_plug_new)
 ML_1 (gtk_plug_new, XID_val, Val_GtkWidget_window)
 #endif
 
+/* gtksocket.h */
+#ifdef _WIN32
+Unsupported(gtk_socket_steal)
+#else
+#define GtkSocket_val(val) check_cast(GTK_SOCKET,val)
+ML_2 (gtk_socket_steal, GtkSocket_val, XID_val, Unit)
+#endif
+
 /* gtkmain.h */
 
 CAMLprim value ml_gtk_init (value argv)
@@ -910,6 +1009,8 @@ CAMLprim value ml_gtk_get_version (value unit)
 
 ML_0 (gtk_get_current_event_time,copy_int32)
 
-/* gtkmain.h (again) */
+/* gtkrc.h */
 
 ML_1 (gtk_rc_add_default_file, String_val, Unit)
+ML_1 (gtk_rc_parse, String_val, Unit)
+ML_1 (gtk_rc_parse_string, String_val, Unit)

@@ -1,4 +1,26 @@
-/* $Id: wrappers.c,v 1.27 2004/08/19 12:33:57 oandrieu Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: wrappers.c 1347 2007-06-20 07:40:34Z guesdon $ */
 
 #include <string.h>
 #include <caml/mlvalues.h>
@@ -10,13 +32,13 @@
 
 #include "wrappers.h"
 
-value copy_memblock_indirected (void *src, asize_t size)
+CAMLexport value copy_memblock_indirected (void *src, asize_t size)
 {
     mlsize_t wosize = Wosize_asize(size);
     value ret;
     if (!src) ml_raise_null_pointer ();
     ret = alloc_shr (wosize+2, Abstract_tag);
-    Field(ret,1) = 2;
+    Field(ret,1) = (value)2;
     memcpy ((value *) ret + 2, src, size);
     return ret;
 }
@@ -24,7 +46,7 @@ value copy_memblock_indirected (void *src, asize_t size)
 value alloc_memblock_indirected (asize_t size)
 {
     value ret = alloc_shr (Wosize_asize(size)+2, Abstract_tag);
-    Field(ret,1) = 2;
+    Field(ret,1) = (value)2;
     return ret;
 }
 
@@ -54,7 +76,7 @@ void ml_raise_null_pointer ()
   raise_constant (*exn);
 }   
 
-value Val_pointer (void *ptr)
+CAMLexport value Val_pointer (void *ptr)
 {
     value ret = alloc_small (2, Abstract_tag);
     if (!ptr) ml_raise_null_pointer ();
@@ -81,13 +103,13 @@ CAMLprim value *ml_global_root_new (value v)
     return p;
 }
 
-void ml_global_root_destroy (void *data)
+CAMLexport void ml_global_root_destroy (void *data)
 {
     remove_global_root ((value *)data);
     stat_free (data);
 }
 
-value ml_lookup_from_c (const lookup_info table[], int data)
+CAMLexport value ml_lookup_from_c (const lookup_info table[], int data)
 {
     int i;
     for (i = table[0].data; i > 0; i--)
@@ -95,7 +117,7 @@ value ml_lookup_from_c (const lookup_info table[], int data)
     invalid_argument ("ml_lookup_from_c");
 }
     
-int ml_lookup_to_c (const lookup_info table[], value key)
+CAMLexport int ml_lookup_to_c (const lookup_info table[], value key)
 {
     int first = 1, last = table[0].data, current;
     while (first < last) {
@@ -107,7 +129,7 @@ int ml_lookup_to_c (const lookup_info table[], value key)
     invalid_argument ("ml_lookup_to_c");
 }
 
-value ml_lookup_flags_getter (const lookup_info table[], int data)
+CAMLexport value ml_lookup_flags_getter (const lookup_info table[], int data)
 {
   CAMLparam0();
   CAMLlocal2(cell, l);
@@ -125,3 +147,10 @@ value ml_lookup_flags_getter (const lookup_info table[], int data)
 
 ML_2 (ml_lookup_from_c, (lookup_info*), Int_val, 0+)
 ML_2 (ml_lookup_to_c, (lookup_info*), 0+, Val_int)
+
+#ifdef ABSVALUE
+CAMLexport intnat Long_val(value x)  { return (intnat)x >> 1; }
+CAMLexport value  Val_long(intnat x) { return (value)((x << 1) + 1); }
+CAMLexport int Is_long(value x)   { return ((intnat)(x) & 1) != 0; }
+CAMLexport int Is_block(value x)  { return ((intnat)(x) & 1) == 0; }
+#endif

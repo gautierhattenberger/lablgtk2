@@ -1,4 +1,4 @@
-(* $Id: gtkRange.props,v 1.2 2005/01/04 00:19:05 oandrieu Exp $ *)
+(* $Id: gtkRange.props 1253 2005-01-04 00:19:05Z oandrieu $ *)
 
 prefix "Gtk"
 

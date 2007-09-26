@@ -1,9 +1,31 @@
-/* $Id: ml_glib.h,v 1.12 2005/10/17 11:52:03 garrigue Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_glib.h 1362 2007-08-17 03:52:05Z garrigue $ */
 
 CAMLexport value copy_string_g_free (char *str); /* for g_strings only */
 
 typedef value (*value_in)(gpointer);
-typedef gpointer (*value_out)(value);
+typedef gpointer (*value_out)(value); /* should not trigger GC */
 
 CAMLexport value Val_GList (GList *list, value_in);
 CAMLexport value Val_GList_free (GList *list, value_in);
