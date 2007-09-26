@@ -3,7 +3,7 @@ Section: libdevel
 Priority: optional
 Maintainer: Debian OCaml Maintainers <debian-ocaml-maint@lists.debian.org>
 Uploaders: Sven Luther <luther@debian.org>, Samuel Mimram <smimram@debian.org>, Stefano Zacchiroli <zack@debian.org>, Sylvain Le Gall <gildor@debian.org>
-Build-Depends: debhelper (>> 5.0.0), ocaml (>= 3.10.0-8), camlp4 (>= 3.10.0), libncurses5-dev, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.02-5), librsvg2-dev, libgnomecanvas2-dev, libgtkspell-dev, libgnomeui-dev, libpanel-applet2-dev, libgtksourceview-dev, dpatch
+Build-Depends: debhelper (>> 5.0.0), ocaml (>= 3.10.0-8), camlp4 (>= 3.10.0), libncurses5-dev, libgtk2.0-dev, libgtkgl2.0-dev, libglade2-dev, liblablgl-ocaml-dev (>= 1.02-5), librsvg2-dev, libgnomecanvas2-dev, libgtkspell-dev, libgnomeui-dev, libpanel-applet2-dev, libgtksourceview-dev (>= 1.2.0), dpatch
 Standards-Version: 3.7.2
 Homepage: http://wwwfun.kurims.kyoto-u.ac.jp/soft/lsl/lablgtk.html
 XS-Vcs-Svn: svn://svn.debian.org/svn/pkg-ocaml-maint/trunk/packages/lablgtk
@@ -13,9 +13,6 @@ Package: liblablgtk2-ocaml
 Section: libs
 Architecture: any
 Depends: ocaml-base-${F:OCamlABI}, ${shlibs:Depends}
-Provides: liblablgtksourceview-ocaml
-Conflicts: liblablgtksourceview-ocaml
-Replaces: liblablgtksourceview-ocaml
 Description: runtime libraries for OCaml bindings for Gtk+ version 2
  lablgtk2 contains bindings for gtk+ 2.x and OCaml.
  .
@@ -45,14 +42,23 @@ Description: runtime libraries for OCaml bindings to Gnome
  bytecode executables using gnome functionalities (panel-applet, gnomeui,
  gnome-canvas, rsvg).
 
+Package: liblablgtksourceview-ocaml
+Architecture: any
+Section: libs
+Depends: ocaml-base-nox-${F:OCamlABI}, liblablgtk2-ocaml (= ${binary:Version}), ${shlibs:Depends}
+Description: OCaml bindings for libgtksourceview, a source editor GTK widget
+ This is the OCaml binding for the GtkSourceView widget, a text widget that
+ extends the standard gtk+ 2.x text widget with syntax highlighting and other
+ features typical of a source editor.
+ .
+ This package contains the shared runtime stub libraries.
+
 Package: liblablgtk2-ocaml-dev
 Section: libdevel
 Architecture: any
 Suggests: liblablgtk2-gl-ocaml-dev, liblablgtk2-gnome-ocaml-dev
 Depends: liblablgtk2-ocaml (= ${binary:Version}), ocaml-${F:OCamlABI}, libgtk2.0-dev, libglade2-dev, libgtkspell-dev
-Conflicts: findlib (<< 1.0.2), liblablgtksourceview-ocaml-dev
-Provides: liblablgtksourceview-ocaml-dev
-Replaces: liblablgtksourceview-ocaml-dev
+Conflicts: findlib (<< 1.0.2)
 Description: OCaml bindings to Gtk+ version 2
  lablgtk2 contains bindings for gtk+ 2.x and OCaml.
  .
@@ -80,3 +86,14 @@ Description: OCaml bindings to Gnome
  .
  This package contains the development files of lablgtk for libraries using
  gnome functionalities (panel-applet, gnomeui, gnome-canvas, rsvg).
+
+Package: liblablgtksourceview-ocaml-dev
+Architecture: any
+Section: libdevel
+Depends: ocaml-nox-${F:OCamlABI}, ocaml-findlib, liblablgtksourceview-ocaml (= ${binary:Version}), liblablgtk2-ocaml-dev (= ${binary:Version}), libgtksourceview-dev (>= 1.2.0)
+Description: OCaml bindings for libgtksourceview, a source editor GTK widget
+ This is the OCaml binding for the GtkSourceView widget, a text widget that
+ extends the standard gtk+ 2.x text widget with syntax highlighting and other
+ features typical of a source editor.
+ .
+ This package contains the development part of the lablgtksourceview package.

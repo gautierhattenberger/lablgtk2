@@ -30,7 +30,7 @@ configure-stamp: ocamlinit
 	dh_testdir
 
 	./configure --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info \
-		--with-gl --with-glade --with-rsvg --with-gnomecanvas --with-gtkspell --with-gnomeui --with-panel
+		--with-gl --with-glade --with-rsvg --with-gnomecanvas --with-gtkspell --with-gnomeui --with-panel --with-gtksourceview
 
 	touch configure-stamp
 
@@ -68,6 +68,7 @@ install: build
 	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
 	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
 	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_LIBDIR)/METAS
+	cp debian/META.lablgtksourceview $(CURDIR)/debian/liblablgtksourceview-ocaml-dev/$(OCAML_LIBDIR)/METAS
 
 	# This file is needed by lablgtk2-doc
 	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
@@ -75,6 +76,7 @@ install: build
 	# Examples
 	cp -r examples/GL/*  $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/usr/share/doc/liblablgtk2-gl-ocaml-dev/examples/
 	cp -r examples/rsvg examples/panel examples/canvas $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/usr/share/doc/liblablgtk2-gnome-ocaml-dev/examples/
+	cp -r examples/sourceview $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/usr/share/doc/liblablgtksourceview-ocaml-dev/examples/
 
 	# Lintian override
 	install -m 644 debian/liblablgtk2-ocaml-dev.override $(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/share/lintian/overrides/liblablgtk2-ocaml-dev

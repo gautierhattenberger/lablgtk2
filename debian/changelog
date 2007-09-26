@@ -5,7 +5,7 @@ lablgtk2 (2.10.0-1) UNRELEASED; urgency=low
 
   [ Samuel Mimram ]
   * New upstream release.
-  * Replaces liblablgtksourceview-ocaml.
+  * Provides liblablgtksourceview-ocaml{,-dev}.
 
  -- Samuel Mimram <smimram@debian.org>  Wed, 26 Sep 2007 16:09:49 +0000
 
