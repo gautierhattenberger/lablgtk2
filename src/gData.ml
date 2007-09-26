@@ -1,4 +1,26 @@
-(* $Id: gData.ml,v 1.19 2003/06/24 09:20:02 garrigue Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gData.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open Gaux
 open Gobject
@@ -66,17 +88,60 @@ let tooltips ?delay () =
   may delay ~f:(Tooltips.set_delay tt);
   new tooltips tt
 
-class clipboard clip = object (self)
+class clipboard_skel clip = object (self)
   method as_clipboard = Lazy.force clip
-  method clear () = Clipboard.clear self#as_clipboard
-  method set_text = Clipboard.set_text self#as_clipboard
+  method clear () = self#call_clear; Clipboard.clear self#as_clipboard
+  method set_text = self#call_clear; Clipboard.set_text self#as_clipboard
   method text = Clipboard.wait_for_text self#as_clipboard
+  method set_image = self#call_clear; Clipboard.set_image self#as_clipboard
+  method image = Clipboard.wait_for_image self#as_clipboard
+  method targets = Clipboard.wait_for_targets self#as_clipboard
   method get_contents ~target =
     new GObj.selection_data
       (Clipboard.wait_for_contents self#as_clipboard ~target)
+  method private call_clear = ()
 end
 
-let clipboard selection =
-  new clipboard (lazy (Clipboard.get selection))
+(* Additions by SooHyoung Oh *)
+
+let default_get_cb context ~info ~time  = ()
+
+class clipboard ~selection = object (self)
+  inherit clipboard_skel (lazy (GtkBase.Clipboard.get selection))
+  val mutable widget = None
+  val mutable get_cb = default_get_cb
+  val mutable clear_cb = None
+
+  method private call_get context ~info ~time =
+    get_cb context ~info ~time
+  method private call_clear =
+    match clear_cb with
+      None -> ()
+    | Some cb ->
+        get_cb <- default_get_cb; clear_cb <- None; cb ()
+
+  method private init_widget =
+    match widget with Some w -> w
+    | None ->
+        let w = new GObj.widget (GtkBin.Invisible.create []) in
+        widget <- Some w;
+        ignore (w#misc#connect#selection_get ~callback:self#call_get);
+        ignore ((new GObj.event_signals w#as_widget)#selection_clear
+                  ~callback:(fun _ -> self#call_clear; true));
+        w
+
+  method set_contents ~targets ~get:get_func ~clear:clear_func =
+    let widget = self#init_widget in
+    self#call_clear;
+    get_cb <- get_func;
+    clear_cb <- Some clear_func;
+    widget#misc#grab_selection selection;
+    widget#misc#clear_selection_targets selection;
+    List.iter
+      (fun target -> widget#misc#add_selection_target ~target selection)
+      targets
+end
+
+let clipboard selection = new clipboard ~selection
 
 let as_clipboard clip = clip#as_clipboard

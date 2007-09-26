@@ -1,4 +1,4 @@
-(* $Id: gtkText.props,v 1.1 2003/08/15 11:08:43 garrigue Exp $ *)
+(* $Id: gtkText.props 1369 2007-09-25 02:56:09Z garrigue $ *)
 
 prefix "Gtk"
 
@@ -42,8 +42,10 @@ class TextView wrap wrapsig : Container {
   signal toggle_overwrite
 }
 
-class TextBuffer : GObject {
+class TextBuffer wrap : GObject {
   "tag-table"            GtkTextTagTable      : Read / Write / Construct Only
+  "cursor-position"      gint                 : Read
+  "has-selection"        gboolean             : Read
   signal apply_tag : GtkTextTag GtkTextIter GtkTextIter
   signal begin_user_action                  / Wrap
   signal changed                            / Wrap

@@ -1,4 +1,26 @@
-/* $Id: ml_gobject.h,v 1.13 2005/10/17 11:52:03 garrigue Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_gobject.h 1369 2007-09-25 02:56:09Z garrigue $ */
 
 /* Defined in ml_gobject.h */
 
@@ -7,6 +29,7 @@ CAMLexport value Val_GObject (GObject *);
 CAMLexport value Val_GObject_new (GObject *);
 #define Val_GAnyObject(val) Val_GObject(G_OBJECT(val))
 #define Val_GAnyObject_new(val) Val_GObject_new(G_OBJECT(val))
+CAMLexport void ml_g_object_unref_later (GObject *);
 
 #define GType_val Long_val
 #define Val_GType Val_long

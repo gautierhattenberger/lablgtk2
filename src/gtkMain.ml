@@ -1,4 +1,26 @@
-(* $Id: gtkMain.ml,v 1.24 2004/09/21 11:29:37 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gtkMain.ml 1361 2007-08-17 03:24:07Z garrigue $ *)
 
 open StdLabels
 open Gtk
@@ -21,7 +43,6 @@ module Main = struct
       with Error err ->
         raise (Error ("GtkMain.init: initialization failed\n" ^ err))
     in
-    if setlocale then ignore (Glib.Main.setlocale `NUMERIC (Some "C"));
     Array.blit ~src:argv ~dst:Sys.argv ~len:(Array.length argv)
       ~src_pos:0 ~dst_pos:0;
     Obj.truncate (Obj.repr Sys.argv) (Array.length argv);
@@ -50,4 +71,6 @@ end
 
 module Rc = struct
   external add_default_file : string -> unit = "ml_gtk_rc_add_default_file"
+  external parse : file:string -> unit = "ml_gtk_rc_parse"
+  external parse_string : string -> unit = "ml_gtk_rc_parse_string"
 end

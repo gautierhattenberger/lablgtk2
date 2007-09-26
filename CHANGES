@@ -1,4 +1,95 @@
-$Id: CHANGES,v 1.325 2005/10/27 00:46:51 garrigue Exp $
+$Id: CHANGES 1376 2007-09-25 14:34:38Z garrigue $
+
+In lablgtk-2.10.0:
+2007.09.25 [Jacques]
+  * Various preparations for release.
+  * Use the "Glade for Windows" distribution for win32, supporting glade and rsvg.
+
+2007.08.17 [Jacques]
+  * some more patch by Julien Moutinho (style and Rc).
+  * do not set LC_NUMERIC to C (ocaml is now ok) (Volker Grabsch).
+  * avoid some warnings in ml_gdkpixbuf and ml_glib.
+
+2007.08.09 [Benjamin]
+  * GtkImage : clear support
+	
+2007.08.08 [Benjamin]
+  * Fix typo in property "wrap-license" (was "wrap-licence") of GtkAboutDialog
+  * Add GtkFileChooser "do-confirm-overwrite" property support and
+     "confirm-overwrite" signal
+  * GWindow "urgency-hint" property support
+	
+2007.08.07 [Benjamin]
+  * Add Glib.usleep
+  * Add Stock icons for Gtk 2.10 and 2.8
+  * Add  has_selection and cursor_position properties in GText.buffer
+
+2007.08.06 [Benjamin]
+  * Add support for GtkAssistant of Gtk 2.10
+
+2007.06.18 [Jacques]
+  * merge patches by Julien Moutinho for GdkDisplay
+    and gtk_tree_view_get_cell_area.
+
+2007.06.08 [Benjamin]
+  * Add support for gtk_link_button
+
+2007.06.07 [Benjamin]
+  * gtksourceview support
+
+2007.05.27 [Benjamin]
+  * fixed bug in GWindow.about_dialog whose callbacks raised an uncaught
+    Not_found.
+    The default Close button now responds `CANCEL and not `CLOSE.
+
+2006.11.19 [Olivier]
+  * add some missing properties in GtkIconView (in module GTree) (2.6)
+  * add some missing properties in GtkButton (2.4, 2.6)
+
+2006.11.03 [Olivier]
+  * move GtkSocket code from ml_gtkbin.c to ml_gtk.c since it is
+    wrapped in GWindow.
+
+2006.10.27 [Jacques]
+  * add Gdk.Cursor.get_image
+  * remove Gdk.Cursor.destroy (could be dangerous)
+  * add new methods to GData.clipboard (partly from SooHyoung Oh)
+
+2006.10.13 [Jacques]
+  * add GDraw.drawable#colormap,gc,set_gc
+
+2006.09.15 [Olivier]
+  * wrap GtkMenuToolButton (2.6)
+
+In lablgtk2-20060908:
+2006.08.08 [RobertR]
+  * export copy_memblock_indirected and ml_lookup_flags_getter for Windows
+
+2006.07.06 [Jacques]
+  * make ABSVALUE=1 to use a custom mlvalues.h where value is abstract
+
+2006.05.13 [Jacques]
+  * delay finalization functions when they may trigger a callback
+
+2006.02.03 [Jacques]
+  * add GLayout#bin_window
+
+2005.12.19 [Jacques]
+  * lablgladecc : apply Keita Yamaguchi's patch
+
+2005.12.02 [Benjalin]
+  * lablgladecc : support for GtkAboutDialog
+
+2005.11.10 [Olivier]
+  * wrap gtk_tree_view_expand_to_path (2.2)
+
+2005.11.03 [Benjamin]
+  * lablgladecc : emit w#toplevel#misc#show_all instead of 
+    w#toplevel#show in check_all, because some toplevel widgets (gMenu for example)
+    do not have a show method
+
+2005.10.28 [Jacques]
+  * add windows support for rsvg
 
 In lablgtk2-20051027 (2.6.0):
 

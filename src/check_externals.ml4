@@ -1,4 +1,4 @@
-(* $Id: check_externals.ml4,v 1.1 2003/06/11 10:02:29 garrigue Exp $ *)
+(* $Id: check_externals.ml4 940 2003-06-11 10:02:30Z garrigue $ *)
 
 (* Check that all external statements differ in a .ml or .mli file *)
 

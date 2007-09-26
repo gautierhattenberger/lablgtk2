@@ -1,4 +1,26 @@
-(* $Id: gPack.ml,v 1.36 2004/11/15 14:30:38 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gPack.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open Gaux
 open Gobject
@@ -103,6 +125,7 @@ class layout obj = object
   method hadjustment = new GData.adjustment (get Layout.P.hadjustment obj)
   method vadjustment = new GData.adjustment (get Layout.P.vadjustment obj)
   method freeze () = Layout.freeze obj
+  method bin_window = Layout.bin_window obj
   method thaw () = Layout.thaw obj
   method width = get Layout.P.width obj
   method height = get Layout.P.height obj
@@ -184,11 +207,13 @@ class notebook obj = object (self)
   inherit notebook_props
   method event = new GObj.event_ops obj
   method connect = new notebook_signals obj
-  method insert_page ?tab_label ?menu_label ~pos child =
-      Notebook.insert_page_menu obj (as_widget child) ~pos
+  method insert_page ?tab_label ?menu_label ?pos child =
+      Notebook.insert_page_menu obj (as_widget child) 
 	~tab_label:(Gpointer.may_box tab_label ~f:as_widget)
 	~menu_label:(Gpointer.may_box menu_label ~f:as_widget)
-  method append_page = self#insert_page ~pos:(-1)
+        ?pos
+  method append_page ?tab_label ?menu_label child = 
+    self#insert_page ?tab_label ?menu_label child 
   method prepend_page = self#insert_page ~pos:0
   method remove_page = Notebook.remove_page obj
   method current_page = get Notebook.P.page obj

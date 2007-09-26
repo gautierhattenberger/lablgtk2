@@ -1,4 +1,26 @@
-(* $Id: gObj.mli,v 1.61 2005/02/18 04:21:30 garrigue Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gObj.mli 1369 2007-09-25 02:56:09Z garrigue $ *)
 
 open Gtk
 
@@ -190,6 +212,7 @@ and misc_ops : Gtk.widget obj ->
     method add_selection_target :
       target:string -> ?info:int -> Gdk.atom -> unit
     method allocation : rectangle
+    method clear_selection_targets : Gdk.atom -> unit
     method colormap : Gdk.colormap
     method connect : misc_signals
     method convert_selection : target:string -> ?time:int32 -> Gdk.atom -> bool

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2004/11/19 01:41:32 garrigue Exp $
+# $Id: Makefile 1229 2004-11-19 01:41:32Z garrigue $
 # Makefile for lablgtk.
 
 all: browser

@@ -1,4 +1,13 @@
-(* $Id: editor2.ml,v 1.5 2003/06/24 09:20:01 garrigue Exp $ *)
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: editor2.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open StdLabels
 

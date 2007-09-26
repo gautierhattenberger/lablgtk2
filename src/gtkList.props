@@ -1,4 +1,4 @@
-(* $Id: gtkList.props,v 1.1 2003/08/15 11:08:43 garrigue Exp $ *)
+(* $Id: gtkList.props 1001 2003-08-15 11:09:49Z garrigue $ *)
 
 prefix "Gtk"
 

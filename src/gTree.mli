@@ -1,4 +1,26 @@
-(* $Id: gTree.mli,v 1.58 2005/08/18 12:47:28 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gTree.mli 1369 2007-09-25 02:56:09Z garrigue $ *)
 
 open Gobject
 open Gtk
@@ -366,12 +388,15 @@ class view : tree_view obj ->
     method expand_all : unit -> unit
     method expand_row : ?all:bool -> tree_path -> unit
     (** @param all default value is [false] *)
+    method expand_to_path : tree_path -> unit (** @since GTK 2.2 *)
     method expander_column : view_column option
     method fixed_height_mode : bool
     method get_column : int -> view_column
     method get_cursor : unit -> tree_path option * view_column option
     method get_path_at_pos :
       x:int -> y:int -> (tree_path * view_column * int * int) option
+    method get_cell_area :
+        ?path:tree_path -> ?col:view_column -> unit -> Gdk.Rectangle.t
     method hadjustment : GData.adjustment
     method headers_visible : bool
     method insert_column : view_column -> int -> int
@@ -617,6 +642,18 @@ class icon_view :
     method set_orientation : GtkEnums.orientation -> unit
     method selection_mode : GtkEnums.selection_mode
     method set_selection_mode : GtkEnums.selection_mode -> unit
+    method column_spacing : int
+    method set_column_spacing : int -> unit
+    method item_width : int
+    method set_item_width : int -> unit
+    method margin : int
+    method set_margin : int -> unit
+    method columns : int
+    method set_columns : int -> unit
+    method row_spacing : int
+    method set_row_spacing : int -> unit
+    method spacing : int
+    method set_spacing : int -> unit
 
     method get_path_at_pos : int -> int -> Gtk.tree_path
     method selected_foreach : (Gtk.tree_path -> unit) -> unit
@@ -635,6 +672,7 @@ class icon_view :
     @since GTK 2.6 *)
 val icon_view :
   ?model:#model ->
+  ?columns:int ->
   ?orientation:GtkEnums.orientation ->
   ?selection_mode:GtkEnums.selection_mode ->
   ?border_width:int ->

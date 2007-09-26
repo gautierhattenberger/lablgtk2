@@ -1,4 +1,4 @@
-(* $Id: gdk_tags.var,v 1.23 2005/02/18 04:21:30 garrigue Exp $ *)
+(* $Id: gdk_tags.var 1265 2005-02-18 04:21:30Z garrigue $ *)
 
 package "gdk"
 

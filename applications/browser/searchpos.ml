@@ -1,4 +1,27 @@
-(* $Id: searchpos.ml,v 1.10 2005/10/27 01:00:05 garrigue Exp $ *)
+(**************************************************************************)
+(*     Lablgtk - Applications                                             *)
+(*                                                                        *)
+(*    * You are free to do anything you want with this code as long       *)
+(*      as it is for personal use.                                        *)
+(*                                                                        *)
+(*    * Redistribution can only be "as is".  Binary distribution          *)
+(*      and bug fixes are allowed, but you cannot extensively             *)
+(*      modify the code without asking the authors.                       *)
+(*                                                                        *)
+(*    The authors may choose to remove any of the above                   *)
+(*    restrictions on a per request basis.                                *)
+(*                                                                        *)
+(*    Authors:                                                            *)
+(*      Jacques Garrigue <garrigue@kurims.kyoto-u.ac.jp>                  *)
+(*      Benjamin Monate  <Benjamin.Monate@free.fr>                        *)
+(*      Olivier Andrieu  <oandrieu@nerim.net>                             *)
+(*      Jun Furuse       <Jun.Furuse@inria.fr>                            *)
+(*      Hubert Fauque    <hubert.fauque@wanadoo.fr>                       *)
+(*      Koji Kagawa      <kagawa@eng.kagawa-u.ac.jp>                      *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: searchpos.ml 1378 2007-09-25 15:32:38Z garrigue $ *)
 
 open StdLabels
 open Parsetree
@@ -124,9 +147,8 @@ let rec search_pos_class_type cl ~pos ~env =
         List.iter cfl ~f:
           begin function
               Pctf_inher cty -> search_pos_class_type cty ~pos ~env
-            | Pctf_val (_, _, Some ty, loc) ->
+            | Pctf_val (_, _, _, ty, loc) ->
                 if in_loc loc ~pos then search_pos_type ty ~pos ~env
-            | Pctf_val _ -> ()
             | Pctf_virt (_, _, ty, loc) ->
                 if in_loc loc ~pos then search_pos_type ty ~pos ~env
             | Pctf_meth (_, _, ty, loc) ->
@@ -374,7 +396,6 @@ let rec view_signature ?title ?path ?(env = !start_env) ?(detach=false) sign =
             Syntaxerr.Unclosed(l,_,_,_) -> l
           | Syntaxerr.Other l -> l
         in
-        let start = tb#start_iter in
         tb#apply_tag_by_name "error"
           ~start:(tpos l.loc_start)
           ~stop:(tpos l.loc_end);
@@ -650,7 +671,7 @@ let rec search_pos_structure ~pos str =
   | Tstr_modtype _ -> ()
   | Tstr_open _ -> ()
   | Tstr_class l ->
-      List.iter l ~f:(fun (id, _, _, cl) -> search_pos_class_expr cl ~pos)
+      List.iter l ~f:(fun (id, _, _, cl, _) -> search_pos_class_expr cl ~pos)
   | Tstr_cltype _ -> ()
   | Tstr_include (m, _) -> search_pos_module_expr m ~pos
   end
@@ -660,7 +681,8 @@ and search_pos_class_structure ~pos cls =
     begin function
         Cf_inher (cl, _, _) ->
           search_pos_class_expr cl ~pos
-      | Cf_val (_, _, exp) -> search_pos_expr exp ~pos
+      | Cf_val (_, _, Some exp, _) -> search_pos_expr exp ~pos
+      | Cf_val _ -> ()
       | Cf_meth (_, exp) -> search_pos_expr exp ~pos
       | Cf_let (_, pel, iel) ->
           List.iter pel ~f:

@@ -1,3 +1,24 @@
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
 
 open GtkFile
   
@@ -23,6 +44,8 @@ class type chooser_signals = object
   method file_activated : callback:(unit -> unit) -> GtkSignal.id
   method selection_changed : callback:(unit -> unit) -> GtkSignal.id
   method update_preview : callback:(unit -> unit) -> GtkSignal.id
+  method confirm_overwrite : 
+    callback:(unit -> GtkEnums.file_chooser_confirmation) -> GtkSignal.id
 end
 
 class type chooser =
@@ -80,6 +103,10 @@ class type chooser =
     method add_shortcut_folder_uri : string -> unit
     method remove_shortcut_folder_uri : string -> unit
     method list_shortcut_folder_uris : string list
+      
+    method do_overwrite_confirmation : bool
+    method set_do_overwrite_confirmation : bool -> unit
+
   end
 
 class virtual chooser_impl = object (self)
@@ -121,6 +148,7 @@ class virtual chooser_impl = object (self)
   method add_shortcut_folder_uri = FileChooser.add_shortcut_folder_uri self#obj
   method remove_shortcut_folder_uri = FileChooser.remove_shortcut_folder_uri self#obj
   method list_shortcut_folder_uris = FileChooser.list_shortcut_folder_uris self#obj
+
 end
 
 class chooser_widget_signals obj = object

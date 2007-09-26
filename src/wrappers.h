@@ -1,4 +1,26 @@
-/* $Id: wrappers.h,v 1.63 2005/06/02 00:20:06 garrigue Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: wrappers.h 1382 2007-09-26 07:41:01Z garrigue $ */
 
 #ifndef _wrappers_
 #define _wrappers_
@@ -12,23 +34,23 @@
 #include <caml/custom.h>
 CAMLextern char *young_start, *young_end; /* from minor_gc.h */
 
-value copy_memblock_indirected (void *src, asize_t size);
+CAMLexport value copy_memblock_indirected (void *src, asize_t size);
 value alloc_memblock_indirected (asize_t size);
 CAMLprim value ml_some (value);
 value ml_cons (value, value);
-void ml_raise_null_pointer (void) Noreturn;
-value Val_pointer (void *);
+CAMLexport void ml_raise_null_pointer (void) Noreturn;
+CAMLexport value Val_pointer (void *);
 CAMLprim value copy_string_check (const char*);
 value copy_string_or_null (const char *);
 
 CAMLprim value *ml_global_root_new (value v);
-void ml_global_root_destroy (void *data);
+CAMLexport void ml_global_root_destroy (void *data);
 
 /* enums <-> polymorphic variants */
 typedef struct { value key; int data; } lookup_info;
-value ml_lookup_from_c (const lookup_info table[], int data);
-int ml_lookup_to_c (const lookup_info table[], value key);
-value ml_lookup_flags_getter (const lookup_info table[], int data);
+CAMLexport value ml_lookup_from_c (const lookup_info table[], int data);
+CAMLexport int ml_lookup_to_c (const lookup_info table[], value key);
+CAMLexport value ml_lookup_flags_getter (const lookup_info table[], int data);
 
 /* Compatibility */
 #include <gtk/gtkversion.h>
@@ -41,18 +63,38 @@ value ml_lookup_flags_getter (const lookup_info table[], int data);
 #if GTK_CHECK_VERSION(2,5,3) && !defined(DISABLE_GTK26)
 #define HASGTK26
 #endif
+#if GTK_CHECK_VERSION(2,8,0) && !defined(DISABLE_GTK28)
+#define HASGTK28
+#endif
+#if GTK_CHECK_VERSION(2,10,0) && !defined(DISABLE_GTK210)
+#define HASGTK210
+#endif
+#if GTK_CHECK_VERSION(2,12,0) && !defined(DISABLE_GTK212)
+#define HASGTK212
+#endif
 
 /* Wrapper generators */
 
-#define Unsupported(cname) \
+#define Unsupported_22(cname) \
 CAMLprim value ml_##cname () \
-{ failwith(#cname " unsupported in Gtk 2.x < 2.2"); return Val_unit; }
+{ failwith(#cname " unsupported in Gtk 2.x < 2.2"); }
+#define Unsupported Unsupported_22
 #define Unsupported_24(cname) \
 CAMLprim value ml_##cname () \
-{ failwith(#cname " unsupported in Gtk 2.x < 2.4"); return Val_unit; }
+{ failwith(#cname " unsupported in Gtk 2.x < 2.4"); }
 #define Unsupported_26(cname) \
 CAMLprim value ml_##cname () \
-{ failwith(#cname " unsupported in Gtk 2.x < 2.6"); return Val_unit; }
+{ failwith(#cname " unsupported in Gtk 2.x < 2.6"); }
+#define Unsupported_28(cname) \
+CAMLprim value ml_##cname () \
+{ failwith(#cname " unsupported in Gtk 2.x < 2.8"); }
+
+#define Unsupported_210(cname) \
+CAMLprim value ml_##cname () \
+{ failwith(#cname " unsupported in Gtk 2.x < 2.10"); }
+#define Unsupported_212(cname) \
+CAMLprim value ml_##cname () \
+{ failwith(#cname " unsupported in Gtk 2.x < 2.12"); }
 
 #define ID(x) (x)
 
@@ -269,7 +311,7 @@ CAMLprim value Val_##type (type *p) \
 #define Pointer_val(val) ((void*)Field(val,1))
 #define Store_pointer(val,p) (Field(val,1)=Val_bp(p))
 #define MLPointer_val(val) \
-        (Field(val,1) == 2 ? &Field(val,2) : (void*)Field(val,1))
+        ((int)Field(val,1) == 2 ? &Field(val,2) : (void*)Field(val,1))
 
 #define Val_addr(ptr) (1+(value)ptr)
 #define Addr_val(val) ((void*)(val-1))
@@ -297,15 +339,15 @@ CAMLprim value ml_##name##_##field (value val, value index, value new) \
 #define Make_Flags_val(conv) \
 CAMLprim int Flags_##conv (value list) \
 { int flags = 0L; \
-  while Is_block(list) { flags |= conv(Field(list,0)); list = Field(list,1); }\
+  while(Is_block(list)){ flags |= conv(Field(list,0)); list = Field(list,1); }\
   return flags; }
 
 /* ML value is [flag list option] */
 #define Make_OptFlags_val(conv) \
 CAMLprim int OptFlags_##conv (value list) \
 { int flags = 0L; \
-  if Is_block(list) list = Field(list,0); \
-  while Is_block(list) { flags |= conv(Field(list,0)); list = Field(list,1); }\
+  if (Is_block(list)) list = Field(list,0); \
+  while(Is_block(list)){ flags |= conv(Field(list,0)); list = Field(list,1); }\
   return flags; }
 
 #define Val_copy(val) copy_memblock_indirected (&val, sizeof(val))

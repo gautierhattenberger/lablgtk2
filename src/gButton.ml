@@ -1,4 +1,26 @@
-(* $Id: gButton.ml,v 1.33 2004/06/01 12:06:42 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gButton.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open Gaux
 open Gobject
@@ -18,6 +40,11 @@ class button_skel obj = object (self)
     set Widget.P.can_default obj true;
     set Widget.P.has_default obj true
   method event = new GObj.event_ops obj
+
+  method unset_image () =
+    Gobject.Property.set_dyn obj 
+      GtkButtonProps.Button.P.image.Gobject.name
+      (`OBJECT None)
 end
 
 class button_signals obj = object
@@ -288,3 +315,32 @@ let radio_tool_button ?group =
     (may_cons RadioToolButton.P.group 
        (Gaux.may_map (fun g -> g#group) group)
        [])
+
+class menu_tool_button obj = object
+  inherit tool_button obj
+  method menu = get MenuToolButton.P.menu obj
+  method set_menu = set MenuToolButton.P.menu obj
+  method set_arrow_tooltip (t : GData.tooltips) =
+    MenuToolButton.set_arrow_tooltip obj t#as_tooltips
+end
+
+let menu_tool_button ?menu =
+  tool_button_params 
+    (fun pl -> new menu_tool_button (MenuToolButton.create pl))
+    (may_cons MenuToolButton.P.menu
+       (Gaux.may_map (fun m -> m#as_menu) menu)
+       [])
+    
+class link_button obj = object
+  inherit button_skel obj
+  inherit link_button_props
+end
+
+let link_button ?label =
+  pack_return 
+    (fun uri -> new link_button 
+       (match label with 
+        | None -> LinkButton.create uri
+        | Some s -> LinkButton.create_with_label uri s))
+
+

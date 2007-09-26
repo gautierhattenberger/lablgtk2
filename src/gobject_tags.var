@@ -1,4 +1,4 @@
-(* $Id: gobject_tags.var,v 1.5 2004/02/29 13:36:13 oandrieu Exp $ *)
+(* $Id: gobject_tags.var 1369 2007-09-25 02:56:09Z garrigue $ *)
 
 (* package "gobject" *)
 

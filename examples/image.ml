@@ -1,4 +1,13 @@
-(* $Id: image.ml,v 1.11 2002/06/19 15:08:40 garrigue Exp $ *)
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: image.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open GMain
 open Gdk

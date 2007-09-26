@@ -1,4 +1,26 @@
-/* $Id: ml_gdkpixbuf.c,v 1.17 2005/05/03 20:50:21 oandrieu Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_gdkpixbuf.c 1362 2007-08-17 03:52:05Z garrigue $ */
 
 #include <string.h>
 #include <gdk/gdk.h>
@@ -76,7 +98,7 @@ static unsigned long ml_GdkPixbuf_deserialize (void *dst)
       char *msg;
       GEnumClass *class = G_ENUM_CLASS (g_type_class_peek (GDK_TYPE_PIXBUF_ERROR));
       GEnumValue *val   = g_enum_get_value (class, error->code);
-      msg = val ? val->value_name : "";
+      msg = val ? (char*)val->value_name : "";
       g_error_free (error);
       deserialize_error (msg);
     }
@@ -121,9 +143,9 @@ ML_1(gdk_pixbuf_get_rowstride, GdkPixbuf_val, Val_int)
 CAMLprim value ml_gdk_pixbuf_get_pixels (value pixbuf)
 {
     long pixels = (long)gdk_pixbuf_get_pixels (GdkPixbuf_val(pixbuf));
-    unsigned int ofs = pixels % sizeof(value);
+    unsigned int ofs = pixels & (sizeof(value)-1);
     value ret = alloc_small(2,0);
-    Field(ret,0) = pixels - ofs;
+    Field(ret,0) = (value)(pixels - ofs);
     Field(ret,1) = Val_int(ofs);
     return ret;
 }

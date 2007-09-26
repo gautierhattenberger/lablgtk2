@@ -1,4 +1,26 @@
-(* $Id: gdkPixbuf.ml,v 1.13 2005/05/03 20:50:21 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gdkPixbuf.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open Gaux
 open Gobject
@@ -181,7 +203,7 @@ external _scale :
   scale_y:float -> interp:interpolation -> unit
   = "ml_gdk_pixbuf_scale_bc" "ml_gdk_pixbuf_scale"
 let scale ~dest ?(dest_x=0) ?(dest_y=0) ?width ?height ?(ofs_x=0.) ?(ofs_y=0.)
-    ?scale_x ?scale_y ?(interp=`NEAREST) src =
+    ?scale_x ?scale_y ?(interp=`BILINEAR) src =
   let width, scale_x =
     get_size width scale_x ~ssrc:(get_width src)
       ~sdest:(get_width dest) ~dest:dest_x ~ofs:ofs_x
@@ -198,7 +220,7 @@ external _composite :
   scale_y:float -> interp:interpolation -> alpha:int -> unit
   = "ml_gdk_pixbuf_composite_bc" "ml_gdk_pixbuf_composite"
 let composite ~dest ~alpha ?(dest_x=0) ?(dest_y=0) ?width ?height
-    ?(ofs_x=0.) ?(ofs_y=0.) ?scale_x ?scale_y ?(interp=`NEAREST) src =
+    ?(ofs_x=0.) ?(ofs_y=0.) ?scale_x ?scale_y ?(interp=`BILINEAR) src =
   let width, scale_x =
     get_size width scale_x ~ssrc:(get_width src)
       ~sdest:(get_width dest) ~dest:dest_x ~ofs:ofs_x

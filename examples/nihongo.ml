@@ -1,4 +1,13 @@
-(* $Id: nihongo.ml,v 1.25 2004/11/17 10:51:47 garrigue Exp $ *)
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: nihongo.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 (* これを実行する前にLC_ALL=ja_JP.EUCなどと指定しなければならない *)
 

@@ -2,9 +2,8 @@
              LablGTK2 : an interface to the GIMP Tool Kit
 
 Needed:
-	ocaml-3.07 or 3.08
-	gtk+-2.x (preferably gtk+-2.4.x)
-          (avoid gtk+-2.4.0, as the GtkTree widget is broken)
+	ocaml-3.07 or more
+	gtk+-2.x (gtk+-2.10.x for full functionality)
 	GNU make (there is no standard for conditionals)
 
 Info/upgrades:
@@ -25,9 +24,8 @@ Status:
   utf8, it is still a good idea to validate it with
   Glib.Utf8.validate, as malformed utf8 strings may cause segmentation
   faults.
-  Note that setlocale is now always called (except if you set
-  GTK_SETLOCALE to 0 in the environment), but LC_NUMERIC is reverted
-  to "C" to avoid problems with floating point conversion in Caml.
+  Note that setlocale is now always called, except if you set
+  GTK_SETLOCALE to 0 in the environment.
 
   There are of course many other changes and additions.
 
@@ -40,7 +38,8 @@ How to compile:
 
   You should normally not need to modify Makefiles.
   
-  In case you are using the CVS version first type "aclocal && autoconf".
+  In case you are using the SVN version you may have to first type
+  "aclocal && autoconf".
   
   Type "./configure && make world && make install" to compile 
   with all supported options enabled (libgl, libglade, libgnomecanvas, 
@@ -59,6 +58,11 @@ How to compile:
 	--with-rsvg --without-rsvg: override autodetected librsvg support
 	--with-gnomecanvas --without-gnomecanvas: 
 		override autodetected libgnomecanvas support
+        --with-gnomeui --without-gnomeui: override autodetected libgnomeui support
+        --with-panel --without-panel: override autodetected libpanelapplet support
+        --with-gtkspell --without-gtkspell: override autodetected gtkspell support
+        --with-gtksourceview --without-gtksourceview:
+                override autodetected gtksourceview support
 	--enable-debug: enable debug mode
 
   "make install DESTDIR=..." prefixes the installation
@@ -314,13 +318,19 @@ GnomeCanvas support:
   See examples in examples/canvas.
   The executable must be linked with lablgnomecanvas.cma.
 
+GtkSourceView support:
+  This binding was contributed by Maxence Guesdon and Stefano Zacchiroli.
+  It requires libgtksourceview-1.x.
+  See examples in examples/sourceview.
+  The executable must be linked with lablgtksourceview.cma.
+
 Windows port
 
   See README.win32 for detailed information on installation.
 
   If you want to use threads, you must be aware of windows specific
   restrictions; see for instance:
-     http://groups.yahoo.com/group/gimpwin-dev/message/1828
+     http://article.gmane.org/gmane.comp.video.gimp.windows.devel/314
   I.e. all GTK related calls must occur in the same thread, the one
   that runs the main loop. If you want to call them from other threads
   you need to do some forwarding. Fortunately, with a functional
@@ -348,6 +358,8 @@ Authors:
 	Benjamin Monate  <benjamin.monate@free.fr>
         Olivier Andrieu  <oandrieu@nerim.net>
 	Jun Furuse       <furuse@yl.is.s.u-tokyo.ac.jp>
+        Maxence Guesdon  <maxence.guesdon@inria.fr>
+        Stefano Zacchiroli  <zack@cs.unibo.it>
   For lablgtk1:
 	Hubert Fauque  <hubert.fauque@wanadoo.fr>
 	Koji Kagawa    <kagawa@eng.kagawa-u.ac.jp>
@@ -355,4 +367,4 @@ Authors:
 Bug reports:
 	Jacques Garrigue <garrigue@math.nagoya-u.ac.jp>
 
-$Id: README,v 1.84 2005/10/27 00:45:27 garrigue Exp $
+$Id: README 1376 2007-09-25 14:34:38Z garrigue $

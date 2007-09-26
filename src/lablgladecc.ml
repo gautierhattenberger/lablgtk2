@@ -1,4 +1,26 @@
-(* $Id: lablgladecc.ml,v 1.22 2004/07/09 13:52:21 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: lablgladecc.ml 1359 2007-08-17 02:38:53Z garrigue $ *)
 
 open StdLabels
 open Printf
@@ -61,6 +83,8 @@ let classes = ref [
   "GtkTipsQuery", ("GtkMisc.TipsQuery", "GMisc.tips_query");
   "GtkPixmap", ("GtkMisc.Image", "GMisc.image");
   "GtkSeparator", ("GtkMisc.Separator", "GObj.widget_full");
+  "GtkHSeparator", ("GtkMisc.Separator", "GObj.widget_full");
+  "GtkVSeparator", ("GtkMisc.Separator", "GObj.widget_full");
   "GtkFontSelection", ("GtkMisc.FontSelection", "GMisc.font_selection");
   "GtkBox", ("GtkPack.Box", "GPack.box");
   "GtkHBox", ("GtkPack.Box", "GPack.box");
@@ -99,11 +123,26 @@ let classes = ref [
   "GtkCTree", ("GtkBase.Container", "GContainer.container");
   "GtkWindow", ("GtkWindow.Window", "GWindow.window");
   "GtkDialog", ("GtkWindow.Dialog", "GWindow.dialog_any");
+  "GtkMessageDialog", ("GtWindow.MessageDialog", "GWindow.message_dialog");
+  "GtkAboutDialog", ("GtkWindow.AboutDialog", "GWindow.about_dialog");
   "GtkInputDialog", ("GtkWindow.Dialog", "GWindow.dialog");
   "GtkFileSelection", ("GtkWindow.FileSelection", "GWindow.file_selection");
   "GtkFontSelectionDialog", ("GtkWindow.FontSelectionDialog",
                              "GWindow.font_selection_dialog");
+  "GtkColorSelectionDialog", ("GtkWindow.ColorSelectionDialog", "GWindow.color_selection_dialog");
   "GtkPlug", ("GtkWindow.Plug", "GWindow.plug");
+  "GtkFileChooserButton", ("GtkFile.FileChooserButton", "GFile.chooser_button");
+  "GtkColorButton", ("GtkButton.ColorButton", "GButton.color_button");
+  "GtkFontButton", ("GtkButton.FontButton", "GButton.font_button");
+  "GtkExpander", ("GtkBin.Expander", "GBin.expander");
+  "GtkToolItem", ("GtkButton.ToolItem", "GButton.tool_item");
+  "GtkToolButton", ("GtkButton.ToolButton", "GButton.tool_button");
+  "GtkToggleToolButton", ("GtkButton.ToggleToolButton", "GButton.toggle_tool_button");
+  "GtkRadioToolButton", ("GtkButton.RadioToolButton", "GButton.radio_tool_button");
+  "GtkSeparatorToolItem", ("GtkButton.SeparatorToolItem", "GButton.separator_tool_item");
+  "GtkIconView", ("GtkTree.IconView", "GTree.icon_view");
+  "GtkComboBox", ("GtkEdit.ComboBox", "GEdit.combo_box");
+  "GtkComboBoxEntry", ("GtkEdit.ComboBoxEntry", "GEdit.combo_box_entry");
 ] 
 
 open Xml_lexer
@@ -221,6 +260,7 @@ let roots = ref []
 let embed = ref false
 let trace = ref false
 let output_classes = ref []
+let check_all = ref false
 
 let output_wrapper ~file wtree =
   printf "class %s %s?domain ?autoconnect(*=true*) () =\n"
@@ -268,7 +308,7 @@ let output_check_all () =
   printf "  ignore (GMain.Main.init ());\n";
   List.iter (fun cl ->   
     printf "  let %s = new %s () in\n" cl cl;
-    printf "  if show then %s#toplevel#show ();\n" cl;
+    printf "  if show then %s#toplevel#misc#show_all ();\n" cl;
     printf "  %s#check_widgets ();\n" cl) !output_classes;
   printf "  if show then GMain.Main.main ()\n";
   printf ";;\n";
@@ -320,7 +360,7 @@ let process ?(file="<stdin>") chan =
       file;
     if !embed then printf "let data = \"%s\"\n\n" (String.escaped data);
     parse_body ~file lexbuf;
-    output_check_all ()
+    if !check_all then output_check_all ()
   with Failure s ->
     eprintf "lablgladecc: in %s, before char %d, %s\n"
       file (Lexing.lexeme_start lexbuf) s
@@ -347,7 +387,8 @@ let main () =
       "-root", Arg.String (fun s -> roots := s :: !roots),
       "<widget>  generate only a wrapper for <widget> and its children";
       "-hide-default", Arg.Set hide_default_names, 
-        " hide widgets with default names like 'label23'"
+        " hide widgets with default names like 'label23'";
+      "-check-all", Arg.Set check_all, " create check_all function";
     ]
     (fun s -> files := s :: !files)
     "lablgladecc2 [<options>] [<file.glade>]";

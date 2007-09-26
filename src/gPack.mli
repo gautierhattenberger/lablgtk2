@@ -1,4 +1,26 @@
-(* $Id: gPack.mli,v 1.36 2004/11/15 14:30:38 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gPack.mli 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open Gtk
 open GObj
@@ -179,6 +201,7 @@ class layout :
     constraint 'a = [> Gtk.layout]
     val obj : 'a obj
     method event : event_ops
+    method bin_window : Gdk.window
     method freeze : unit -> unit
     method hadjustment : GData.adjustment
     method height : int
@@ -221,7 +244,7 @@ class notebook : Gtk.notebook obj ->
     val obj : Gtk.notebook obj
     method event : event_ops
     method append_page :
-      ?tab_label:widget -> ?menu_label:widget -> widget -> unit
+      ?tab_label:widget -> ?menu_label:widget -> widget -> int
     method connect : notebook_signals
     method current_page : int
     method get_menu_label : widget -> widget
@@ -229,11 +252,11 @@ class notebook : Gtk.notebook obj ->
     method get_tab_label : widget -> widget
     method goto_page : int -> unit
     method insert_page :
-      ?tab_label:widget -> ?menu_label:widget -> pos:int -> widget -> unit
+      ?tab_label:widget -> ?menu_label:widget -> ?pos:int -> widget -> int
     method next_page : unit -> unit
     method page_num : widget -> int
     method prepend_page :
-      ?tab_label:widget -> ?menu_label:widget -> widget -> unit
+      ?tab_label:widget -> ?menu_label:widget -> widget -> int
     method previous_page : unit -> unit
     method remove_page : int -> unit
     method set_enable_popup : bool -> unit

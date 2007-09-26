@@ -1,4 +1,26 @@
-/* $Id: ml_gtktree.c,v 1.42 2005/03/07 20:17:04 oandrieu Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_gtktree.c 1369 2007-09-25 02:56:09Z garrigue $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -401,6 +423,11 @@ ML_1 (gtk_tree_view_expand_all, GtkTreeView_val, Unit)
 ML_1 (gtk_tree_view_collapse_all, GtkTreeView_val, Unit)
 ML_3 (gtk_tree_view_expand_row, GtkTreeView_val, GtkTreePath_val,
       Bool_val, Unit)
+#ifdef HASGTK22
+ML_2 (gtk_tree_view_expand_to_path, GtkTreeView_val, GtkTreePath_val, Unit)
+#else
+Unsupported(gtk_tree_view_expand_to_path)
+#endif
 ML_2 (gtk_tree_view_collapse_row, GtkTreeView_val, GtkTreePath_val, Unit)
 ML_2 (gtk_tree_view_row_expanded, GtkTreeView_val, GtkTreePath_val, Val_bool)
 ML_4 (gtk_tree_view_set_cursor, GtkTreeView_val, GtkTreePath_val,
@@ -452,6 +479,21 @@ CAMLprim value ml_gtk_tree_view_get_path_at_pos(value treeview,
     CAMLreturn(ml_some (tup));
   }
   return Val_unit;
+}
+
+CAMLprim value ml_gtk_tree_view_get_cell_area(value treeview,
+                                              value path,
+                                              value col)
+{
+  CAMLparam0 ();
+  GdkRectangle grect;
+
+  gtk_tree_view_get_cell_area(
+    GtkTreeView_val(treeview),
+    Option_val(path,GtkTreePath_val,NULL),
+    Option_val(col,GtkTreeViewColumn_val,NULL),
+    &grect);
+  CAMLreturn (Val_copy (grect));
 }
 
 #ifdef HASGTK26

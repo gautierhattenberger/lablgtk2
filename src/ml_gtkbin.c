@@ -1,4 +1,26 @@
-/* $Id: ml_gtkbin.c,v 1.10 2003/12/10 10:49:57 oandrieu Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_gtkbin.c 1347 2007-06-20 07:40:34Z guesdon $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -23,14 +45,12 @@ CAMLprim value ml_gtkbin_init(value unit)
     GType t =
         gtk_alignment_get_type() +
         gtk_event_box_get_type() +
+        gtk_invisible_get_type() +
         gtk_frame_get_type() +
         gtk_aspect_frame_get_type() +
         gtk_handle_box_get_type() +
         gtk_viewport_get_type() +
         gtk_scrolled_window_get_type() 
-#ifndef _WIN32
-        + gtk_socket_get_type()
-#endif
 #ifdef HASGTK24
         + gtk_expander_get_type()
 #endif
@@ -127,11 +147,3 @@ ML_2 (gtk_scrolled_window_set_placement, GtkScrolledWindow_val,
 */
 ML_2 (gtk_scrolled_window_add_with_viewport, GtkScrolledWindow_val,
       GtkWidget_val, Unit)
-
-/* gtksocket.h */
-#ifdef _WIN32
-Unsupported(gtk_socket_steal)
-#else
-#define GtkSocket_val(val) check_cast(GTK_SOCKET,val)
-ML_2 (gtk_socket_steal, GtkSocket_val, XID_val, Unit)
-#endif

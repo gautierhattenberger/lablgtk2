@@ -1,4 +1,13 @@
-(* $Id: entry.ml,v 1.21 2002/02/25 07:54:08 garrigue Exp $ *)
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: entry.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
 
 open Printf
 open GMain

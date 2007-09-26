@@ -1,4 +1,26 @@
-(* $Id: gWindow.mli,v 1.55 2005/08/25 18:11:31 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gWindow.mli 1356 2007-08-08 18:05:11Z ben_99_9 $ *)
 
 open Gtk
 open GObj
@@ -69,6 +91,9 @@ class window_skel : 'a obj ->
     method skip_taskbar_hint : bool
     method title : string
     method type_hint : Gdk.Tags.window_type_hint
+    method set_urgency_hint : bool -> unit (** since Gtk 2.8 *)
+    method urgency_hint : bool (** since Gtk 2.8 *)
+
   end
 
 (** Toplevel widget which can contain other widgets
@@ -98,6 +123,7 @@ val window :
   ?screen:Gdk.screen ->
   ?type_hint:Gdk.Tags.window_type_hint ->
   ?position:Tags.window_position ->
+  ?urgency_hint:bool ->
   ?wm_name:string ->
   ?wm_class:string ->
   ?border_width:int ->
@@ -175,6 +201,7 @@ val dialog :
   ?screen:Gdk.screen ->
   ?type_hint:Gdk.Tags.window_type_hint ->
   ?position:Tags.window_position ->
+  ?urgency_hint:bool ->
   ?wm_name:string ->
   ?wm_class:string ->
   ?border_width:int ->
@@ -198,7 +225,7 @@ module Buttons : sig
   type color_selection = [`OK | `CANCEL | `HELP | `DELETE_EVENT]
   type file_selection = [`OK | `CANCEL | `HELP | `DELETE_EVENT]
   type font_selection = [`OK | `CANCEL | `APPLY | `DELETE_EVENT]
-  type about = [`CLOSE | `DELETE_EVENT]
+  type about = [ `CANCEL | `CLOSE | `DELETE_EVENT ]
 end
 
 (** Convenient message window
@@ -230,6 +257,7 @@ val message_dialog :
   ?screen:Gdk.screen ->
   ?type_hint:Gdk.Tags.window_type_hint ->
   ?position:Tags.window_position ->
+  ?urgency_hint:bool ->
   ?wm_name:string ->
   ?wm_class:string ->
   ?border_width:int ->
@@ -259,6 +287,7 @@ class about_dialog :
     method version : string
     method website : string
     method website_label : string
+    method wrap_license : bool
 
     method set_artists : string list -> unit
     method set_authors : string list -> unit
@@ -273,10 +302,15 @@ class about_dialog :
     method set_version : string -> unit
     method set_website : string -> unit
     method set_website_label : string -> unit
+    method set_wrap_license : bool -> unit
+
   end
 
 (** Display information about an application. 
-    A default handler is already connected to the [response] signal. It simply hides the dialog.
+
+    In GTK+ 2.6.x and 2.8.x, a default handler is already connected to
+    the [response] signal. It simply hides the dialog. This is no longer
+    the case since GTK+ 2.10.x though.
     You could use it like this: 
 {[let about_dialog = ref (fun () -> raise Not_found)
 let show_dialog () =
@@ -285,6 +319,7 @@ let show_dialog () =
     let dialog = GWindow.about_dialog ~name:"..." (* etc. *) () in
     about_dialog := dialog#present ;
     dialog#show () ]}
+
     @gtkdoc gtk GtkAboutDialog 
     @since GTK 2.6 
 *)
@@ -300,6 +335,7 @@ val about_dialog :
   ?version:string ->
   ?website:string ->
   ?website_label:string ->
+  ?wrap_license:bool ->
   ?parent:#window_skel ->
   ?destroy_with_parent:bool ->
   ?title:string ->
@@ -311,6 +347,7 @@ val about_dialog :
   ?screen:Gdk.screen ->
   ?type_hint:GdkEnums.window_type_hint ->
   ?position:GtkEnums.window_position ->
+  ?urgency_hint:bool ->
   ?wm_name:string ->
   ?wm_class:string ->
   ?border_width:int ->
@@ -362,6 +399,7 @@ val file_chooser_dialog :
   ?screen:Gdk.screen ->
   ?type_hint:Gdk.Tags.window_type_hint ->
   ?position:Tags.window_position ->
+  ?urgency_hint:bool ->
   ?wm_name:string ->
   ?wm_class:string ->
   ?border_width:int ->
@@ -395,6 +433,7 @@ val color_selection_dialog :
   ?screen:Gdk.screen ->
   ?type_hint:Gdk.Tags.window_type_hint ->
   ?position:Tags.window_position ->
+  ?urgency_hint:bool ->
   ?wm_name:string ->
   ?wm_class:string ->
   ?border_width:int ->
@@ -438,6 +477,7 @@ val file_selection :
   ?screen:Gdk.screen ->
   ?type_hint:Gdk.Tags.window_type_hint ->
   ?position:Tags.window_position ->
+  ?urgency_hint:bool ->
   ?wm_name:string ->
   ?wm_class:string ->
   ?border_width:int ->
@@ -468,6 +508,7 @@ val font_selection_dialog :
   ?screen:Gdk.screen ->
   ?type_hint:Gdk.Tags.window_type_hint ->
   ?position:Tags.window_position ->
+  ?urgency_hint:bool ->
   ?wm_name:string ->
   ?wm_class:string ->
   ?border_width:int ->

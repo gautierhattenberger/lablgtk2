@@ -1,4 +1,26 @@
-(* $Id: gMisc.ml,v 1.40 2004/11/24 23:30:51 oandrieu Exp $ *)
+(**************************************************************************)
+(*                Lablgtk                                                 *)
+(*                                                                        *)
+(*    This program is free software; you can redistribute it              *)
+(*    and/or modify it under the terms of the GNU Library General         *)
+(*    Public License as published by the Free Software Foundation         *)
+(*    version 2, with the exception described in file COPYING which       *)
+(*    comes with the library.                                             *)
+(*                                                                        *)
+(*    This program is distributed in the hope that it will be useful,     *)
+(*    but WITHOUT ANY WARRANTY; without even the implied warranty of      *)
+(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       *)
+(*    GNU Library General Public License for more details.                *)
+(*                                                                        *)
+(*    You should have received a copy of the GNU Library General          *)
+(*    Public License along with this program; if not, write to the        *)
+(*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         *)
+(*    Boston, MA 02111-1307  USA                                          *)
+(*                                                                        *)
+(*                                                                        *)
+(**************************************************************************)
+
+(* $Id: gMisc.ml 1357 2007-08-09 12:32:26Z ben_99_9 $ *)
 
 open Gaux
 open Gobject
@@ -99,6 +121,7 @@ class image obj = object (self)
   method set_pixmap (p : GDraw.pixmap) =
     set Image.P.pixmap obj p#pixmap;
     self#set_mask p#mask
+  method clear () = Image.clear obj
 end
 
 type image_type = 

@@ -1,4 +1,26 @@
-/* $Id: ml_gtkmisc.c,v 1.10 2004/11/24 23:30:51 oandrieu Exp $ */
+/**************************************************************************/
+/*                Lablgtk                                                 */
+/*                                                                        */
+/*    This program is free software; you can redistribute it              */
+/*    and/or modify it under the terms of the GNU Library General         */
+/*    Public License as published by the Free Software Foundation         */
+/*    version 2, with the exception described in file COPYING which       */
+/*    comes with the library.                                             */
+/*                                                                        */
+/*    This program is distributed in the hope that it will be useful,     */
+/*    but WITHOUT ANY WARRANTY; without even the implied warranty of      */
+/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the       */
+/*    GNU Library General Public License for more details.                */
+/*                                                                        */
+/*    You should have received a copy of the GNU Library General          */
+/*    Public License along with this program; if not, write to the        */
+/*    Free Software Foundation, Inc., 59 Temple Place, Suite 330,         */
+/*    Boston, MA 02111-1307  USA                                          */
+/*                                                                        */
+/*                                                                        */
+/**************************************************************************/
+
+/* $Id: ml_gtkmisc.c 1381 2007-09-26 05:43:01Z garrigue $ */
 
 #include <gtk/gtk.h>
 #include <caml/mlvalues.h>
@@ -98,6 +120,13 @@ ML_3 (gtk_drawing_area_size, GtkDrawingArea_val, Int_val, Int_val, Unit)
 /* gtkarrow.h */
 
 /* gtkimage.h */
+#define GtkImage_val(val) check_cast(GTK_IMAGE,val)
+
+#ifdef HASGTK28
+ML_1(gtk_image_clear, GtkImage_val, Unit)
+#else
+Unsupported_28(gtk_image_clear)
+#endif 
 
 /* gtklabel.h */
 
