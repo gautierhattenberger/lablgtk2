@@ -1,4 +1,4 @@
-lablgtk2 (2.10.0-1) UNRELEASED; urgency=low
+lablgtk2 (2.10.0-1) experimental; urgency=low
 
   [ Stefano Zacchiroli ]
   * Add Homepage field to debian/control.

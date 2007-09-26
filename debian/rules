@@ -90,7 +90,7 @@ binary-arch: build install
 	dh_testdir -s
 	dh_testroot -s
 
-	dh_installexamples -s --exclude='.cvsignore' --exclude='rsvg' --exclude='panel' --exclude='canvas' --exclude='GL'
+	dh_installexamples -s --exclude='.cvsignore' --exclude='rsvg' --exclude='panel' --exclude='canvas' --exclude='GL' --exclude='sourceview'
 	dh_installmenu -s
 	dh_movefiles -s
 	dh_install -s --sourcedir=$(DESTDIR) --list-missing -X ".cmx" -X ".cmxa" -X "*.o"
