@@ -5,7 +5,6 @@ usr/lib/ocaml/@OCamlABI@/lablgtk2/*.cmi
 usr/lib/ocaml/@OCamlABI@/lablgtk2/*.cma
 usr/lib/ocaml/@OCamlABI@/lablgtk2/*.cmo
 usr/lib/ocaml/@OCamlABI@/lablgtk2/*.a
-usr/lib/ocaml/@OCamlABI@/lablgtk2/*.o
 usr/lib/ocaml/@OCamlABI@/lablgtk2/*.h
 usr/lib/ocaml/@OCamlABI@/lablgtk2/varcc
 usr/lib/ocaml/@OCamlABI@/lablgtk2/propcc

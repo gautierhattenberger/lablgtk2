@@ -2,8 +2,9 @@ lablgtk2 (2.10.0-2) UNRELEASED; urgency=low
 
   * NOT RELEASED YET
   * Generate html documentation for gtksourceview.
+  * Don't install *.o files, closes: #444310.
 
- -- Samuel Mimram <smimram@debian.org>  Wed, 26 Sep 2007 17:36:29 +0000
+ -- Samuel Mimram <smimram@debian.org>  Thu, 27 Sep 2007 19:39:15 +0100
 
 lablgtk2 (2.10.0-1) experimental; urgency=low
 
