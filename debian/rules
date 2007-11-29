@@ -30,7 +30,7 @@ configure-stamp: ocamlinit
 	dh_testdir
 
 	./configure --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info \
-		--with-gl --with-glade --with-rsvg --with-gnomecanvas --with-gtkspell --with-gnomeui --with-panel --with-gtksourceview
+	    --with-gl --with-glade --with-rsvg --with-gnomecanvas --with-gtkspell --with-gnomeui --with-panel --with-gtksourceview
 
 	touch configure-stamp
 
@@ -42,7 +42,7 @@ build-stamp: patch-stamp configure-stamp
 	$(MAKE) depend
 	$(MAKE)
 	if [ -x /usr/bin/ocamlopt ]; then \
-		$(MAKE) opt; \
+	    $(MAKE) opt; \
 	fi
 
 	touch build-stamp
@@ -64,14 +64,15 @@ install: build
 
 	$(MAKE) install DESTDIR=$(DESTDIR)
 
+	# These files are needed by lablgtk2-doc
+	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
+	cp src/gtkSourceView_types.cmi $(CURDIR)/debian/liblablgtksourceview-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
+
 	# Install METAs
 	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
 	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
 	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_LIBDIR)/METAS
 	cp debian/META.lablgtksourceview $(CURDIR)/debian/liblablgtksourceview-ocaml-dev/$(OCAML_LIBDIR)/METAS
-
-	# This file is needed by lablgtk2-doc
-	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
 
 	# Examples
 	cp -r examples/GL/*  $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/usr/share/doc/liblablgtk2-gl-ocaml-dev/examples/
