@@ -3,8 +3,9 @@ lablgtk2 (2.10.0-3) UNRELEASED; urgency=low
   * Move some forgotten files into liblablgtksourceview-ocaml-dev,
     closes: #452089.
   * Install some missing cmi files, closes: #453210.
+  * Backported setlocale.dpatch to handle non-C locales, closes: #445193.
 
- -- Samuel Mimram <smimram@debian.org>  Thu, 29 Nov 2007 12:45:39 +0000
+ -- Samuel Mimram <smimram@debian.org>  Fri, 14 Dec 2007 15:04:15 +0000
 
 lablgtk2 (2.10.0-2) unstable; urgency=low
 
