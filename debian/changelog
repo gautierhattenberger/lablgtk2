@@ -2,8 +2,9 @@ lablgtk2 (2.10.0-4) unstable; urgency=low
 
   * Add a Replaces for liblablgtksourceview-ocaml-dev since I moved files from
     liblablgtk2-ocaml-dev to liblablgtksourceview-ocaml-dev.
+  * Updated standards version to 3.7.3, no changes needed.
 
- -- Samuel Mimram <smimram@debian.org>  Sat, 22 Dec 2007 13:02:37 +0100
+ -- Samuel Mimram <smimram@debian.org>  Sat, 22 Dec 2007 13:06:51 +0100
 
 lablgtk2 (2.10.0-3) unstable; urgency=low
 
