@@ -1,4 +1,4 @@
-lablgtk2 (2.10.0-3) UNRELEASED; urgency=low
+lablgtk2 (2.10.0-3) unstable; urgency=low
 
   * Move some forgotten files into liblablgtksourceview-ocaml-dev,
     closes: #452089.
