@@ -1,3 +1,9 @@
+lablgtk2 (2.10.0-5) UNRELEASED; urgency=low
+
+  * fix vcs-svn field to point just above the debian/ dir
+
+ -- Stefano Zacchiroli <zack@debian.org>  Mon, 31 Dec 2007 16:50:00 +0100
+
 lablgtk2 (2.10.0-4) unstable; urgency=low
 
   * Add a Replaces for liblablgtksourceview-ocaml-dev since I moved files from
