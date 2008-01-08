@@ -1,6 +1,7 @@
 lablgtk2 (2.10.0-5) UNRELEASED; urgency=low
 
   * fix vcs-svn field to point just above the debian/ dir
+  * fix "GNOME" spelling in package descriptions
 
  -- Stefano Zacchiroli <zack@debian.org>  Mon, 31 Dec 2007 16:50:00 +0100
 
