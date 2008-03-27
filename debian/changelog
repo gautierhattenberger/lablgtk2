@@ -1,9 +1,15 @@
-lablgtk2 (2.10.0-5) UNRELEASED; urgency=low
+lablgtk2 (2.10.1-1) UNRELEASED; urgency=low
 
+  [ Samuel Mimram ]
+  * New upstream release.
+  * Builds with OCaml 3.10.2, closes: #472994.
+  * Removed setlocale.dpatch, integrated upstream.
+
+  [ Stefano Zacchiroli ]
   * fix vcs-svn field to point just above the debian/ dir
   * fix "GNOME" spelling in package descriptions
 
- -- Stefano Zacchiroli <zack@debian.org>  Mon, 31 Dec 2007 16:50:00 +0100
+ -- Samuel Mimram <smimram@debian.org>  Thu, 27 Mar 2008 21:29:22 +0100
 
 lablgtk2 (2.10.0-4) unstable; urgency=low
 
