@@ -7,7 +7,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: link_button.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id: link_button.ml 1385 2007-09-27 02:12:42Z garrigue $ *)
 
 open GMain
 
@@ -25,6 +25,7 @@ let main () =
   Format.printf "Got:%a@." GUtil.print_widget button;
   GtkButton.LinkButton.set_uri_hook 
     (fun _ s -> Format.printf "Got url '%s'@." s;   button#set_uri "AGAIN");
+  window#connect#destroy GMain.quit;
   window#show ();
   Main.main ()
 

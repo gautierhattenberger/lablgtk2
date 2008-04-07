@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gobject.c 1369 2007-09-25 02:56:09Z garrigue $ */
+/* $Id: ml_gobject.c 1390 2007-11-28 05:26:18Z garrigue $ */
 #include <stdio.h>
 #include <glib.h>
 #include <glib-object.h>
@@ -51,7 +51,7 @@ CAMLexport void ml_g_object_unref_later (GObject *p)
 
 Make_Val_final_pointer(GObject, g_object_ref, ml_g_object_unref_later, 0)
 Make_Val_final_pointer_ext (GObject, _new, Ignore, ml_g_object_unref_later, 20)
-ML_1 (G_TYPE_FROM_INSTANCE, GObject_val, Val_int)
+ML_1 (G_TYPE_FROM_INSTANCE, GObject_val, Val_GType)
 // ML_1 (g_object_ref, GObject_val, Unit)
 CAMLprim value ml_g_object_unref (value val)
 {

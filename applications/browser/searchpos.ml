@@ -21,7 +21,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: searchpos.ml 1378 2007-09-25 15:32:38Z garrigue $ *)
+(* $Id: searchpos.ml 1377 2007-09-25 15:30:14Z garrigue $ *)
 
 open StdLabels
 open Parsetree

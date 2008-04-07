@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gtkMain.ml 1361 2007-08-17 03:24:07Z garrigue $ *)
+(* $Id: gtkMain.ml 1392 2007-12-01 08:56:31Z garrigue $ *)
 
 open StdLabels
 open Gtk
@@ -43,6 +43,7 @@ module Main = struct
       with Error err ->
         raise (Error ("GtkMain.init: initialization failed\n" ^ err))
     in
+    if setlocale then ignore (Glib.Main.setlocale `NUMERIC (Some "C"));
     Array.blit ~src:argv ~dst:Sys.argv ~len:(Array.length argv)
       ~src_pos:0 ~dst_pos:0;
     Obj.truncate (Obj.repr Sys.argv) (Array.length argv);

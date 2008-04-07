@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gobject.h 1369 2007-09-25 02:56:09Z garrigue $ */
+/* $Id: ml_gobject.h 1390 2007-11-28 05:26:18Z garrigue $ */
 
 /* Defined in ml_gobject.h */
 
@@ -31,8 +31,8 @@ CAMLexport value Val_GObject_new (GObject *);
 #define Val_GAnyObject_new(val) Val_GObject_new(G_OBJECT(val))
 CAMLexport void ml_g_object_unref_later (GObject *);
 
-#define GType_val Long_val
-#define Val_GType Val_long
+#define GType_val(t) ((GType)Addr_val(t))
+#define Val_GType    Val_addr
 
 #define GClosure_val(val) ((GClosure*)Pointer_val(val))
 CAMLexport value Val_GClosure (GClosure *);
