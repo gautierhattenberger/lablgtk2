@@ -1,4 +1,4 @@
-# $Id: Makefile 1373 2007-09-25 10:56:49Z garrigue $
+# $Id: Makefile 1393 2008-01-18 01:17:21Z garrigue $
 # Makefile for lablgtk.
 
 COMPILER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS) -w s -c
@@ -467,20 +467,19 @@ clean:
 	rm -f \#*\# *~
 
 
-DOCFILES =  gaux.ml gpointer.mli glib.mli gobject.mli \
+DOCFILES = gPango.ml gDraw.mli gObj.mli gMain.mli gData.mli \
+	gContainer.mli gBin.mli gPack.mli gButton.mli gText.mli \
+        gMenu.mli gMisc.mli gTree.mli gFile.mli gList.mli gWindow.mli \
+        gEdit.mli gRange.mli gAction.mli gUtil.mli gToolbox.mli gBroken.mli \
+	gaux.ml gpointer.mli glib.mli gobject.mli \
         gdkEnums.ml pangoEnums.ml gtkEnums.ml \
         gdk.mli gdkEvent.ml gdkPixbuf.mli \
         gtk.ml pango.ml gtkSignal.mli gtkObject.ml \
-        $(GTKPROPS:%.props=%Props.ml) \
         gtkStock.ml gtkData.ml gtkBase.ml gtkPack.ml gtkButton.ml \
         gtkMenu.ml gtkMisc.ml gtkWindow.ml gtkList.ml \
         gtkEdit.ml gtkRange.ml gtkText.ml gtkTree.ml \
         gtkFile.ml gtkMain.ml \
-        gPango.ml gDraw.mli \
-        gObj.mli gMain.mli gData.mli gContainer.mli gBin.mli gPack.mli gButton.mli \
-        gText.mli \
-        gMenu.mli gMisc.mli gTree.mli gFile.mli gList.mli gWindow.mli \
-        gEdit.mli gRange.mli gAction.mli gUtil.mli gToolbox.mli gBroken.mli
+        $(GTKPROPS:%.props=%Props.ml)
 ifdef USE_GLADE
 DOCFILES += glade.mli xml_lexer.mli
 endif

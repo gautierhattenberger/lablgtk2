@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gtkmisc.c 1381 2007-09-26 05:43:01Z garrigue $ */
+/* $Id: ml_gtkmisc.c 1380 2007-09-26 05:33:32Z garrigue $ */
 
 #include <gtk/gtk.h>
 #include <caml/mlvalues.h>
