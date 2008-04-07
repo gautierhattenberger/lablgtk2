@@ -1,5 +1,10 @@
-lablgtk2 (2.10.1-1) UNRELEASED; urgency=low
+lablgtk2 (2.10.1-1) experimental; urgency=low
 
+  [ Ralf Treinen ]
+  * Recompiled for ocaml 3.10.2.
+  * Added myself to Uploaders.
+  * Capitalization errors in package descriptions.
+  
   [ Samuel Mimram ]
   * New upstream release.
   * Builds with OCaml 3.10.2, closes: #472994.
@@ -8,8 +13,8 @@ lablgtk2 (2.10.1-1) UNRELEASED; urgency=low
   [ Stefano Zacchiroli ]
   * fix vcs-svn field to point just above the debian/ dir
   * fix "GNOME" spelling in package descriptions
-
- -- Samuel Mimram <smimram@debian.org>  Thu, 27 Mar 2008 21:29:22 +0100
+  
+ -- Ralf Treinen <treinen@debian.org>  Mon, 07 Apr 2008 21:15:55 +0200
 
 lablgtk2 (2.10.0-4) unstable; urgency=low
 
