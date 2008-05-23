@@ -53,6 +53,9 @@ clean: unpatch
 	rm -f build-stamp configure-stamp
 
 	[ ! -f config.make ] || $(MAKE) clean
+	-$(RM) config.status
+	-$(RM) config.log
+
 
 	dh_clean config.make
 
@@ -70,7 +73,7 @@ install: build
 
 	# Install METAs
 	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
-	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
+	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/$(OCAML_LIBDIR)/METAS
 	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_LIBDIR)/METAS
 	cp debian/META.lablgtksourceview $(CURDIR)/debian/liblablgtksourceview-ocaml-dev/$(OCAML_LIBDIR)/METAS
 
