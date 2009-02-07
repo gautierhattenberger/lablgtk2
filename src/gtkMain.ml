@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gtkMain.ml 1392 2007-12-01 08:56:31Z garrigue $ *)
+(* $Id: gtkMain.ml 1402 2008-03-25 08:55:03Z garrigue $ *)
 
 open StdLabels
 open Gtk
@@ -68,6 +68,20 @@ module Grab = struct
   external add : [>`widget] obj -> unit = "ml_gtk_grab_add"
   external remove : [>`widget] obj -> unit = "ml_gtk_grab_remove"
   external get_current : unit -> widget obj= "ml_gtk_grab_get_current"
+end
+
+module Event = struct
+  (* May return GDK_CURRENT_TIME *)
+  external get_current_time : unit -> int32
+    = "ml_gtk_get_current_event_time"
+  (* May raise Gpointer.Null *)
+  external get_current : unit -> GdkEvent.any
+    = "ml_gtk_get_current_event"
+  (* May raise Gpointer.Null *)
+  external get_widget : 'a Gdk.event -> widget obj
+    = "ml_gtk_get_event_widget"
+  external propagate : [> `widget] obj -> 'a Gdk.event -> unit
+    = "ml_gtk_propagate_event"
 end
 
 module Rc = struct

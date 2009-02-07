@@ -1,5 +1,5 @@
 (* -*- caml -*- *)
-(* $Id: propcc.ml4 1369 2007-09-25 02:56:09Z garrigue $ *)
+(* $Id: propcc.ml4 1425 2008-10-05 16:21:55Z ben_99_9 $ *)
 
 open StdLabels
 open MoreLabels
@@ -64,7 +64,7 @@ let enums = [
     "Orientation"; "ToolbarStyle"; "IconSize"; "PolicyType";
     "CornerType"; "SelectionMode"; "SortType"; "WrapMode";
     "SpinButtonUpdatePolicy"; "UpdateType"; "ProgressBarStyle";
-    "ProgressBarOrientation"; "CellRendererMode";
+    "ProgressBarOrientation"; "CellRendererMode"; "CellRendererAccelMode";
     "TreeViewColumnSizing"; "SortType"; "TextDirection"; "SizeGroupMode";
     (* in signals *)
     "MovementStep"; "ScrollType"; "MenuDirectionType"; "DeleteType";
@@ -89,7 +89,7 @@ let boxeds = [
 
 let classes = [
   "Gdk", [ "Image"; "Pixmap"; "Bitmap"; "Screen"; "DragContext";];
-  "Gtk", [ "Style"; "TreeStore"; "TreeModel" ]
+  "Gtk", [ "Style"; "TreeStore"; "TreeModel" ; "TreeModelFilter" ]
 ]
 
 let specials = [

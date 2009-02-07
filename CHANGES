@@ -1,4 +1,67 @@
-$Id: CHANGES 1397 2008-02-26 00:21:39Z garrigue $
+$Id: CHANGES 1437 2008-12-26 04:28:27Z garrigue $
+
+In Lablgtk-2.12.0:
+2008.12.20 [Jacques]
+ * fix build process for ocaml 3.11 on MSVC and mingw.
+
+2008.12.09 [Jacques]
+ * fix ml_gtk_source_buffer_create_marker
+
+2008.10.30 [Benjamin]
+ * Support Gtk Quartz backend compilation (thanks to Pascal Cuoq)
+2008.10.07 [Benjamin]
+ * Revert last change on GEdit.entry_completion according to M. Clasen.
+   Keeping the new type for the callback match_selected.
+2008.10.05 [Benjamin]
+ * Change type of model contained in GEdit.entry_completion from
+   model to model_filter see 
+   http://bugzilla.gnome.org/show_bug.cgi?id=555087.
+2008.09.10 [Benjamin]
+ * Many custom tree model bugs fixed. 
+
+2008.09.04 [Benjamin]
+ * First attempt to support custom_tree_models in GTree.
+   I need some feedback on ways to improve the safety.
+   An example of usage is given in examples/custom_tree.ml
+   Part of the code comes from Robert Schneck: he agreed by private mail 
+   on relicensing it for lablgtk2.
+
+2008.08.20 [Jacques]
+ * Move model to head of properties in ComboBox
+   (bug reported by Pierre-Marie Pedrot)
+
+2008.08.03 [Benjamin]
+ * Support for wrapped signal of GEdit.spin_button (Gtk 2.10)
+
+2008.08.01 [Benjamin]
+ * Support for GtkRendererAccel of Gtk 2.10
+
+2008.07.26 [Benjamin]
+ * Add a few 2.10 properties GAction.icon_name, GButton.image_position,
+
+2008.07.25 [Olivier]
+ * don't use G_QUEUE_INIT (dependency on glib 2.14)
+
+2008.07.25 [Jacques]
+ * Add [widget] to Gtk.file_chooser
+ * configure did not work on FreeBSD
+
+2008.05.09 [Benjamin]
+ * Add Glib.Io.read_chars. Other g_io_* function could be added...
+
+2008.04.14 [Olivier]
+  * use Gc.create_alarm to delay GObject finalization instead of an idle function
+
+2008.03.31 [Benjamin]
+  * Support mingw compilation with OCaml 3.11. Still tricky...
+
+2008.03.25 [Jacques]
+  * add GtkWindow properties
+  * add GMain.Event
+  * add GtkMenu.Menu.popup_at
+
+2008.03.22 [Benjamin]
+  * prepare gtksourceview 2.1 support
 
 In lablgtk-2.10.1:
 2008.02.26 [Jacques]

@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gEdit.mli 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id: gEdit.mli 1426 2008-10-07 18:41:02Z ben_99_9 $ *)
 
 open Gtk
 open GObj
@@ -70,7 +70,7 @@ class entry_completion_signals :
     method after : 'a
     method action_activated : callback:(int -> unit) -> GtkSignal.id
     method match_selected :
-      callback:(GTree.model -> Gtk.tree_iter -> bool) -> GtkSignal.id
+      callback:(GTree.model_filter -> Gtk.tree_iter -> bool) -> GtkSignal.id
   end
 
 (** @since GTK 2.4
@@ -183,6 +183,9 @@ class spin_button_signals : [> Gtk.spin_button] obj ->
     method input : callback:(unit -> int) -> GtkSignal.id
     method output : callback:(unit -> bool) -> GtkSignal.id
     method value_changed : callback:(unit -> unit) -> GtkSignal.id
+
+    method wrapped : callback:(unit -> unit) -> GtkSignal.id  
+      (** @since GTK 2.10 *)
   end
 
 (** Retrieve an integer or floating-point number from the user

@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gMain.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id: gMain.ml 1402 2008-03-25 08:55:03Z garrigue $ *)
 
 open Gtk
 open GtkMain
@@ -34,6 +34,8 @@ module Grab = struct
   let remove (w : #widget) = remove w#as_widget
   let get_current () = new widget (get_current ())
 end
+
+module Event = Event
 
 module Rc = Rc
 

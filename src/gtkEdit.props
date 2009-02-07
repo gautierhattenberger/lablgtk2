@@ -1,4 +1,4 @@
-(* $Id: gtkEdit.props 1268 2005-03-07 20:19:50Z oandrieu $ *)
+(* $Id: gtkEdit.props 1425 2008-10-05 16:21:55Z ben_99_9 $ *)
 
 prefix "Gtk"
 
@@ -83,6 +83,7 @@ class SpinButton set wrap wrapsig : Entry {
   signal input : -> int
   signal output : -> bool
   signal value_changed
+  signal wrapped (* GTK+ 2.10 *)
 }
 
 class Combo set wrap : Box {
@@ -94,12 +95,12 @@ class Combo set wrap : Box {
 }
 
 class ComboBox set wrap wrapsig : Bin {
+  "model"                GtkTreeModel         : Read / Write         / NoWrap
   "active"               gint                 : Read / Write
   "add-tearoffs"         gboolean             : Read / Write                  (* GTK+ 2.6 *)
   "column-span-column"   gint                 : Read / Write / NoSet / NoWrap
   "focus-on-click"       gboolean             : Read / Write                  (* GTK+ 2.6 *)
   "has-frame"            gboolean             : Read / Write                  (* GTK+ 2.6 *)
-  "model"                GtkTreeModel         : Read / Write         / NoWrap
   "row-span-column"      gint                 : Read / Write / NoSet / NoWrap
   "wrap-width"           gint                 : Read / Write
   signal changed
@@ -114,9 +115,9 @@ class ComboBoxEntry set : ComboBox {
 
 class EntryCompletion set gobject {
   "minimum-key-length"   gint                 : Read / Write
-  "model"                GtkTreeModel         : Read / Write
+  "model"                GtkTreeModel	      : Read / Write
   signal action_activated : gint
-  signal match_selected   : GtkTreeModel GtkTreeIter -> gboolean
+  signal match_selected   : GtkTreeModelFilter GtkTreeIter -> gboolean
   method get_entry : "Gtk.entry obj option"
   method complete
   method insert_action_text : "int -> string -> unit"

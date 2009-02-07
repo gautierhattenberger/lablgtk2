@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gobject.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
+(* $Id: gobject.ml 1405 2008-04-14 18:38:16Z oandrieu $ *)
 
 open StdLabels
 open Gaux
@@ -75,6 +75,9 @@ type 'a data_conv =
 
 type fundamental_type =
   [ `INVALID | `NONE | `INTERFACE | `PARAM | base_data ]
+
+external do_unref : unit -> unit = "ml_g_object_do_unref"
+let unref_alarm = Gc.create_alarm do_unref
 
 module Type = struct
   external init : unit -> unit = "ml_g_type_init"

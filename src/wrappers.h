@@ -20,13 +20,14 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: wrappers.h 1382 2007-09-26 07:41:01Z garrigue $ */
+/* $Id: wrappers.h 1417 2008-09-10 15:38:57Z ben_99_9 $ */
 
 #ifndef _wrappers_
 #define _wrappers_
 
 /* Yell if a caml callback raised an exception */
 #define CAML_EXN_LOG(name) g_critical("%s: callback raised an exception", name)
+#define CAML_EXN_LOG_VERBOSE(name,exn) g_critical("%s: callback raised exception %s", name, format_caml_exception(Extract_exception(exn)))
 
 #include <caml/misc.h>
 #include <caml/mlvalues.h>

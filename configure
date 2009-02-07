@@ -662,9 +662,13 @@ USE_GTKSPELL
 GTKSOURCEVIEW_CFLAGS
 GTKSOURCEVIEW_LIBS
 USE_GTKSOURCEVIEW
+GTKQUARTZ_CFLAGS
+GTKQUARTZ_LIBS
+USE_GTKQUARTZ
 GTKALL_CFLAGS
 GTKALL_LIBS
 EXE
+XS
 LIBDIR
 OCAMLBEST
 OCAMLWIN32
@@ -702,6 +706,8 @@ GTKSPELL_CFLAGS
 GTKSPELL_LIBS
 GTKSOURCEVIEW_CFLAGS
 GTKSOURCEVIEW_LIBS
+GTKQUARTZ_CFLAGS
+GTKQUARTZ_LIBS
 GTKALL_CFLAGS
 GTKALL_LIBS'
 
@@ -1288,6 +1294,7 @@ Optional Packages:
   --without-panel         override autodetected libpanelapplet support
   --without-gtkspell      override autodetected gtkspell support
   --without-gtksourceview      override autodetected gtksourceview support
+  --without-quartz      override autodetected gtksourceview support
 
 Some influential environment variables:
   CC          C compiler command
@@ -1325,6 +1332,10 @@ Some influential environment variables:
               C compiler flags for GTKSOURCEVIEW, overriding pkg-config
   GTKSOURCEVIEW_LIBS
               linker flags for GTKSOURCEVIEW, overriding pkg-config
+  GTKQUARTZ_CFLAGS
+              C compiler flags for GTKQUARTZ, overriding pkg-config
+  GTKQUARTZ_LIBS
+              linker flags for GTKQUARTZ, overriding pkg-config
   GTKALL_CFLAGS
               C compiler flags for GTKALL, overriding pkg-config
   GTKALL_LIBS linker flags for GTKALL, overriding pkg-config
@@ -1802,7 +1813,7 @@ fi
 # we extract Ocaml version number and library path
 OCAMLVERSION=`$CAMLC -version`
 echo "ocaml version is $OCAMLVERSION"
-OCAMLLIB=`$CAMLC -where`
+OCAMLLIB=`$CAMLC -where | tr -d '\\r'`
 echo "ocaml library path is $OCAMLLIB"
 LIBDIR=$OCAMLLIB
 
@@ -3422,9 +3433,11 @@ echo "${ECHO_T}$ac_ocaml_platform" >&6; }
 if test $ac_ocaml_platform = Win32 ; then
     OCAMLWIN32=yes
     EXE=.exe
+    XS=.dll
 else
     OCAMLWIN32=no
     EXE=
+    XS=.so
 fi
 
 # GTK 2 auto configuration
@@ -4823,21 +4836,31 @@ fi
 
 
 
+
+# Check whether --with-quartz was given.
+if test "${with_quartz+set}" = set; then
+  withval=$with_quartz; USE_GTKQUARTZ=$withval; FORCE_GTKQUARTZ=yes
+else
+  USE_GTKQUARTZ=yes; FORCE_GTKQUARTZ=no
+fi
+
+if test $USE_GTKQUARTZ = yes ; then
+
 pkg_failed=no
-{ echo "$as_me:$LINENO: checking for GTKALL" >&5
-echo $ECHO_N "checking for GTKALL... $ECHO_C" >&6; }
+{ echo "$as_me:$LINENO: checking for GTKQUARTZ" >&5
+echo $ECHO_N "checking for GTKQUARTZ... $ECHO_C" >&6; }
 
 if test -n "$PKG_CONFIG"; then
-    if test -n "$GTKALL_CFLAGS"; then
-        pkg_cv_GTKALL_CFLAGS="$GTKALL_CFLAGS"
+    if test -n "$GTKQUARTZ_CFLAGS"; then
+        pkg_cv_GTKQUARTZ_CFLAGS="$GTKQUARTZ_CFLAGS"
     else
         if test -n "$PKG_CONFIG" && \
-    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"\$GTKPKG \$GTKGLPKG \$GLADEPKG \$RSVGPKG \$GNOMECANVASPKG \$GNOMEUIPKG \$PANELPKG \$GTKSPELLPKG \$GTKSOURCEVIEWPKG\"") >&5
-  ($PKG_CONFIG --exists --print-errors "$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG") 2>&5
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"gtk+-quartz-2.0\"") >&5
+  ($PKG_CONFIG --exists --print-errors "gtk+-quartz-2.0") 2>&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; then
-  pkg_cv_GTKALL_CFLAGS=`$PKG_CONFIG --cflags "$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG" 2>/dev/null`
+  pkg_cv_GTKQUARTZ_CFLAGS=`$PKG_CONFIG --cflags "gtk+-quartz-2.0" 2>/dev/null`
 else
   pkg_failed=yes
 fi
@@ -4846,16 +4869,16 @@ else
 	pkg_failed=untried
 fi
 if test -n "$PKG_CONFIG"; then
-    if test -n "$GTKALL_LIBS"; then
-        pkg_cv_GTKALL_LIBS="$GTKALL_LIBS"
+    if test -n "$GTKQUARTZ_LIBS"; then
+        pkg_cv_GTKQUARTZ_LIBS="$GTKQUARTZ_LIBS"
     else
         if test -n "$PKG_CONFIG" && \
-    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"\$GTKPKG \$GTKGLPKG \$GLADEPKG \$RSVGPKG \$GNOMECANVASPKG \$GNOMEUIPKG \$PANELPKG \$GTKSPELLPKG \$GTKSOURCEVIEWPKG\"") >&5
-  ($PKG_CONFIG --exists --print-errors "$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG") 2>&5
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"gtk+-quartz-2.0\"") >&5
+  ($PKG_CONFIG --exists --print-errors "gtk+-quartz-2.0") 2>&5
   ac_status=$?
   echo "$as_me:$LINENO: \$? = $ac_status" >&5
   (exit $ac_status); }; then
-  pkg_cv_GTKALL_LIBS=`$PKG_CONFIG --libs "$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG" 2>/dev/null`
+  pkg_cv_GTKQUARTZ_LIBS=`$PKG_CONFIG --libs "gtk+-quartz-2.0" 2>/dev/null`
 else
   pkg_failed=yes
 fi
@@ -4874,14 +4897,108 @@ else
         _pkg_short_errors_supported=no
 fi
         if test $_pkg_short_errors_supported = yes; then
-	        GTKALL_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG"`
+	        GTKQUARTZ_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "gtk+-quartz-2.0"`
         else
-	        GTKALL_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG"`
+	        GTKQUARTZ_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "gtk+-quartz-2.0"`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$GTKQUARTZ_PKG_ERRORS" >&5
+
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+
+	if test $FORCE_GTKQUARTZ = yes ; then
+	  { { echo "$as_me:$LINENO: error: quartz enforced but no support found" >&5
+echo "$as_me: error: quartz enforced but no support found" >&2;}
+   { (exit 1); exit 1; }; }
+        else
+          USE_GTKQUARTZ=no
+	fi
+elif test $pkg_failed = untried; then
+
+	if test $FORCE_GTKQUARTZ = yes ; then
+	  { { echo "$as_me:$LINENO: error: quartz enforced but no support found" >&5
+echo "$as_me: error: quartz enforced but no support found" >&2;}
+   { (exit 1); exit 1; }; }
+        else
+          USE_GTKQUARTZ=no
+	fi
+else
+	GTKQUARTZ_CFLAGS=$pkg_cv_GTKQUARTZ_CFLAGS
+	GTKQUARTZ_LIBS=$pkg_cv_GTKQUARTZ_LIBS
+        { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	:
+fi
+fi
+if test $USE_GTKQUARTZ = yes ; then
+	USE_GTKQUARTZ=1
+	GTKQUARTZPKG=gtk+-quartz-2.0
+else
+	unset USE_GTKQUARTZ
+fi
+
+
+
+pkg_failed=no
+{ echo "$as_me:$LINENO: checking for GTKALL" >&5
+echo $ECHO_N "checking for GTKALL... $ECHO_C" >&6; }
+
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GTKALL_CFLAGS"; then
+        pkg_cv_GTKALL_CFLAGS="$GTKALL_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"\$GTKPKG \$GTKGLPKG \$GLADEPKG \$RSVGPKG \$GNOMECANVASPKG \$GNOMEUIPKG \$PANELPKG \$GTKSPELLPKG \$GTKSOURCEVIEWPKG \$GTKQUARTZPKG\"") >&5
+  ($PKG_CONFIG --exists --print-errors "$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG $GTKQUARTZPKG") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_GTKALL_CFLAGS=`$PKG_CONFIG --cflags "$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG $GTKQUARTZPKG" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GTKALL_LIBS"; then
+        pkg_cv_GTKALL_LIBS="$GTKALL_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"\$GTKPKG \$GTKGLPKG \$GLADEPKG \$RSVGPKG \$GNOMECANVASPKG \$GNOMEUIPKG \$PANELPKG \$GTKSPELLPKG \$GTKSOURCEVIEWPKG \$GTKQUARTZPKG\"") >&5
+  ($PKG_CONFIG --exists --print-errors "$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG $GTKQUARTZPKG") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_GTKALL_LIBS=`$PKG_CONFIG --libs "$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG $GTKQUARTZPKG" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        GTKALL_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG $GTKQUARTZPKG"`
+        else
+	        GTKALL_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG $GTKQUARTZPKG"`
         fi
 	# Put the nasty error message in config.log where it belongs
 	echo "$GTKALL_PKG_ERRORS" >&5
 
-	{ { echo "$as_me:$LINENO: error: Package requirements ($GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG) were not met:
+	{ { echo "$as_me:$LINENO: error: Package requirements ($GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG $GTKQUARTZPKG) were not met:
 
 $GTKALL_PKG_ERRORS
 
@@ -4892,7 +5009,7 @@ Alternatively, you may set the environment variables GTKALL_CFLAGS
 and GTKALL_LIBS to avoid the need to call pkg-config.
 See the pkg-config man page for more details.
 " >&5
-echo "$as_me: error: Package requirements ($GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG) were not met:
+echo "$as_me: error: Package requirements ($GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG $GTKQUARTZPKG) were not met:
 
 $GTKALL_PKG_ERRORS
 
@@ -4944,6 +5061,7 @@ fi
 
 
 # substitutions to perform
+
 
 
 
@@ -5683,18 +5801,18 @@ USE_GTKSPELL!$USE_GTKSPELL$ac_delim
 GTKSOURCEVIEW_CFLAGS!$GTKSOURCEVIEW_CFLAGS$ac_delim
 GTKSOURCEVIEW_LIBS!$GTKSOURCEVIEW_LIBS$ac_delim
 USE_GTKSOURCEVIEW!$USE_GTKSOURCEVIEW$ac_delim
+GTKQUARTZ_CFLAGS!$GTKQUARTZ_CFLAGS$ac_delim
+GTKQUARTZ_LIBS!$GTKQUARTZ_LIBS$ac_delim
+USE_GTKQUARTZ!$USE_GTKQUARTZ$ac_delim
 GTKALL_CFLAGS!$GTKALL_CFLAGS$ac_delim
 GTKALL_LIBS!$GTKALL_LIBS$ac_delim
 EXE!$EXE$ac_delim
+XS!$XS$ac_delim
 LIBDIR!$LIBDIR$ac_delim
 OCAMLBEST!$OCAMLBEST$ac_delim
 OCAMLWIN32!$OCAMLWIN32$ac_delim
 THREADS_LIB!$THREADS_LIB$ac_delim
 HAS_DLL_SUPPORT!$HAS_DLL_SUPPORT$ac_delim
-LABLGLDIR!$LABLGLDIR$ac_delim
-HAVE_SVGZ!$HAVE_SVGZ$ac_delim
-USE_CC!$USE_CC$ac_delim
-DEBUG!$DEBUG$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -5736,11 +5854,15 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+LABLGLDIR!$LABLGLDIR$ac_delim
+HAVE_SVGZ!$HAVE_SVGZ$ac_delim
+USE_CC!$USE_CC$ac_delim
+DEBUG!$DEBUG$ac_delim
 LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 2; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 6; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
@@ -6072,80 +6194,90 @@ chmod a-w config.make
 
 
 echo ; echo "LablGTK configuration:"
-echo "	threads		$THREADS_LIB"
+echo "	threads  	$THREADS_LIB"
 
-echo -n "	GtkGLArea	"
+echo $ECHO_N "	GtkGLArea $ECHO_C"
 if test -n "$USE_GTKGL"
-then echo "yes"
+then echo "	yes"
 else if test "$FORCE_GTKGL" = "yes"
-     then echo "disabled"
-     else echo "not found"
+     then echo "	disabled"
+     else echo "	not found"
      fi
 fi
 
-echo -n "	libglade	"
+echo $ECHO_N "	libglade $ECHO_C"
 if test -n "$USE_GLADE"
-then echo "yes"
+then echo "	yes"
 else if test "$FORCE_GLADE" = "yes"
-     then echo "disabled"
-     else echo "not found"
+     then echo "	disabled"
+     else echo "	not found"
      fi
 fi
 
-echo -n "	librsvg 	"
+echo $ECHO_N "	librsvg  $ECHO_C"
 if test -n "$USE_RSVG"
-then echo "yes"
+then echo "	yes"
 else if test "$FORCE_RSVG" = "yes"
-     then echo "disabled"
-     else echo "not found"
+     then echo "	disabled"
+     else echo "	not found"
      fi
 fi
 
-echo -n "	libgnomecanvas	"
+echo $ECHO_N "	libgnomecanvas $ECHO_C"
 if test -n "$USE_GNOMECANVAS"
-then echo "yes"
+then echo "	yes"
 else if test "$FORCE_GNOMECANVAS" = "yes"
-     then echo "disabled"
-     else echo "not found"
+     then echo "	disabled"
+     else echo "	not found"
      fi
 fi
 
-echo -n "	libgnomeui	"
+echo $ECHO_N "	libgnomeui $ECHO_C"
 if test -n "$USE_GNOMEUI"
-then echo "yes"
+then echo "	yes"
 else if test "$FORCE_GNOMEUI" = "yes"
-     then echo "disabled"
-     else echo "not found"
+     then echo "	disabled"
+     else echo "	not found"
      fi
 fi
 
-echo -n "	libpanelapplet	"
+echo $ECHO_N "	libpanelapplet $ECHO_C"
 if test -n "$USE_PANEL"
-then echo "yes"
+then echo "	yes"
 else if test "$FORCE_PANEL" = "yes"
-     then echo "disabled"
-     else echo "not found"
+     then echo "	disabled"
+     else echo "	not found"
      fi
 fi
 
-echo -n "	gtkspell	"
+echo $ECHO_N "	gtkspell $ECHO_C"
 if test -n "$USE_GTKSPELL"
-then echo "yes"
+then echo "	yes"
 else if test "$FORCE_GTKSPELL" = "yes"
-     then echo "disabled"
-     else echo "not found"
+     then echo "	disabled"
+     else echo "	not found"
      fi
 fi
 
-echo -n "	gtksourceview	"
+echo $ECHO_N "	gtksourceview $ECHO_C"
 if test -n "$USE_GTKSOURCEVIEW"
-then echo "yes"
+then echo "	yes"
 else if test "$FORCE_GTKSOURCEVIEW" = "yes"
-     then echo "disabled"
-     else echo "not found"
+     then echo "	disabled"
+     else echo "	not found"
+     fi
+fi
+
+echo $ECHO_N "	quartz    $ECHO_C"
+if test -n "$USE_GTKQUARTZ"
+then echo "	yes"
+else if test "$FORCE_GTKQUARTZ" = "yes"
+     then echo "	disabled"
+     else echo "	not found"
      fi
 fi
 echo
-echo -n  "	debug   	"
-if test -n "$DEBUG" ; then echo "yes" ; else echo "no" ; fi
+echo $ECHO_N "	debug   $ECHO_C"
+if test -n "$DEBUG" ; then echo "	yes" ; else echo "	no" ; fi
 echo -e  "	C compiler	$CC"
+

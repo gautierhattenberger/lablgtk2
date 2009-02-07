@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: glib.ml 1355 2007-08-08 13:17:06Z ben_99_9 $ *)
+(* $Id: glib.ml 1408 2008-07-23 12:40:06Z ben_99_9 $ *)
 
 type unichar = int
 type unistring = unichar array
@@ -77,6 +77,8 @@ module Io = struct
     = "ml_g_io_add_watch"
   external read : channel -> buf:string -> pos:int -> len:int -> int
     = "ml_g_io_channel_read"
+  external read_chars : channel -> buf:string -> pos:int -> len:int -> int
+    = "ml_g_io_channel_read_chars"
 end
 
 module Message = struct

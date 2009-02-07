@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gEdit.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id: gEdit.ml 1426 2008-10-07 18:41:02Z ben_99_9 $ *)
 
 open Gaux
 open Gtk
@@ -56,7 +56,7 @@ class entry_completion_signals obj = object (self)
   method action_activated = self#connect EntryCompletion.S.action_activated
   method match_selected ~callback = 
     self#connect EntryCompletion.S.match_selected
-      ~callback:(fun _model iter -> callback (new GTree.model _model) iter)
+      ~callback:(fun model iter -> callback (new GTree.model_filter model) iter)
 end
 
 class entry_completion obj = object
@@ -67,7 +67,16 @@ class entry_completion obj = object
   method minimum_key_length =
     Gobject.get EntryCompletion.P.minimum_key_length obj
   method set_model (m : GTree.model) = Gobject.set EntryCompletion.P.model obj m#as_model
-  method model = new GTree.model (Gobject.get EntryCompletion.P.model obj)
+  method model = 
+    (* not compliant with Comment #1 in Gtk bug 
+       http://bugzilla.gnome.org/show_bug.cgi?555087 
+     new GTree.model_filter 
+      (Gobject.try_cast 
+	 (Gobject.get EntryCompletion.P.model obj)
+      "GtkTreeModelFilter")
+      *)
+    new GTree.model
+	 (Gobject.get EntryCompletion.P.model obj)
 
   method misc = new GObj.gobject_ops obj
   method connect = new entry_completion_signals obj
@@ -241,15 +250,15 @@ let text_combo_get_active ((combo, (lstore, column)) : 'a text_combo) =
   | Some row -> Some (lstore#get ~row ~column)
 
 let combo_box_text ?(strings=[]) ?(use_markup=false) =
-  let (store, column) as model = GTree.store_of_list Gobject.Data.string strings in
+  let (store, column) as model =
+    GTree.store_of_list Gobject.Data.string strings in
   GtkEdit.ComboBox.make_params ~model:store#as_model [] ~cont:(
   GtkBase.Widget.size_params ~cont:(fun pl ?packing ?show () ->
     let combo = new combo_box (GtkEdit.ComboBox.create pl) in
     let r = GTree.cell_renderer_text [] in
     combo#pack r ; 
     combo#add_attribute r (if use_markup then "markup" else "text") column ;
-    GObj.pack_return combo ~packing ~show ;
-    combo, model))
+    GObj.pack_return combo ~packing ~show, model))
 
 let combo_box_entry_text ?(strings=[]) =
   let (store, column) as model = GTree.store_of_list Gobject.Data.string strings in
@@ -258,5 +267,4 @@ let combo_box_entry_text ?(strings=[]) =
     ~cont:(
   GtkBase.Widget.size_params ~cont:(fun pl ?packing ?show () ->
     let combo = new combo_box_entry (GtkEdit.ComboBoxEntry.create pl) in
-    GObj.pack_return combo ~packing ~show ;
-    combo, model))
+    GObj.pack_return combo ~packing ~show, model))
