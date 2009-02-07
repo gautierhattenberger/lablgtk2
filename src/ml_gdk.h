@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gdk.h 1363 2007-08-24 16:55:38Z ben_99_9 $ */
+/* $Id: ml_gdk.h 1402 2008-03-25 08:55:03Z garrigue $ */
 
 #define GdkAtom_val(val) ((GdkAtom)Long_val(val))
 #define Val_GdkAtom(val) (Val_long((long)val))
@@ -71,6 +71,7 @@ CAMLexport value Val_GdkRegion (GdkRegion *); /* finalizer is destroy! */
 #define Val_GdkGC_no_ref Val_GAnyObject_new
 
 #define GdkEvent_val (GdkEvent*)MLPointer_val
+CAMLexport value Val_GdkEvent (GdkEvent *);
 
 #define GdkVisual_val(val) ((GdkVisual*) val)
 #define Val_GdkVisual(visual) ((value) visual)

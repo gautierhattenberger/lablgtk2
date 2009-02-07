@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gtk.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
+(* $Id: gtk.ml 1419 2008-09-22 13:37:06Z zoggy $ *)
 
 open Gobject
 
@@ -68,7 +68,7 @@ module Tags = struct
     | `PAGE_LEFT|`PAGE_RIGHT|`START|`END ]
   type selection_mode = [ `NONE|`SINGLE|`BROWSE|`MULTIPLE ]
   type shadow_type = [ `NONE|`IN|`OUT|`ETCHED_IN|`ETCHED_OUT ]
-  type state_type = [ `NORMAL|`ACTIVE|`PRELIGHT|`SELECTED|`INSENSITIVE ] 
+  type state_type = [ `NORMAL|`ACTIVE|`PRELIGHT|`SELECTED|`INSENSITIVE ]
   type submenu_direction = [ `LEFT|`RIGHT ]
   type submenu_placement = [ `TOP_BOTTOM|`LEFT_RIGHT ]
   type toolbar_style = [ `ICONS|`TEXT|`BOTH|`BOTH_HORIZ ]
@@ -183,6 +183,8 @@ type color_selection = [container|`box|`colorselection]
 type font_selection = [container|`box|`fontselection]
 type combo = [container|`box|`combo]
 type statusbar = [container|`box|`statusbar]
+type status_icon = [`gtkstatusicon]
+type gtk_status_icon = status_icon obj
 type clist = [container|`clist]
 type fixed = [container|`fixed]
 type layout = [container|`layout]
@@ -236,6 +238,7 @@ type tree_view = [container|`treeview]
 type tree_view_column = [`gtk|`celllayout|`treeviewcolumn]
 type tree_selection = [`treeselection] obj
 type tree_model = [`treemodel] obj
+type tree_model_custom = [`custommodel|`treemodel] obj
 type tree_sortable = [`treemodel|`tree_sortable] obj
 type tree_model_sort = [`treemodelsort|`treesortable|`treemodel] obj
 type tree_model_filter = [`treemodelfilter|`treemodel] obj
@@ -250,6 +253,7 @@ type cell_renderer_text = [cell_renderer|`cellrenderertext]
 type cell_renderer_toggle = [cell_renderer|`cellrenderertoggle]
 type cell_renderer_progress = [cell_renderer|`cellrendererprogress]
 type cell_renderer_combo = [cell_renderer_text|`cellrenderercombo]
+type cell_renderer_accel = [cell_renderer_text|`cellrendereraccel]
 
 type icon_source
 type icon_set
@@ -263,7 +267,7 @@ type combo_box = [bin|`combobox|cell_layout]
 type combo_box_entry = [combo_box|`comboboxentry]
 type expander = [bin|`expander]
 type file_filter = [`gtk|`filefilter]
-type file_chooser = [ `filechooser]
+type file_chooser = [widget|`filechooser]
 type entry_completion = [`entrycompletion|cell_layout] obj
 
 type action = [`action]

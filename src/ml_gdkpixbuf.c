@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gdkpixbuf.c 1362 2007-08-17 03:52:05Z garrigue $ */
+/* $Id: ml_gdkpixbuf.c 1405 2008-04-14 18:38:16Z oandrieu $ */
 
 #include <string.h>
 #include <gdk/gdk.h>
@@ -47,7 +47,7 @@
 /* custom block with serialization for GdkPixbufs */
 static void ml_final_GdkPixbuf (value val)
 { 
-  g_object_unref (GdkPixbuf_val(val)); 
+  ml_g_object_unref_later (GObject_val(val)); 
 }
 
 static gboolean pixbuf_marshal_use_rle;

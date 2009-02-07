@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gTree.mli 1369 2007-09-25 02:56:09Z garrigue $ *)
+(* $Id: gTree.mli 1416 2008-09-05 17:49:11Z ben_99_9 $ *)
 
 open Gobject
 open Gtk
@@ -521,6 +521,12 @@ type cell_properties_combo =
   | `MODEL of model option
   | `TEXT_COLUMN of string column
   | `HAS_ENTRY of bool ]
+type cell_properties_accel = 
+ [ cell_properties_text 
+  | `KEY of Gdk.keysym
+  | `ACCEL_MODE of GtkEnums.cell_renderer_accel_mode
+  | `MODS of GdkEnums.modifier list
+  | `KEYCODE of int ]
 
 (** @gtkdoc gtk GtkCellRenderer *)
 class type ['a, 'b] cell_renderer_skel =
@@ -592,6 +598,29 @@ class cell_renderer_combo : Gtk.cell_renderer_combo obj ->
     method set_fixed_height_from_font : int -> unit
   end
 
+(** @since GTK 2.10
+    @gtkdoc gtk GtkCellRendererText *)
+class cell_renderer_accel_signals : Gtk.cell_renderer_accel obj ->
+  object
+    inherit GObj.gtkobj_signals
+    method edited : callback:(Gtk.tree_path -> string -> unit) -> GtkSignal.id
+    method accel_edited :
+      callback:(tree_path -> accel_key:int -> accel_mods:int 
+		 -> hardware_keycode:int -> unit) 
+      -> GtkSignal.id
+    method accel_cleared : callback:(tree_path -> unit) -> GtkSignal.id
+
+  end
+
+(** @since GTK 2.10
+    @gtkdoc gtk GtkCellRendererAccel *)
+class cell_renderer_accel : Gtk.cell_renderer_accel obj ->
+  object
+    inherit[Gtk.cell_renderer_accel,cell_properties_accel] cell_renderer_skel
+    method connect : cell_renderer_accel_signals
+
+  end
+
 (** @gtkdoc gtk GtkCellRendererPixbuf *)
 val cell_renderer_pixbuf : cell_properties_pixbuf list -> cell_renderer_pixbuf
 
@@ -608,6 +637,10 @@ val cell_renderer_progress : cell_properties_progress list -> cell_renderer_prog
 (** @since GTK 2.6 
     @gtkdoc gtk GtkCellRendererCombo *)
 val cell_renderer_combo : cell_properties_combo list -> cell_renderer_combo
+
+(** @since GTK 2.10
+    @gtkdoc gtk GtkCellRendererAccel *)
+val cell_renderer_accel : cell_properties_accel list -> cell_renderer_accel
 
 (** {3 GtkIconView} *)
 
@@ -681,3 +714,57 @@ val icon_view :
   ?packing:(GObj.widget -> unit) ->
   ?show:bool ->
   unit -> icon_view
+
+
+class type virtual ['obj,'row,'a,'b,'c] custom_tree_model_type = 
+object
+  inherit model
+  val obj : 'obj
+  method connect : model_signals
+
+  (** Signal emitters *)
+  method custom_row_changed : Gtk.tree_path -> 'row -> unit
+  method custom_row_deleted : Gtk.tree_path -> unit
+  method custom_row_has_child_toggled :
+    Gtk.tree_path -> 'row -> unit
+  method custom_row_inserted : Gtk.tree_path -> 'row -> unit
+  method custom_rows_reordered :
+    Gtk.tree_path -> 'row option -> int array -> unit
+
+  (** Override these to implement a cache of rows *)
+  method custom_unref_node : 'row -> unit
+  method custom_ref_node : 'row -> unit
+
+  method custom_flags : GtkEnums.tree_model_flags list
+
+  (** Functions of the custom model. They must act exactly as described in the documentation 
+      of Gtk orelse Gtk may emit fatal errors. *)
+  method virtual custom_get_iter : Gtk.tree_path -> 'row option
+  method virtual custom_get_path : 'row -> Gtk.tree_path
+  method virtual custom_value : Gobject.g_type -> 'row -> column:int -> Gobject.basic
+
+    (** [custom_value typ row ~column] is the value to set in [row] for column [column].
+        It must must be of the type [typ], i.e. the type declared for column  [column]. *)
+    
+  method virtual custom_iter_children : 'row option -> 'row option
+  method virtual custom_iter_has_child : 'row -> bool
+  method virtual custom_iter_n_children : 'row option -> int
+  method virtual custom_iter_next : 'row -> 'row option
+  method virtual custom_iter_nth_child : 'row option -> int -> 'row option
+  method virtual custom_iter_parent : 'row -> 'row option
+
+  method virtual custom_decode_iter : 'a -> 'b -> 'c -> 'row
+  method virtual custom_encode_iter : 'row -> 'a * 'b * 'c
+
+  (** For internal use only. Do not override these methods. *)
+  method custom_n_columns : int
+  method custom_get_column_type : int -> Gobject.g_type
+  method custom_get_value :
+    'row -> int -> Gobject.g_value -> unit
+
+end
+
+(** A base class to inherit from to make a custom tree model. *)
+class virtual ['row,'a,'b,'c] custom_tree_model : 
+  column_list -> [Gtk.tree_model_custom,'row,'a,'b,'c] custom_tree_model_type
+  

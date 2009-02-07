@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gTree.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
+(* $Id: gTree.ml 1425 2008-10-05 16:21:55Z ben_99_9 $ *)
 
 open StdLabels
 open Gaux
@@ -65,10 +65,12 @@ class model_signals obj = object
 end
 
 let model_ids = Hashtbl.create 7
+let custom_model_ids = Hashtbl.create 7
 
 class model obj = object (self)
   val id =
-    try Hashtbl.find model_ids (Gobject.get_oid obj) with Not_found -> 0
+    try Hashtbl.find model_ids (Gobject.get_oid obj) 
+    with Not_found -> 0
   val obj = obj
   method as_model = (obj :> tree_model)
   method coerce = (self :> model)
@@ -83,6 +85,11 @@ class model obj = object (self)
   method get : 'a. row:tree_iter -> column:'a column -> 'a =
     fun ~row ~column ->
       if column.creator <> id then invalid_arg "GTree.model#get: bad column";
+      (* Prevent a class derived from an ancestor of a custom model from calling 
+         get: this would be unsound. *)
+      if not (Gobject.is_a obj "Custom_model") 
+        && Hashtbl.mem custom_model_ids id 
+      then invalid_arg "GTree.model#get: embedded custom model for iterator. Please use model#get_path then custom_model#custom_get_iter.";
       let v = Value.create_empty () in
       TreeModel.get_value obj ~row ~column:column.index v;
       Data.of_value column.conv v
@@ -231,7 +238,7 @@ let model_filter ?virtual_root model =
   let o = GtkTree.TreeModelFilter.create ~child_model ?virtual_root [] in
   begin try 
     let child_id = Hashtbl.find model_ids child_oid in
-    Hashtbl.add model_ids (Gobject.get_oid o) child_id
+    Hashtbl.add model_ids (Gobject.get_oid o) child_id;
   with Not_found -> ()
   end ; 
   new model_filter o
@@ -295,16 +302,16 @@ class view_column (_obj : tree_view_column obj) = object
   method clear () = TreeViewColumn.clear obj
   method reorder :
     'a. (#cell_renderer as 'a) -> int -> unit = 
-      fun crr pos -> GtkTree.CellLayout.reorder obj crr#as_renderer pos
+    fun crr pos -> GtkTree.CellLayout.reorder obj crr#as_renderer pos
   method pack : 'a. ?expand:_ -> ?from:_ -> (#cell_renderer as 'a)-> _ =
     fun ?expand ?from  r -> TreeViewColumn.pack obj ?expand ?from r#as_renderer
   method add_attribute :
     'a 'b. (#cell_renderer as 'a) -> string -> 'b column -> unit =
-      fun crr attr col ->
-        TreeViewColumn.add_attribute obj crr#as_renderer attr col.index
+    fun crr attr col ->
+      TreeViewColumn.add_attribute obj crr#as_renderer attr col.index
   method clear_attributes : 
-      'a. (#cell_renderer as 'a) -> unit = 
-      fun crr -> TreeViewColumn.clear_attributes obj crr#as_renderer
+    'a. (#cell_renderer as 'a) -> unit = 
+    fun crr -> TreeViewColumn.clear_attributes obj crr#as_renderer
 
   method set_sort_column_id = TreeViewColumn.set_sort_column_id obj
   method get_sort_column_id = TreeViewColumn.get_sort_column_id obj
@@ -487,6 +494,14 @@ type cell_properties_combo_only =
   | `HAS_ENTRY of bool ]
 type cell_properties_combo = [ cell_properties_text | cell_properties_combo_only ]
 
+type cell_properties_accel_only =
+  [ `KEY of int
+  | `ACCEL_MODE of GtkEnums.cell_renderer_accel_mode
+  | `MODS of GdkEnums.modifier list
+  | `KEYCODE of int ]
+
+type cell_properties_accel = [ cell_properties_text | cell_properties_accel_only ]
+
 let cell_renderer_pixbuf_param' = function
   | #cell_properties_pixbuf_only as x -> cell_renderer_pixbuf_param x
   | #cell_properties as x -> cell_renderer_param x
@@ -506,6 +521,16 @@ let cell_renderer_combo_param' = function
   | `MODEL (Some m : model option) -> Gobject.param CellRendererCombo.P.model (Some m#as_model)
   | `TEXT_COLUMN c -> Gobject.param CellRendererCombo.P.text_column c.index
   | `HAS_ENTRY b -> Gobject.param CellRendererCombo.P.has_entry b
+  | #cell_properties_text as x -> cell_renderer_text_param' x
+
+let cell_renderer_accel_param' = function
+  | `KEYCODE i ->  Gobject.param CellRendererAccel.P.keycode i
+  | `KEY i  -> Gobject.param CellRendererAccel.P.accel_key i
+  | `ACCEL_MODE m  -> Gobject.param CellRendererAccel.P.accel_mode m
+  | `MODS m  -> 
+      Gobject.param 
+	CellRendererAccel.P.accel_mods 
+	(Gpointer.encode_flags GdkEnums.modifier m);
   | #cell_properties_text as x -> cell_renderer_text_param' x
 
 class type ['a, 'b] cell_renderer_skel =
@@ -531,10 +556,12 @@ class cell_renderer_pixbuf obj = object
   method private param = cell_renderer_pixbuf_param'
   method connect = new gtkobj_signals_impl obj
 end
+
 class cell_renderer_text_signals obj = object (self)
-  inherit gtkobj_signals_impl (obj : Gtk.cell_renderer_text obj)
+  inherit gtkobj_signals_impl (obj:Gtk.cell_renderer_text Gtk.obj)
   method edited = self#connect CellRendererText.S.edited
 end
+
 class cell_renderer_text obj = object
   inherit [Gtk.cell_renderer_text,cell_properties_text] cell_renderer_impl obj
   method private param = cell_renderer_text_param'
@@ -569,6 +596,21 @@ class cell_renderer_combo obj = object
   method connect = new cell_renderer_text_signals (obj :> Gtk.cell_renderer_text Gtk.obj)
 end
 
+class cell_renderer_accel_signals (obj:Gtk.cell_renderer_accel Gtk.obj) = 
+object(self)
+  inherit gtkobj_signals_impl obj
+  method edited = self#connect CellRendererText.S.edited
+  method accel_edited = self#connect CellRendererAccel.S.accel_edited
+  method accel_cleared = self#connect CellRendererAccel.S.accel_cleared
+end
+
+class cell_renderer_accel obj = object
+  inherit [Gtk.cell_renderer_accel,cell_properties_accel]
+      cell_renderer_impl obj
+  method private param = cell_renderer_accel_param'
+  method connect = new cell_renderer_accel_signals obj
+end
+
 let cell_renderer_pixbuf l =
   new cell_renderer_pixbuf
     (CellRendererPixbuf.create (List.map cell_renderer_pixbuf_param' l))
@@ -584,6 +626,9 @@ let cell_renderer_progress l =
 let cell_renderer_combo l =
   new cell_renderer_combo
     (CellRendererCombo.create (List.map cell_renderer_combo_param' l))
+let cell_renderer_accel (l:cell_properties_accel list) =
+  new cell_renderer_accel
+    (CellRendererAccel.create (List.map cell_renderer_accel_param' l))
 
 
 class icon_view_signals obj = object (self)
@@ -624,3 +669,99 @@ let icon_view ?model =
   let model = Gaux.may_map (fun m -> m#as_model) model in
   IconView.make_params ?model [] ~cont:(
   GContainer.pack_container ~create:(fun p -> new icon_view (IconView.create p)))
+
+(* Custom models *)
+
+class type virtual ['obj,'row,'a,'b,'c] custom_tree_model_type = 
+object
+  inherit model
+  val obj : 'obj
+  val n_columns : int
+  val columns : Gobject.g_type array
+  method custom_n_columns : int
+  method custom_get_column_type : int -> Gobject.g_type
+
+  method connect : model_signals
+    
+  (** Signal emitters *)
+  method custom_row_changed : Gtk.tree_path -> 'row -> unit
+  method custom_row_deleted : Gtk.tree_path -> unit
+  method custom_row_has_child_toggled :
+    Gtk.tree_path -> 'row -> unit
+  method custom_row_inserted : Gtk.tree_path -> 'row -> unit
+  method custom_rows_reordered :
+    Gtk.tree_path -> 'row option -> int array -> unit
+
+  method custom_unref_node : 'row -> unit
+  method custom_ref_node : 'row -> unit
+
+  method custom_flags : GtkEnums.tree_model_flags list
+
+  method virtual custom_get_iter : Gtk.tree_path -> 'row option
+  method virtual custom_get_path : 'row -> Gtk.tree_path
+  method custom_get_value :
+    'row -> int -> Gobject.g_value -> unit
+
+  method virtual custom_value : 'a. Gobject.g_type -> 'row -> column:int -> Gobject.basic
+  method virtual custom_iter_children : 'row option -> 'row option
+  method virtual custom_iter_has_child : 'row -> bool
+  method virtual custom_iter_n_children : 'row option -> int
+  method virtual custom_iter_next : 'row -> 'row option
+  method virtual custom_iter_nth_child : 'row option -> int -> 'row option
+  method virtual custom_iter_parent : 'row -> 'row option
+
+  method virtual custom_decode_iter : 'a -> 'b -> 'c -> 'row
+  method virtual custom_encode_iter : 'row -> 'a * 'b * 'c
+
+end
+
+class virtual ['row,'a,'b,'c] custom_tree_model (column_list:column_list) = 
+  let obj = (GtkTree.CustomModel.create ()) in
+object (self)
+  inherit model (GtkTree.CustomModel.create ())
+  method connect = new model_signals obj  
+
+  inherit ['row,'a,'b,'c] GtkTree.CustomModel.callback
+  val n_columns =  List.length column_list#types
+  val columns = Array.of_list column_list#types
+  
+  method get ~row:_ ~column:_ = failwith "get not allowed on a custom model."
+
+  method custom_n_columns = n_columns
+
+  method custom_get_value (row:'row) (column:int) (value:Gobject.g_value) =
+    Gobject.Value.init value (columns.(column));
+    if column >=0 && column <n_columns then
+      let (#basic as value_to_set) = self#custom_value columns.(column) row ~column in
+      try 
+        Gobject.Value.set value value_to_set
+      with Failure _ -> 
+        failwith 
+          ("custom_value returned a value of incompatible type for column "^string_of_int column
+           ^" of type "^ (Gobject.Type.name (Gobject.Value.get_type value)))
+    else invalid_arg ("custom_get_value: invalid column id "^string_of_int column)
+
+  method virtual custom_value : 'a. Gobject.g_type -> 'row -> column:int -> Gobject.basic
+
+  method custom_get_column_type n : Gobject.g_type = 
+    if 0 <= n && n < n_columns then columns.(n)
+    else Gobject.Type.of_fundamental `INVALID
+
+  method custom_row_inserted path (iter:'row) =
+    CustomModel.custom_row_inserted obj path iter
+  method custom_row_changed path (iter:'row) =
+    CustomModel.custom_row_changed obj path iter
+  method custom_row_has_child_toggled path (iter:'row) =
+    CustomModel.custom_row_has_child_toggled obj path iter
+  method custom_row_deleted (path:Gtk.tree_path) =
+    CustomModel.custom_row_deleted obj path
+  method custom_rows_reordered path (iter_opt:'row option) new_order =
+    CustomModel.custom_rows_reordered obj path iter_opt new_order
+  method custom_flags : GtkEnums.tree_model_flags list = []
+  initializer 
+    GtkTree.CustomModel.register_callback obj self;
+    column_list#lock ();
+    let id = Gobject.get_oid obj in
+    Hashtbl.add model_ids id column_list#id;
+    Hashtbl.add custom_model_ids column_list#id ()
+end

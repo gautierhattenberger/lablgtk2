@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gtkMisc.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id: gtkMisc.ml 1419 2008-09-22 13:37:06Z zoggy $ *)
 
 open Gaux
 open Gobject
@@ -37,6 +37,8 @@ module GammaCurve = GammaCurve
 module ColorSelection = ColorSelection
 
 module Statusbar = Statusbar
+
+module StatusIcon = GtkStatusIcon
 
 module Calendar = Calendar
 

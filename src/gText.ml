@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
- (* $Id: gText.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
+ (* $Id: gText.ml 1415 2008-09-04 15:59:15Z ben_99_9 $ *)
 
 open StdLabels
 open Gaux
@@ -660,7 +660,7 @@ class view obj = object
   method connect = new view_signals obj
 end
 
-let view ?buffer =
+let view ?(buffer:buffer option) =
   View.make_params [] ~cont:(
   GContainer.pack_container ~create:(fun pl ->
     let w = match buffer with 

@@ -1,4 +1,4 @@
-(* $Id: gtkButton.props 1355 2007-08-08 13:17:06Z ben_99_9 $ *)
+(* $Id: gtkButton.props 1411 2008-08-03 14:43:59Z ben_99_9 $ *)
 
 prefix "Gtk"
 
@@ -13,6 +13,7 @@ open GtkButtonProps
 class Button set wrap wrapsig : Bin {
   "focus-on-click"       gboolean             : Read / Write / NoSet
   "image"                GtkWidget            : Read / Write / NoSet
+  "image-position"       GtkPositionType      : Read / Write / NoSet
   "label"                gchararray           : Read / Write / Construct
   "use-stock"            gboolean             : Read / Write / Construct
   "use-underline"        gboolean             : Read / Write / Construct

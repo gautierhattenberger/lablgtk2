@@ -1,4 +1,4 @@
-(* $Id: gtkText.props 1369 2007-09-25 02:56:09Z garrigue $ *)
+(* $Id: gtkText.props 1415 2008-09-04 15:59:15Z ben_99_9 $ *)
 
 prefix "Gtk"
 
@@ -28,6 +28,10 @@ class TextView wrap wrapsig : Container {
   "right-margin"         gint                 : Read / Write
   "tabs"                 PangoTabArray        : Read / Write
   "wrap-mode"            GtkWrapMode          : Read / Write / Set
+
+  (* API extended in GTK 2.4 *)
+  "accepts-tab"             gboolean             : Read / Write / Set
+
   signal copy_clipboard
   signal cut_clipboard
   signal delete_from_cursor : GtkDeleteType gint

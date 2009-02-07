@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: glib.mli 1355 2007-08-08 13:17:06Z ben_99_9 $ *)
+(* $Id: glib.mli 1408 2008-07-23 12:40:06Z ben_99_9 $ *)
 
 (** Interface to Glib functions 
     @gtkdoc glib index *)
@@ -78,6 +78,7 @@ module Io : sig
     cond:condition list -> callback:(condition list -> bool) -> ?prio:int -> channel -> id
   val remove : id -> unit
   val read : channel -> buf:string -> pos:int -> len:int -> int
+  val read_chars : channel -> buf:string -> pos:int -> len:int -> int
 end
 
 (** {3 Message Logging} *)

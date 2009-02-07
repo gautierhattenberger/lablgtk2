@@ -20,8 +20,12 @@
 (*                                                                        *)
 (**************************************************************************)
 
+(** {2 GtkSourceView interface} *)
+
 open Gtk
 open GText
+
+
 (** {2 GtkSourceTag} *)
 
 type source_tag_property = [
@@ -333,6 +337,7 @@ val source_view:
   ?cursor_visible:bool ->
   ?justification:GtkEnums.justification ->
   ?wrap_mode:GtkEnums.wrap_mode ->
+  ?accepts_tab:bool ->
   ?border_width:int ->
   ?width:int ->
   ?height:int ->

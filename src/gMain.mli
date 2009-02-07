@@ -20,9 +20,11 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gMain.mli 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id: gMain.mli 1408 2008-07-23 12:40:06Z ben_99_9 $ *)
 
 (** Library initialization, main event loop, and events *)
+
+open Gtk
 
 (** @gtkdoc gtk gtk-General *)
 module Main : sig
@@ -56,6 +58,13 @@ module Grab : sig
   val get_current : unit -> GObj.widget
 end
 
+module Event : sig
+  val get_current_time : unit -> int32     (** May return GDK_CURRENT_TIME *)
+  val get_current : unit -> GdkEvent.any       (** May raise Gpointer.Null *)
+  val get_widget : 'a Gdk.event -> widget obj  (** May raise Gpointer.Null *)
+  val propagate : [> `widget] obj -> 'a Gdk.event -> unit
+end
+
 module Rc : sig
   val add_default_file : string -> unit
 end
@@ -81,4 +90,5 @@ module Io : sig
     cond:condition list -> callback:(condition list -> bool) -> ?prio:int -> channel -> id
   val remove : id -> unit
   val read : channel -> buf:string -> pos:int -> len:int -> int
+  val read_chars : channel -> buf:string -> pos:int -> len:int -> int
 end
