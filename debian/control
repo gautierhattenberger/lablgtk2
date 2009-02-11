@@ -10,7 +10,7 @@ Uploaders:
  Ralf Treinen <treinen@debian.org>,
  Stephane Glondu <steph@glondu.net>
 Build-Depends:
- debhelper (>> 5.0.0),
+ debhelper (>> 7.0.0),
  dh-ocaml,
  ocaml (>= 3.11),
  camlp4 (>= 3.11),
@@ -18,7 +18,7 @@ Build-Depends:
  libgtk2.0-dev,
  libgtkgl2.0-dev,
  libglade2-dev,
- liblablgl-ocaml-dev (>= 1.03-4),
+ liblablgl-ocaml-dev (>= 1.04),
  librsvg2-dev,
  libgnomecanvas2-dev,
  libgtkspell-dev,
@@ -26,7 +26,7 @@ Build-Depends:
  libpanel-applet2-dev,
  libgtksourceview-dev (>= 1.2.0),
  dpatch
-Standards-Version: 3.7.3
+Standards-Version: 3.8.0
 Homepage: http://wwwfun.kurims.kyoto-u.ac.jp/soft/lsl/lablgtk.html
 Vcs-Svn: svn://svn.debian.org/svn/pkg-ocaml-maint/trunk/packages/lablgtk/trunk
 Vcs-Browser: http://svn.debian.org/wsvn/pkg-ocaml-maint/trunk/packages/lablgtk/trunk/

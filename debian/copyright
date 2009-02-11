@@ -34,12 +34,12 @@ Upstream Authors :
 Copyright:
 
 LablGtk is distributed under the terms the LGPL licence, which can be
-found in the /usr/share/common-licenses/LGPL file on debian systems.
+found in the /usr/share/common-licenses/LGPL-2.1 file on debian systems.
 
 Notice that this version includes binding for the librsvg, a SVG-files
 render. Since librsvg is licenced under the GPL, linking to it via the
 lablrsvg puts the resulting work under the GPL also.
 
 Notice that this version includes examples of lablgtk use, that are licensed
-under GPL, which can be found in the /usr/share/common-licenses/GPL file on
+under GPL, which can be found in the /usr/share/common-licenses/GPL-2 file on
 debian systems.
