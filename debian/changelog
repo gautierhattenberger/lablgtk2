@@ -1,8 +1,8 @@
 lablgtk2 (2.12.0-2) UNRELEASED; urgency=low
 
-  * NOT RELEASED YET
+  * Remove various versioned dependencies
 
- -- Samuel Mimram <smimram@debian.org>  Wed, 11 Feb 2009 13:08:42 +0100
+ -- Stephane Glondu <steph@glondu.net>  Mon, 16 Feb 2009 11:08:57 +0100
 
 lablgtk2 (2.12.0-1) experimental; urgency=low
 
