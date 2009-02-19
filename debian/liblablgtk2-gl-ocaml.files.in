@@ -1,1 +1,1 @@
-usr/lib/ocaml/@OCamlABI@/stublibs/dlllablgtkgl2.so
+@OCamlDllDir@/dlllablgtkgl2.so

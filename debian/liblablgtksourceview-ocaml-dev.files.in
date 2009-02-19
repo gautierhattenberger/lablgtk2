@@ -1,5 +1,5 @@
-usr/lib/ocaml/@OCamlABI@/lablgtk2/sourceView*
-usr/lib/ocaml/@OCamlABI@/lablgtk2/gSourceView*
-usr/lib/ocaml/@OCamlABI@/lablgtk2/gtkSourceView*
-usr/lib/ocaml/@OCamlABI@/lablgtk2/lablgtksourceview*
-usr/lib/ocaml/@OCamlABI@/lablgtk2/liblablgtksourceview*
+@OCamlStdlibDir@/lablgtk2/sourceView*
+@OCamlStdlibDir@/lablgtk2/gSourceView*
+@OCamlStdlibDir@/lablgtk2/gtkSourceView*
+@OCamlStdlibDir@/lablgtk2/lablgtksourceview*
+@OCamlStdlibDir@/lablgtk2/liblablgtksourceview*

@@ -5,9 +5,8 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
-OCAMLABI := $(shell ocamlc -version)
-OFILES := $(patsubst %.in,%,$(shell ls debian/*.in))
-OCAML_LIBDIR := $(shell ocamlc -where)
+include /usr/share/ocaml/ocamlvars.mk
+include /usr/share/ocaml/ocamlinit.mk
 
 DESTDIR = $(CURDIR)/debian/tmp
 
@@ -22,9 +21,6 @@ ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
 	INSTALL_PROGRAM += -s
 endif
 
-ocamlinit:
-	for f in $(OFILES); do sed -e 's/@OCamlABI@/$(OCAMLABI)/g' $$f.in > $$f; done
-
 configure: configure-stamp
 configure-stamp: ocamlinit
 	dh_testdir
@@ -36,7 +32,7 @@ configure-stamp: ocamlinit
 
 
 build: build-stamp
-build-stamp: patch-stamp configure-stamp 
+build-stamp: patch-stamp configure-stamp
 	dh_testdir
 
 	$(MAKE) depend
@@ -56,7 +52,6 @@ clean: unpatch
 	-$(RM) config.status
 	-$(RM) config.log
 
-
 	dh_clean config.make
 
 install: build
@@ -68,14 +63,14 @@ install: build
 	$(MAKE) install DESTDIR=$(DESTDIR)
 
 	# These files are needed by lablgtk2-doc
-	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
-	cp src/gtkSourceView_types.cmi $(CURDIR)/debian/liblablgtksourceview-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
+	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_STDLIB_DIR)/lablgtk2
+	cp src/gtkSourceView_types.cmi $(CURDIR)/debian/liblablgtksourceview-ocaml-dev/$(OCAML_STDLIB_DIR)/lablgtk2
 
 	# Install METAs
-	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2
-	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/$(OCAML_LIBDIR)/METAS
-	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_LIBDIR)/METAS
-	cp debian/META.lablgtksourceview $(CURDIR)/debian/liblablgtksourceview-ocaml-dev/$(OCAML_LIBDIR)/METAS
+	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_STDLIB_DIR)/lablgtk2
+	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/$(OCAML_STDLIB_DIR)/METAS
+	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_STDLIB_DIR)/METAS
+	cp debian/META.lablgtksourceview $(CURDIR)/debian/liblablgtksourceview-ocaml-dev/$(OCAML_STDLIB_DIR)/METAS
 
 	# Examples
 	cp -r examples/GL/*  $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/usr/share/doc/liblablgtk2-gl-ocaml-dev/examples/
@@ -99,18 +94,18 @@ binary-arch: build install
 	dh_movefiles -s
 	dh_install -s --sourcedir=$(DESTDIR) --list-missing -X ".cmx" -X ".cmxa" -X "*.o"
 	if [ -x /usr/bin/ocamlopt ]; then \
-	  mv $(DESTDIR)/$(OCAML_LIBDIR)/lablgtk2/*.cmx  '$(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2/'; \
-	  mv $(DESTDIR)/$(OCAML_LIBDIR)/lablgtk2/*.cmxa '$(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2/'; \
-	  mv $(DESTDIR)/$(OCAML_LIBDIR)/lablgtk2/*.o    '$(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_LIBDIR)/lablgtk2/'; \
+	  mv $(DESTDIR)/$(OCAML_STDLIB_DIR)/lablgtk2/*.cmx  '$(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_STDLIB_DIR)/lablgtk2/'; \
+	  mv $(DESTDIR)/$(OCAML_STDLIB_DIR)/lablgtk2/*.cmxa '$(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_STDLIB_DIR)/lablgtk2/'; \
+	  mv $(DESTDIR)/$(OCAML_STDLIB_DIR)/lablgtk2/*.o    '$(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_STDLIB_DIR)/lablgtk2/'; \
 	fi
 	# Doc generation (TODO: use CDBS)
 	OCAMLDOC_PKG="liblablgtk2-ocaml-dev liblablgtk2-gl-ocaml-dev liblablgtk2-gnome-ocaml-dev liblablgtksourceview-ocaml-dev"; \
-	OCAMLDOC_INCLUDE=`for i in $$OCAMLDOC_PKG; do find debian/$$i/$(OCAML_LIBDIR)/ -type d -exec echo -I \{} \; ; done`; \
+	OCAMLDOC_INCLUDE=`for i in $$OCAMLDOC_PKG; do find debian/$$i/$(OCAML_STDLIB_DIR)/ -type d -exec echo -I \{} \; ; done`; \
 	for i in $$OCAMLDOC_PKG; do \
 	  mkdir -p debian/$$i/usr/share/doc/$$i/html/api; \
-	  find debian/$$i/$(OCAML_LIBDIR)/ \
+	  find debian/$$i/$(OCAML_STDLIB_DIR)/ \
   	    -type f -name '*.mli' \
-	    | xargs ocamldoc -I $(OCAML_LIBDIR)/lablgl -I $(OCAML_LIBDIR)/threads \
+	    | xargs ocamldoc -I $(OCAML_STDLIB_DIR)/lablgl -I $(OCAML_STDLIB_DIR)/threads \
 	     -pp "sed 's/@gtkdoc *\([A-Za-z-]* *[A-Za-z-]*\)/\(gtkdoc: \1\)/g'" \
 	     -stars -m A -no-custom-tags $$OCAMLDOC_INCLUDE -html \
 	     -d debian/$$i/usr/share/doc/$$i/html/api \
@@ -130,7 +125,7 @@ binary-arch: build install
 	dh_makeshlibs -s
 	dh_installdeb -s
 	dh_shlibdeps -s
-	dh_gencontrol -s -- -VF:OCamlABI="$(OCAMLABI)"
+	dh_gencontrol -s -- -VF:OCamlABI="$(OCAML_ABI)"
 	dh_md5sums -s
 	dh_builddeb -s
 

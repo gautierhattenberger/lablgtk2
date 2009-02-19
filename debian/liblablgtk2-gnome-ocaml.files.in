@@ -1,4 +1,4 @@
-usr/lib/ocaml/@OCamlABI@/stublibs/dlllablgnomecanvas.so
-usr/lib/ocaml/@OCamlABI@/stublibs/dlllablgnomeui.so
-usr/lib/ocaml/@OCamlABI@/stublibs/dlllablpanel.so
-usr/lib/ocaml/@OCamlABI@/stublibs/dlllablrsvg.so
+@OCamlDllDir@/dlllablgnomecanvas.so
+@OCamlDllDir@/dlllablgnomeui.so
+@OCamlDllDir@/dlllablpanel.so
+@OCamlDllDir@/dlllablrsvg.so

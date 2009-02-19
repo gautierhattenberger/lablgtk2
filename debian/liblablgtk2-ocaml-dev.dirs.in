@@ -1,3 +1,3 @@
 usr/bin
-usr/lib/ocaml/@OCamlABI@/lablgtk2
+@OCamlStdlibDir@/lablgtk2
 usr/share/lintian/overrides
