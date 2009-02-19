@@ -52,6 +52,7 @@ clean: unpatch
 	[ ! -f config.make ] || $(MAKE) clean
 	-$(RM) config.status
 	-$(RM) config.log
+	-$(RM) $(OCAML_IN_FILES)
 
 	dh_clean config.make
 
