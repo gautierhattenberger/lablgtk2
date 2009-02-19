@@ -6,8 +6,9 @@ lablgtk2 (2.12.0-2) UNRELEASED; urgency=low
 
   [ Samuel Mimram ]
   * Use dh-ocaml predefined variables in rules.
+  * Use native version of ocamldoc if available.
 
- -- Samuel Mimram <smimram@debian.org>  Thu, 19 Feb 2009 09:34:31 +0100
+ -- Samuel Mimram <smimram@debian.org>  Thu, 19 Feb 2009 09:53:01 +0100
 
 lablgtk2 (2.12.0-1) experimental; urgency=low
 
