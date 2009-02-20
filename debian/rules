@@ -9,7 +9,6 @@ include /usr/share/ocaml/ocamlvars.mk
 include /usr/share/ocaml/ocamlinit.mk
 
 DESTDIR = $(CURDIR)/debian/tmp
-OCAMLDOC = $(if $(OCAML_OPT_ARCH),ocamldoc.opt,ocamldoc)
 
 # We want to use dpatch.
 include /usr/share/dpatch/dpatch.make
@@ -107,7 +106,7 @@ binary-arch: build install
 	  mkdir -p debian/$$i/usr/share/doc/$$i/html/api; \
 	  find debian/$$i/$(OCAML_STDLIB_DIR)/ \
   	    -type f -name '*.mli' \
-	    | xargs $(OCAMLDOC) -I $(OCAML_STDLIB_DIR)/lablgl -I $(OCAML_STDLIB_DIR)/threads \
+	    | xargs $(OCAML_OCAMLDOC) -I $(OCAML_STDLIB_DIR)/lablgl -I $(OCAML_STDLIB_DIR)/threads \
 	     -pp "sed 's/@gtkdoc *\([A-Za-z-]* *[A-Za-z-]*\)/\(gtkdoc: \1\)/g'" \
 	     -stars -m A -no-custom-tags $$OCAMLDOC_INCLUDE -html \
 	     -d debian/$$i/usr/share/doc/$$i/html/api \
