@@ -1,14 +1,15 @@
-lablgtk2 (2.12.0-2) UNRELEASED; urgency=low
+lablgtk2 (2.12.0-2) unstable; urgency=low
 
   [ Stephane Glondu ]
-  * Remove various versioned dependencies
-  * Switch packaging to git
+  * Remove various versioned dependencies.
+  * Switch packaging to git.
 
   [ Samuel Mimram ]
+  * Rebuild with OCaml 3.11.
   * Use dh-ocaml predefined variables in rules.
   * Use native version of ocamldoc if available.
 
- -- Samuel Mimram <smimram@debian.org>  Fri, 20 Feb 2009 10:37:41 +0100
+ -- Samuel Mimram <smimram@debian.org>  Thu, 26 Feb 2009 23:29:27 +0100
 
 lablgtk2 (2.12.0-1) experimental; urgency=low
 
