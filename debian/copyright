@@ -2,12 +2,12 @@ This package was debianized by Sven LUTHER <luther@debian.org> on
 Sun,  3 Dec 2000 12:06:26 +0100.
 
 It was downloaded from :
-  http://wwwfun.kurims.kyoto-u.ac.jp/soft/olabl/dist/lablgtk2-alpha.tar.gz
+  http://wwwfun.kurims.kyoto-u.ac.jp/soft/olabl/lablgtk.html
 
 Upstream Authors :
  Copyright (C) Jacques Garrigue <garrigue@kurims.kyoto-u.ac.jp>
  Copyright (C) Benjamin Monate <monate@lix.polytechnique.fr>
- 
+
  For lablgtk1:
  Copyright (C) Hubert Fauque <hubert.fauque@wanadoo.fr>
  Copyright (C) Jun Furuse <Jun.Furuse@inria.fr>
@@ -25,12 +25,12 @@ Upstream Authors :
 
  For tutorial-*.ml:
  Copyright (C) 2001 David MENTRE
- 
+
  For lablgtksourceview:
- Copyright (C) 2005 Stefano Zacchiroli <zack@cs.unibo.it>  
+ Copyright (C) 2005 Stefano Zacchiroli <zack@cs.unibo.it>
  Copyright (C) 2006 Stefano Zacchiroli <zack@cs.unibo.it>
- Copyright (C) 2006 Maxence Guesdon <maxence.guesdon@inria.fr
- 
+ Copyright (C) 2006 Maxence Guesdon <maxence.guesdon@inria.fr>
+
 Copyright:
 
 LablGtk is distributed under the terms the LGPL licence, which can be
