@@ -9,6 +9,7 @@ Uploaders:
  Sylvain Le Gall <gildor@debian.org>,
  Ralf Treinen <treinen@debian.org>,
  Stephane Glondu <steph@glondu.net>
+DM-Upload-Allowed: yes
 Build-Depends:
  debhelper (>> 7.0.0),
  dh-ocaml (>= 0.3),
