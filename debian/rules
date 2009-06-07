@@ -10,8 +10,8 @@ include /usr/share/ocaml/ocamlinit.mk
 
 DESTDIR = $(CURDIR)/debian/tmp
 
-# We want to use dpatch.
-include /usr/share/dpatch/dpatch.make
+# We want to use quilt.
+include /usr/share/quilt/quilt.make
 PACKAGE = lablgtk
 
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
@@ -32,7 +32,7 @@ configure-stamp: ocamlinit
 
 
 build: build-stamp
-build-stamp: patch-stamp configure-stamp
+build-stamp: $(QUILT_STAMPFN) configure-stamp
 	dh_testdir
 
 	$(MAKE) depend
