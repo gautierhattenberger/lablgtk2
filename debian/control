@@ -15,7 +15,7 @@ Build-Depends:
  dh-ocaml (>= 0.3),
  ocaml (>= 3.11),
  camlp4 (>= 3.11),
- liblablgl-ocaml-dev (>= 1.04),
+ liblablgl-ocaml-dev (>> 1.04-2),
  libncurses5-dev,
  libgtk2.0-dev,
  libgtkgl2.0-dev,
@@ -27,7 +27,7 @@ Build-Depends:
  libpanel-applet2-dev,
  libgtksourceview-dev,
  quilt
-Standards-Version: 3.8.1
+Standards-Version: 3.8.2
 Homepage: http://wwwfun.kurims.kyoto-u.ac.jp/soft/lsl/lablgtk.html
 Vcs-Git: git://git.debian.org/git/pkg-ocaml-maint/packages/lablgtk2.git
 Vcs-Browser: http://git.debian.org/?p=pkg-ocaml-maint/packages/lablgtk2.git

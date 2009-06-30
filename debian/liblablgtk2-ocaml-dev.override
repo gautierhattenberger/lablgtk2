@@ -1,3 +1,3 @@
-liblablgtk2-ocaml-dev: binary-without-manpage lablgladecc2
-liblablgtk2-ocaml-dev: binary-without-manpage lablgtk2
-liblablgtk2-ocaml-dev: binary-without-manpage gdk-pixbuf-mlsource
+liblablgtk2-ocaml-dev: binary-without-manpage usr/bin/lablgladecc2
+liblablgtk2-ocaml-dev: binary-without-manpage usr/bin/lablgtk2
+liblablgtk2-ocaml-dev: binary-without-manpage usr/bin/gdk_pixbuf_mlsource
