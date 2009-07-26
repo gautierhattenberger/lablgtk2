@@ -1,3 +1,4 @@
+debian/META.lablgtk2-gl                    @OCamlStdlibDir@/METAS
 @OCamlStdlibDir@/lablgtk2/glGtk.*
 @OCamlStdlibDir@/lablgtk2/lablgtkgl.*
 @OCamlStdlibDir@/lablgtk2/liblablgtkgl2*

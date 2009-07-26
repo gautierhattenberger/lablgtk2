@@ -1,3 +1,4 @@
+debian/META.lablgtk2-gnome                        @OCamlStdlibDir@/METAS
 @OCamlStdlibDir@/lablgtk2/rsvg.*
 @OCamlStdlibDir@/lablgtk2/gnomeCanvas.*
 @OCamlStdlibDir@/lablgtk2/gnoCanvas.*

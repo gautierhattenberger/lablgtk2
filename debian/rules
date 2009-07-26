@@ -1,135 +1,45 @@
 #!/usr/bin/make -f
-# Sample debian/rules that uses debhelper.
-# GNU copyright 1997 to 1999 by Joey Hess.
+# -*- makefile -*-
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
 include /usr/share/ocaml/ocamlvars.mk
-include /usr/share/ocaml/ocamlinit.mk
+DESTDIR := $(CURDIR)/debian/tmp
 
-DESTDIR = $(CURDIR)/debian/tmp
+%:
+	dh --with quilt,ocaml $@
 
-# We want to use quilt.
-include /usr/share/quilt/quilt.make
-PACKAGE = lablgtk
+.PHONY: override_dh_auto_configure
+override_dh_auto_configure:
+	cp  src/.depend debian/src.depend.backup
+	dh_auto_configure -- --with-gl --with-glade --with-rsvg		\
+	--with-gnomecanvas --with-gtkspell --with-gnomeui --with-panel	\
+	--with-gtksourceview
 
-ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -g
-endif
-ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
-	INSTALL_PROGRAM += -s
-endif
-
-configure: configure-stamp
-configure-stamp: ocamlinit
-	dh_testdir
-
-	./configure --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info \
-	    --with-gl --with-glade --with-rsvg --with-gnomecanvas --with-gtkspell --with-gnomeui --with-panel --with-gtksourceview
-
-	touch configure-stamp
-
-
-build: build-stamp
-build-stamp: $(QUILT_STAMPFN) configure-stamp
-	dh_testdir
-
+.PHONY: override_dh_auto_build
+override_dh_auto_build:
 	$(MAKE) depend
 	$(MAKE)
 ifneq ($(OCAML_OPT_ARCH),)
 	$(MAKE) opt
 endif
 
-	touch build-stamp
-
-clean: unpatch
-	dh_testdir
-	dh_testroot
-	rm -f build-stamp configure-stamp
-
+.PHONY: override_dh_auto_clean
+override_dh_auto_clean:
 	[ ! -f config.make ] || $(MAKE) clean
-	-$(RM) config.status
-	-$(RM) config.log
-	-$(RM) $(OCAML_IN_FILES)
-	-$(RM) $(wildcard debian/*.ocamldoc-apiref)
+	if [ -f debian/src.depend.backup ]; then \
+	  mv debian/src.depend.backup src/.depend; \
+	fi
 
-	dh_clean config.make
-
-install: build
-	dh_testdir
-	dh_testroot
-	dh_prep
-	dh_installdirs
-
+.PHONY: override_dh_auto_install
+override_dh_auto_install:
 	$(MAKE) install DESTDIR=$(DESTDIR)
 
-	# These files are needed by lablgtk2-doc
-	cp src/gnomeDruid.cmi $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_STDLIB_DIR)/lablgtk2
-	cp src/gtkSourceView_types.cmi $(CURDIR)/debian/liblablgtksourceview-ocaml-dev/$(OCAML_STDLIB_DIR)/lablgtk2
+.PHONY: override_dh_installexamples
+override_dh_installexamples:
+	dh_installexamples --exclude='.cvsignore'
 
-	# Install METAs
-	cp debian/META $(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_STDLIB_DIR)/lablgtk2
-	cp debian/META.lablgtk2-gl $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/$(OCAML_STDLIB_DIR)/METAS
-	cp debian/META.lablgtk2-gnome $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/$(OCAML_STDLIB_DIR)/METAS
-	cp debian/META.lablgtksourceview $(CURDIR)/debian/liblablgtksourceview-ocaml-dev/$(OCAML_STDLIB_DIR)/METAS
-
-	# Examples
-	cp -r examples/GL/*  $(CURDIR)/debian/liblablgtk2-gl-ocaml-dev/usr/share/doc/liblablgtk2-gl-ocaml-dev/examples/
-	cp -r examples/rsvg examples/panel examples/canvas $(CURDIR)/debian/liblablgtk2-gnome-ocaml-dev/usr/share/doc/liblablgtk2-gnome-ocaml-dev/examples/
-	cp -r examples/sourceview $(CURDIR)/debian/liblablgtksourceview-ocaml-dev/usr/share/doc/liblablgtksourceview-ocaml-dev/examples/
-
-	# Lintian override
-	install -m 644 debian/liblablgtk2-ocaml-dev.override $(CURDIR)/debian/liblablgtk2-ocaml-dev/usr/share/lintian/overrides/liblablgtk2-ocaml-dev
-
-# Build architecture-independent files here.
-binary-indep: build install
-# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: build install
-	dh_testdir -s
-	dh_testroot -s
-
-	dh_installexamples -s --exclude='.cvsignore' --exclude='rsvg' --exclude='panel' --exclude='canvas' --exclude='GL' --exclude='sourceview'
-	dh_installmenu -s
-	dh_movefiles -s
-	dh_install -s --list-missing -X ".cmx" -X ".cmxa" -X "*.o"
-ifneq ($(OCAML_OPT_ARCH),)
-	mv $(DESTDIR)/$(OCAML_STDLIB_DIR)/lablgtk2/*.cmx  '$(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_STDLIB_DIR)/lablgtk2/'
-	mv $(DESTDIR)/$(OCAML_STDLIB_DIR)/lablgtk2/*.cmxa '$(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_STDLIB_DIR)/lablgtk2/'
-	mv $(DESTDIR)/$(OCAML_STDLIB_DIR)/lablgtk2/*.o    '$(CURDIR)/debian/liblablgtk2-ocaml-dev/$(OCAML_STDLIB_DIR)/lablgtk2/'
-endif
-	# Doc generation (TODO: use CDBS)
-	OCAMLDOC_PKG="liblablgtk2-ocaml-dev liblablgtk2-gl-ocaml-dev liblablgtk2-gnome-ocaml-dev liblablgtksourceview-ocaml-dev"; \
-	OCAMLDOC_INCLUDE=`for i in $$OCAMLDOC_PKG; do find debian/$$i/$(OCAML_STDLIB_DIR)/ -type d -exec echo -I \{} \; ; done`; \
-	for i in $$OCAMLDOC_PKG; do \
-	  mkdir -p debian/$$i/usr/share/doc/$$i/html/api; \
-	  find debian/$$i/$(OCAML_STDLIB_DIR)/ \
-  	    -type f -name '*.mli' \
-	    | xargs $(OCAML_OCAMLDOC) -I $(OCAML_STDLIB_DIR)/lablgl -I $(OCAML_STDLIB_DIR)/threads \
-	     -pp "sed 's/@gtkdoc *\([A-Za-z-]* *[A-Za-z-]*\)/\(gtkdoc: \1\)/g'" \
-	     -stars -m A -no-custom-tags $$OCAMLDOC_INCLUDE -html \
-	     -d debian/$$i/usr/share/doc/$$i/html/api \
-            || true; \
-	    sed -e "s/@PACKAGE@/$$i/g" \
-	     /usr/share/cdbs/1/class/ocaml-docbase-template.txt \
-	     > debian/$$i.doc-base.ocamldoc-apiref ; \
-	done
-	dh_installdocs -s
-	dh_installman -s
-	dh_installinfo -s
-	dh_installchangelogs CHANGES -s
-	dh_link -s
-	dh_strip -s
-	dh_compress -s
-	dh_fixperms -s
-	dh_makeshlibs -s
-	dh_installdeb -s
-	dh_shlibdeps -s
-	dh_gencontrol -s -- -VF:OCamlABI="$(OCAML_ABI)"
-	dh_md5sums -s
-	dh_builddeb -s
-
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install configure
+.PHONY: override_dh_install
+override_dh_install:
+	dh_install --list-missing
