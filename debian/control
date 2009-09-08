@@ -8,8 +8,7 @@ Uploaders:
  Stefano Zacchiroli <zack@debian.org>,
  Sylvain Le Gall <gildor@debian.org>,
  Ralf Treinen <treinen@debian.org>,
- Stephane Glondu <steph@glondu.net>
-DM-Upload-Allowed: yes
+ Stéphane Glondu <glondu@debian.org>
 Build-Depends:
  debhelper (>= 7.0.52),
  dh-ocaml (>= 0.9),
