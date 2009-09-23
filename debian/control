@@ -3,18 +3,17 @@ Section: ocaml
 Priority: optional
 Maintainer: Debian OCaml Maintainers <debian-ocaml-maint@lists.debian.org>
 Uploaders:
- Sven Luther <luther@debian.org>,
  Samuel Mimram <smimram@debian.org>,
  Stefano Zacchiroli <zack@debian.org>,
  Sylvain Le Gall <gildor@debian.org>,
  Ralf Treinen <treinen@debian.org>,
  Stéphane Glondu <glondu@debian.org>
 Build-Depends:
- debhelper (>= 7.0.52),
+ debhelper (>= 7.0.50~),
  dh-ocaml (>= 0.9),
- ocaml (>= 3.11),
+ ocaml (>= 3.11.1-3~),
  camlp4 (>= 3.11),
- liblablgl-ocaml-dev (>> 1.04-2),
+ liblablgl-ocaml-dev (>= 1.04-3~),
  libncurses5-dev,
  libgtk2.0-dev,
  libgtkgl2.0-dev,
@@ -25,8 +24,8 @@ Build-Depends:
  libgnomeui-dev,
  libpanel-applet2-dev,
  libgtksourceview-dev,
- quilt (>= 0.46-7)
-Standards-Version: 3.8.2
+ quilt (>= 0.46-7~)
+Standards-Version: 3.8.3
 Homepage: http://wwwfun.kurims.kyoto-u.ac.jp/soft/lsl/lablgtk.html
 Vcs-Git: git://git.debian.org/git/pkg-ocaml-maint/packages/lablgtk2.git
 Vcs-Browser: http://git.debian.org/?p=pkg-ocaml-maint/packages/lablgtk2.git
