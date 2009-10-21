@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gtklist.c 1347 2007-06-20 07:40:34Z guesdon $ */
+/* $Id: ml_gtklist.c 1452 2009-05-08 10:15:38Z garrigue $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -132,7 +132,7 @@ CAMLprim value ml_gtk_clist_get_text (value clist, value row, value column)
     return Val_optstring(text);
 }
 ML_5 (gtk_clist_set_pixmap, GtkCList_val, Int_val, Int_val, GdkPixmap_val,
-      GdkBitmap_val, Unit)
+      (GdkBitmap*)Pointer_val, Unit)
 CAMLprim value ml_gtk_clist_get_pixmap (value clist, value row, value column)
 {
     CAMLparam0 ();
@@ -153,7 +153,7 @@ CAMLprim value ml_gtk_clist_get_pixmap (value clist, value row, value column)
     CAMLreturn(ret);
 }
 ML_7 (gtk_clist_set_pixtext, GtkCList_val, Int_val, Int_val, String_val,
-      (guint8)Long_val, GdkPixmap_val, GdkBitmap_val, Unit)
+      (guint8)Long_val, GdkPixmap_val, (GdkBitmap*)Pointer_val, Unit)
 ML_bc7 (ml_gtk_clist_set_pixtext)
 ML_3 (gtk_clist_set_foreground, GtkCList_val, Int_val, GdkColor_val, Unit)
 ML_3 (gtk_clist_set_background, GtkCList_val, Int_val, GdkColor_val, Unit)

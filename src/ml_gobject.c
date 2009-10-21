@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gobject.c 1410 2008-07-25 08:46:42Z oandrieu $ */
+/* $Id: ml_gobject.c 1443 2009-01-20 09:49:48Z ben_99_9 $ */
 #include <stdio.h>
 #include <glib.h>
 #include <glib-object.h>
@@ -78,10 +78,24 @@ static GType my_g_object_get_property_type(GObject *obj, const char *prop)
 {
     GParamSpec *pspec =
         g_object_class_find_property (G_OBJECT_GET_CLASS(obj), prop);
-    if (pspec == NULL) raise_not_found();
+    if (pspec == NULL) { 
+      g_warning("LablGtk tried to access the unsupported property %s",prop); 
+      caml_invalid_argument(prop);
+      }
     return pspec->value_type;
 }
 ML_2 (my_g_object_get_property_type, GObject_val, String_val, Val_GType)
+
+static GType internal_g_object_get_property_type(GObject *obj, const char *prop)
+{
+    GParamSpec *pspec =
+        g_object_class_find_property (G_OBJECT_GET_CLASS(obj), prop);
+    if (pspec == NULL) { 
+      g_warning("LablGtk tried to access the unsupported property %s",prop);
+      return G_TYPE_INVALID;
+      }
+    return pspec->value_type;
+}
 
 
 /* gtype.h */
@@ -536,9 +550,10 @@ CAMLprim value ml_g_object_new (value type, value params)
 CAMLprim value ml_g_object_get_property_dyn (value vobj, value prop)
 {
   GObject *obj = GObject_val(vobj);
-  GType tp = my_g_object_get_property_type(obj, String_val(prop));
+  GType tp = internal_g_object_get_property_type(obj, String_val(prop));
   GValue val = {0};
   value ret;
+  if (tp == G_TYPE_INVALID) caml_invalid_argument(String_val(prop));
   g_value_init (&val, tp);
   g_object_get_property (obj, String_val(prop), &val);
   ret = g_value_get_variant (&val);
@@ -549,8 +564,9 @@ CAMLprim value ml_g_object_get_property_dyn (value vobj, value prop)
 CAMLprim value ml_g_object_set_property_dyn (value vobj, value prop, value arg)
 {
   GObject *obj = GObject_val(vobj);
-  GType tp = my_g_object_get_property_type(obj, String_val(prop));
+  GType tp = internal_g_object_get_property_type(obj, String_val(prop));
   GValue val = {0};
+  if (tp == G_TYPE_INVALID) return Val_unit; /* Silently ignore this error */
   g_value_init (&val, tp);
   g_value_set_variant (&val, arg);
   g_object_set_property (obj, String_val(prop), &val);

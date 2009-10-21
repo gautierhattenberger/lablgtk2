@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: wrappers.h 1417 2008-09-10 15:38:57Z ben_99_9 $ */
+/* $Id: wrappers.h 1467 2009-08-29 21:28:12Z ben_99_9 $ */
 
 #ifndef _wrappers_
 #define _wrappers_
@@ -43,6 +43,10 @@ CAMLexport void ml_raise_null_pointer (void) Noreturn;
 CAMLexport value Val_pointer (void *);
 CAMLprim value copy_string_check (const char*);
 value copy_string_or_null (const char *);
+
+value string_list_of_strv (const char * const *v);
+value string_list_of_strv2 (char **v);
+char ** strv_of_string_list (value list);
 
 CAMLprim value *ml_global_root_new (value v);
 CAMLexport void ml_global_root_destroy (void *data);

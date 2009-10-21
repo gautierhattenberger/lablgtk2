@@ -1,6 +1,8 @@
-(* $Id: gdk_tags.var 1265 2005-02-18 04:21:30Z garrigue $ *)
+(* $Id: gdk_tags.var 1452 2009-05-08 10:15:38Z garrigue $ *)
 
 package "gdk"
+
+type noconv platform = [ `X11 | `WIN32 | `QUARTZ ]
 
 type event_type = "GDK_"
   [ `NOTHING | `DELETE | `DESTROY | `EXPOSE | `MOTION_NOTIFY

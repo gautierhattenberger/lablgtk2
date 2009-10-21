@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gtk.h 1369 2007-09-25 02:56:09Z garrigue $ */
+/* $Id: ml_gtk.h 1455 2009-05-12 10:31:37Z garrigue $ */
 
 /* GObjects */
 
@@ -48,3 +48,7 @@ CAMLexport value Val_GtkWidget_func(gpointer w);
 #define GtkTooltips_val(val) check_cast(GTK_TOOLTIPS,val)
 
 #define GtkClipboard_val(val) ((GtkClipboard*)Pointer_val(val))
+#define GtkWindow_val(val) check_cast(GTK_WINDOW,val)
+#define GtkTooltip_val(val) check_cast(GTK_TOOLTIP,val)
+
+CAMLprim int Flags_Target_flags_val (value list);

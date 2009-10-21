@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gtk.c 1402 2008-03-25 08:55:03Z garrigue $ */
+/* $Id: ml_gtk.c 1467 2009-08-29 21:28:12Z ben_99_9 $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -381,6 +381,28 @@ CAMLprim value ml_gtk_widget_style_get_property (value w, value n)
     CAMLreturn (ret);
 }
 
+#ifdef HASGTK212
+ML_1 (gtk_widget_get_tooltip_markup, GtkWidget_val, Val_string)
+ML_2 (gtk_widget_set_tooltip_markup, GtkWidget_val, String_val, Unit)
+ML_1 (gtk_widget_get_tooltip_text, GtkWidget_val, Val_string)
+ML_2 (gtk_widget_set_tooltip_text, GtkWidget_val, String_val, Unit)
+ML_1 (gtk_widget_get_tooltip_window, GtkWidget_val, Val_GtkAny)
+ML_2 (gtk_widget_set_tooltip_window, GtkWidget_val, GtkWindow_val, Unit)
+ML_1 (gtk_widget_get_has_tooltip, GtkWidget_val, Val_bool)
+ML_2 (gtk_widget_set_has_tooltip, GtkWidget_val, Bool_val, Unit)
+ML_1 (gtk_widget_trigger_tooltip_query, GtkWidget_val, Unit)
+#else
+Unsupported_212(gtk_widget_get_tooltip_markup)
+Unsupported_212(gtk_widget_set_tooltip_markup)
+Unsupported_212(gtk_widget_get_tooltip_text)
+Unsupported_212(gtk_widget_set_tooltip_text)
+Unsupported_212(gtk_widget_get_tooltip_window)
+Unsupported_212(gtk_widget_set_tooltip_window)
+Unsupported_212(gtk_widget_get_has_tooltip)
+Unsupported_212(gtk_widget_set_has_tooltip)
+Unsupported_212(gtk_widget_trigger_tooltip_query)
+#endif
+
 /* gtkdnd.h */
 
 CAMLprim value ml_gtk_drag_dest_set (value w, value f, value t, value a)
@@ -707,7 +729,6 @@ Make_Extractor (gtk_file_selection_get, GtkFileSelection_val, dir_list,
 
 /* gtkwindow.h */
 
-#define GtkWindow_val(val) check_cast(GTK_WINDOW,val)
 ML_1 (gtk_window_new, Window_type_val, Val_GtkWidget_window)
 /* ML_2 (gtk_window_set_title, GtkWindow_val, String_val, Unit) */
 ML_3 (gtk_window_set_wmclass, GtkWindow_val, String_val, String_val, Unit)
@@ -845,52 +866,6 @@ ml_gtk_about_dialog_set_email_hook (value hook)
   return Val_unit;
 }
 
-static gchar **
-strv_of_string_list (value list)
-{
-  gchar **str_v;
-  gsize i, len;
-  value l;
-  for (len = 0, l = list; l != Val_emptylist; len++, l = Field (l, 1))
-    ;
-  l = list;
-  str_v = g_new (gchar *, len+1);
-  for (i = 0; i < len; i++)
-    {
-      str_v[i] = g_strdup (String_val (Field (l, 0)));
-      l = Field (l, 1);
-    }
-  str_v[len] = NULL;
-  return str_v;
-}
-static value
-string_list_of_strv (const gchar * const *v)
-{
-  CAMLparam0();
-  CAMLlocal4(head, l, cell, s);
-  gsize i;
-  if (v == NULL)
-    CAMLreturn (Val_emptylist);
-  i = 0;
-  head = l = Val_emptylist;
-  while (v[i] != NULL)
-    {
-      s = copy_string (v[i]);
-      cell = alloc_small (2, Tag_cons);
-      Field (cell, 0) = s;
-      Field (cell, 1) = Val_emptylist;
-      if (l == Val_emptylist)
-	  head = l = cell;
-      else
-	{
-	  Field (l, 1) = cell;
-	  l = cell;
-	}
-      i++;
-    }
-  CAMLreturn (head);
-}
-
 #define GtkAboutDialog_val(v) (check_cast (GTK_ABOUT_DIALOG, v))
 
 CAMLprim value
@@ -1013,3 +988,25 @@ ML_2 (gtk_propagate_event, GtkWidget_val, GdkEvent_val, Unit)
 ML_1 (gtk_rc_add_default_file, String_val, Unit)
 ML_1 (gtk_rc_parse, String_val, Unit)
 ML_1 (gtk_rc_parse_string, String_val, Unit)
+
+/* gtktooltip.h */
+
+#ifdef HASGTK212
+ML_2 (gtk_tooltip_set_markup, GtkTooltip_val, String_val, Unit)
+ML_2 (gtk_tooltip_set_text, GtkTooltip_val, String_val, Unit)
+  /* Note: gtk_tooltip_set_text duplicates the string */
+ML_2 (gtk_tooltip_set_icon, GtkTooltip_val, GdkPixbuf_val, Unit)
+ML_3 (gtk_tooltip_set_icon_from_stock, GtkTooltip_val,
+      String_val, Icon_size_val, Unit)
+ML_2 (gtk_tooltip_set_custom, GtkTooltip_val, GtkWidget_val, Unit)
+ML_1 (gtk_tooltip_trigger_tooltip_query, GdkDisplay_val, Unit)
+ML_2 (gtk_tooltip_set_tip_area, GtkTooltip_val, GdkRectangle_val, Unit)
+#else
+Unsupported_212(gtk_tooltip_set_markup)
+Unsupported_212(gtk_tooltip_set_text)
+Unsupported_212(gtk_tooltip_set_icon)
+Unsupported_212(gtk_tooltip_set_icon_from_stock)
+Unsupported_212(gtk_tooltip_set_custom)
+Unsupported_212(gtk_tooltip_trigger_tooltip_query)
+Unsupported_212(gtk_tooltip_set_tip_area)
+#endif /* HASGTK212 */

@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gtkData.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
+(* $Id: gtkData.ml 1454 2009-05-12 10:19:38Z garrigue $ *)
 
 open Gaux
 open Gobject
@@ -163,3 +163,4 @@ module Tooltips = struct
       [>`widget] obj -> ?text:string -> ?privat:string -> unit
       = "ml_gtk_tooltips_set_tip"
 end
+

@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gtk.ml 1419 2008-09-22 13:37:06Z zoggy $ *)
+(* $Id: gtk.ml 1454 2009-05-12 10:19:38Z garrigue $ *)
 
 open Gobject
 
@@ -281,7 +281,11 @@ type icon_view = [container|`iconview]
 type about_dialog = [dialog|`aboutdialog]
 type file_chooser_button = [box|`filechooserbutton|`filechooser]
 
+(* New widgets in 2.12 *)
+type tooltip = [`tooltip] obj
+
 (* re-export Gobject.obj *)
 type 'a obj = 'a Gobject.obj
   (* constraint 'a = [> `gtk] *)
   (* *Props modules break this *)
+

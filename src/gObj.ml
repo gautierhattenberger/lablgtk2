@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gObj.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
+(* $Id: gObj.ml 1454 2009-05-12 10:19:38Z garrigue $ *)
 
 open StdLabels
 open Gaux
@@ -57,12 +57,10 @@ end
 
 class type ['a] objvar = object
   val obj : 'a obj
-  method private obj : 'a obj
 end
 
 class gtkobj obj = object
   val obj = obj
-  method private obj = obj
   method destroy () = Object.destroy obj
   method get_oid = get_oid obj
 end
@@ -233,6 +231,7 @@ and misc_signals obj = object (self)
   method hide = self#connect Signals.hide
   method map = self#connect Signals.map
   method unmap = self#connect Signals.unmap
+  method query_tooltip = self#connect Signals.query_tooltip
   method realize = self#connect Signals.realize
   method unrealize = self#connect Signals.unrealize
   method state_changed = self#connect Signals.state_changed
@@ -336,6 +335,13 @@ and misc_ops obj = object (self)
   method add_selection_target ~target ?(info=0) sel =
     Selection.add_target obj ~sel ~target:(Gdk.Atom.intern target) ~info
   method clear_selection_targets sel = Selection.clear_targets obj ~sel
+  (* tooltip *)
+  method has_tooltip = get P.has_tooltip obj
+  method tooltip_markup = get P.tooltip_markup obj
+  method tooltip_text = get P.tooltip_text obj
+  method set_has_tooltip = set P.has_tooltip obj
+  method set_tooltip_markup = set P.tooltip_markup obj
+  method set_tooltip_text = set P.tooltip_text obj
 end
 
 and widget obj = object (self)

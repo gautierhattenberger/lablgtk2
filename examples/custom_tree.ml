@@ -1,3 +1,11 @@
+(**************************************************************************)
+(*    Lablgtk - Examples                                                  *)
+(*                                                                        *)
+(*    There is no specific licensing policy, but you may freely           *)
+(*    take inspiration from the code, and copy parts of it in your        *)
+(*    application.                                                        *)
+(*                                                                        *)
+(**************************************************************************)
 (* ../src/lablgtk2 -localdir custom_tree.ml *)
 
 
@@ -163,6 +171,9 @@ let create_view_and_model () : GTree.view =
                               let row = custom_tree#custom_get_iter path in
                               match row with 
                               | Some (File {finfo=f}) -> f.fchecked <- not f.fchecked
+                              | Some (Global _ ) -> 
+                                  Format.printf "Clearing %s@." (GtkTree.TreePath.to_string path);
+                                  Format.printf "Global@."
                               | _ -> ());
   ignore (view#append_column col_tog);
   

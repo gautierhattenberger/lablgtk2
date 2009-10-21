@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gdk.c 1428 2008-10-30 17:02:27Z ben_99_9 $ */
+/* $Id: ml_gdk.c 1452 2009-05-08 10:15:38Z garrigue $ */
 
 #include <string.h>
 #include <gdk/gdk.h>
@@ -85,6 +85,19 @@ CAMLprim value ml_test_##conv (value mask, value test) \
 
 Make_test(GdkModifier_val)
 Make_test(GdkWindowState_val)
+
+/* Platform */
+
+value ml_gdk_get_platform()
+{
+#ifdef GDK_WINDOWING_WIN32
+  return MLTAG_WIN32;
+#elif defined(GDK_WINDOWING_QUARTZ)
+  return MLTAG_QUARTZ;
+#else
+  return MLTAG_X11;
+#endif
+}
 
 /* Colormap */
 

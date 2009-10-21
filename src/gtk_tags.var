@@ -1,4 +1,4 @@
-(* $Id: gtk_tags.var 1411 2008-08-03 14:43:59Z ben_99_9 $ *)
+(* $Id: gtk_tags.var 1455 2009-05-12 10:31:37Z garrigue $ *)
 
 package "gtk"
 
@@ -215,6 +215,9 @@ type protect HASGTK24 file_chooser_action = "GTK_FILE_CHOOSER_ACTION_"
 
 type tree_model_flags = "GTK_TREE_MODEL_"
   [ `ITERS_PERSIST | `LIST_ONLY ]
+
+type tree_view_drop_position = "GTK_TREE_VIEW_DROP_"
+  [ `BEFORE | `AFTER | `INTO_OR_BEFORE | `INTO_OR_AFTER ]
 
 type protect HASGTK24 file_filter_flags = "GTK_FILE_FILTER_"
   [ `FILENAME | `URI | `DISPLAY_NAME | `MIME_TYPE ]

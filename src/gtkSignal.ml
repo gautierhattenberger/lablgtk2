@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gtkSignal.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
+(* $Id: gtkSignal.ml 1485 2009-09-22 21:39:32Z ben_99_9 $ *)
 
 open StdLabels
 open Gobject
@@ -65,6 +65,11 @@ let connect  ~(sgn : ('a, _) t) ~callback ?(after=false) (obj : 'a obj) =
       with exn ->
         Printf.eprintf "In callback for signal %s, uncaught exception: %s\n"
           sgn.name (Printexc.to_string exn);
+IFDEF HAS_PRINTEXC_BACKTRACE 
+THEN
+  if Printexc.backtrace_status () then
+    Printexc.print_backtrace stderr;
+END;
         flush stderr
     end;
     if pop_callback old then emit_stop_by_name obj ~name:sgn.name

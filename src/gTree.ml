@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gTree.ml 1425 2008-10-05 16:21:55Z ben_99_9 $ *)
+(* $Id: gTree.ml 1479 2009-09-11 18:22:32Z ben_99_9 $ *)
 
 open StdLabels
 open Gaux
@@ -376,6 +376,7 @@ open TreeView.P
 class view obj = object
   inherit [Gtk.tree_view] GContainer.container_impl obj
   inherit tree_view_props
+  method as_tree_view = (obj :> Gtk.tree_view Gtk.obj)
   method connect = new view_signals obj
   method event = new GObj.event_ops obj
   method selection = new selection (TreeView.get_selection obj)
@@ -718,7 +719,7 @@ end
 class virtual ['row,'a,'b,'c] custom_tree_model (column_list:column_list) = 
   let obj = (GtkTree.CustomModel.create ()) in
 object (self)
-  inherit model (GtkTree.CustomModel.create ())
+  inherit model obj
   method connect = new model_signals obj  
 
   inherit ['row,'a,'b,'c] GtkTree.CustomModel.callback
@@ -763,5 +764,8 @@ object (self)
     column_list#lock ();
     let id = Gobject.get_oid obj in
     Hashtbl.add model_ids id column_list#id;
-    Hashtbl.add custom_model_ids column_list#id ()
+    Hashtbl.add custom_model_ids column_list#id ();
+    (* Invalidate all iterators before dying...*)
+    Gc.finalise (fun m -> m#foreach (fun p _ -> m#custom_row_deleted p; false)) self
+
 end
