@@ -10,7 +10,7 @@ automatically). So don't build a binding for this function.
  1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/config.make.in b/config.make.in
-index 9ccad03..49adbaa 100644
+index e689bda..d5487d7 100644
 --- a/config.make.in
 +++ b/config.make.in
 @@ -19,7 +19,7 @@ EXE=@EXE@
