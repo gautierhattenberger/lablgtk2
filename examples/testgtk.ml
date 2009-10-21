@@ -7,7 +7,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: testgtk.ml 1419 2008-09-22 13:37:06Z zoggy $ *)
+(* $Id: testgtk.ml 1452 2009-05-08 10:15:38Z garrigue $ *)
 
 open StdLabels
 open GdkKeysyms
@@ -448,8 +448,8 @@ let create_scrolled_windows =
 
 let make_toolbar (toolbar : GButton.toolbar) window =
   let icon =
-    let info = GDraw.pixmap_from_xpm ~file:"test.xpm" ~window () in
-    fun () -> (GMisc.pixmap info ())#coerce
+    let pb = GdkPixbuf.from_file "test.xpm" in
+    fun () -> (GMisc.image ~pixbuf:pb ())#coerce
   in
 
   toolbar #insert_button ~text:"Horizontal"

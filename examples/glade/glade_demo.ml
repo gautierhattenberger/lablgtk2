@@ -7,11 +7,11 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: glade_demo.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id: glade_demo.ml 1462 2009-05-21 01:24:34Z garrigue $ *)
 
 (* An experiment on using libglade in lablgtk *)
 
-(* labgladecc2 project1.glade > project1.ml *)
+(* lablgladecc2 project1.glade > project1.ml *)
 #use "project1.ml";;
 
 class editor () =

@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gdk.mli 1369 2007-09-25 02:56:09Z garrigue $ *)
+(* $Id: gdk.mli 1452 2009-05-08 10:15:38Z garrigue $ *)
 
 open Gobject
 
@@ -511,9 +511,14 @@ module Cursor : sig
   val get_image : cursor -> [`pixbuf] obj             (** @since GTK 2.8 *)
   (* val destroy : cursor -> unit   -- done by GC *)
 end
+
 module Display : sig
     (** @since Gtk+-2.2 *)
 
   val default : unit -> display
   val window_at_pointer : ?display:display -> unit -> (window * int * int) option
+end
+
+module Windowing : sig
+  val platform : [`QUARTZ | `WIN32 | `X11]
 end

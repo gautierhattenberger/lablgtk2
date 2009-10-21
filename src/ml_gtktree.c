@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gtktree.c 1434 2008-12-19 14:21:55Z ben_99_9 $ */
+/* $Id: ml_gtktree.c 1456 2009-05-13 05:05:55Z garrigue $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -139,11 +139,10 @@ ML_2 (gtk_tree_model_get_iter_first, GtkTreeModel_val, GtkTreeIter_val, Val_bool
 ML_2 (gtk_tree_model_iter_next, GtkTreeModel_val, GtkTreeIter_val,
       Val_bool)
 ML_2 (gtk_tree_model_iter_has_child, GtkTreeModel_val, GtkTreeIter_val, Val_bool)
-#define GtkTreeIterOption(v) Option_val(v,GtkTreeIter_val,NULL)
-ML_2 (gtk_tree_model_iter_n_children, GtkTreeModel_val, GtkTreeIterOption,
+ML_2 (gtk_tree_model_iter_n_children, GtkTreeModel_val, GtkTreeIter_optval,
       Val_int)
 ML_4 (gtk_tree_model_iter_nth_child, GtkTreeModel_val, GtkTreeIter_val,
-      GtkTreeIterOption, Int_val, Val_bool)
+      GtkTreeIter_optval, Int_val, Val_bool)
 ML_3 (gtk_tree_model_iter_parent, GtkTreeModel_val, GtkTreeIter_val,
       GtkTreeIter_val, Val_bool)
 static gboolean gtk_tree_model_foreach_func(GtkTreeModel *model,
@@ -379,8 +378,10 @@ ML_2 (gtk_tree_view_column_set_sort_column_id, GtkTreeViewColumn_val,
       Int_val, Unit)
 ML_1 (gtk_tree_view_column_get_sort_column_id, GtkTreeViewColumn_val, Val_int)
 
-static void gtk_tree_cell_data_func(GtkTreeViewColumn *tree_column, GtkCellRenderer *cell,
-				    GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data)
+static void gtk_tree_cell_data_func(GtkTreeViewColumn *tree_column,
+                                    GtkCellRenderer *cell,
+				    GtkTreeModel *tree_model,
+                                    GtkTreeIter *iter, gpointer data)
 {
   value *closure = data;
   CAMLparam0();
@@ -392,17 +393,23 @@ static void gtk_tree_cell_data_func(GtkTreeViewColumn *tree_column, GtkCellRende
     CAML_EXN_LOG_VERBOSE("gtk_tree_cell_data_func",ret);
   CAMLreturn0;
 }
-CAMLprim value ml_gtk_tree_view_column_set_cell_data_func(value vcol, value cr, value cb)
+CAMLprim value
+ml_gtk_tree_view_column_set_cell_data_func(value vcol, value cr, value cb)
 {
   value *glob_root = NULL;
   if (Is_block(cb))
     glob_root = ml_global_root_new(Field(cb, 0));
-  gtk_tree_view_column_set_cell_data_func(GtkTreeViewColumn_val(vcol),
-					  GtkCellRenderer_val(cr),
-					  (Is_block(cb) ? gtk_tree_cell_data_func : NULL),
-					  glob_root,
-					  ml_global_root_destroy);
+  gtk_tree_view_column_set_cell_data_func
+       (GtkTreeViewColumn_val(vcol),
+        GtkCellRenderer_val(cr),
+        (Is_block(cb) ? gtk_tree_cell_data_func : NULL),
+        glob_root,
+        ml_global_root_destroy);
   return Val_unit;
+}
+CAMLprim value ml_gtk_tree_view_column_get_button (value vcol)
+{
+  return (Val_GtkWidget(GtkTreeViewColumn_val(vcol)->button));
 }
 
 /* GtkTreeView */
@@ -491,9 +498,8 @@ CAMLprim value ml_gtk_tree_view_get_path_at_pos(value treeview,
   return Val_unit;
 }
 
-CAMLprim value ml_gtk_tree_view_get_cell_area(value treeview,
-                                              value path,
-                                              value col)
+CAMLprim value
+ml_gtk_tree_view_get_cell_area(value treeview, value path, value col)
 {
   CAMLparam0 ();
   GdkRectangle grect;
@@ -504,6 +510,81 @@ CAMLprim value ml_gtk_tree_view_get_cell_area(value treeview,
     Option_val(col,GtkTreeViewColumn_val,NULL),
     &grect);
   CAMLreturn (Val_copy (grect));
+}
+
+CAMLprim value
+ml_gtk_tree_view_enable_model_drag_dest (value tv, value t, value a)
+{
+  CAMLparam3 (tv,t,a);
+  GtkTargetEntry *targets = NULL;
+  int i, n_targets = Wosize_val(t);
+  
+  if (n_targets)
+    targets = (GtkTargetEntry *) alloc
+      ( Wosize_asize(n_targets * sizeof(GtkTargetEntry))
+      , Abstract_tag );
+  for (i=0; i<n_targets; i++)
+  {
+    targets[i].target = String_val(Field(Field(t, i), 0));
+    targets[i].flags  = Flags_Target_flags_val(Field(Field(t, i), 1));
+    targets[i].info   = Int_val(Field(Field(t, i), 2));
+  }
+  gtk_tree_view_enable_model_drag_dest
+    ( GtkTreeView_val(tv)
+    , targets
+    , n_targets
+    , Flags_GdkDragAction_val(a) );
+  CAMLreturn(Val_unit);
+}
+ML_1 (gtk_tree_view_unset_rows_drag_dest, GtkTreeView_val, Unit)
+
+CAMLprim value
+ml_gtk_tree_view_enable_model_drag_source (value tv, value m, value t, value a)
+{
+  CAMLparam4 (tv,m,t,a);
+  GtkTargetEntry *targets = NULL;
+  int i, n_targets = Wosize_val(t);
+  
+  if (n_targets)
+    targets = (GtkTargetEntry *) alloc
+      ( Wosize_asize(n_targets * sizeof(GtkTargetEntry))
+      , Abstract_tag );
+  for (i=0; i<n_targets; i++)
+  {
+    targets[i].target = String_val(Field(Field(t, i), 0));
+    targets[i].flags  = Flags_Target_flags_val(Field(Field(t, i), 1));
+    targets[i].info   = Int_val(Field(Field(t, i), 2));
+  }
+  gtk_tree_view_enable_model_drag_source
+    ( GtkTreeView_val(tv)
+    , OptFlags_GdkModifier_val(m)
+    , targets
+    , n_targets
+    , Flags_GdkDragAction_val(a) );
+  CAMLreturn(Val_unit);
+}
+ML_1 (gtk_tree_view_unset_rows_drag_source, GtkTreeView_val, Unit)
+
+CAMLprim value
+ml_gtk_tree_view_get_dest_row_at_pos (value treeview, value x, value y)
+{
+  GtkTreePath *path;
+  GtkTreeViewDropPosition pos;
+
+  if (gtk_tree_view_get_dest_row_at_pos(
+    GtkTreeView_val(treeview),
+    Int_val(x), Int_val(y),
+    &path, &pos))
+  { /* return Some */
+    CAMLparam0 ();
+    CAMLlocal1(tup);
+
+    tup = alloc_tuple(2);
+    Store_field(tup,0,Val_GtkTreePath(path));
+    Store_field(tup,1,Val_tree_view_drop_position(pos));
+    CAMLreturn(ml_some (tup));
+  }
+  return Val_unit;
 }
 
 #ifdef HASGTK26
@@ -551,6 +632,63 @@ ml_gtk_tree_view_set_row_separator_func (value cb, value fun_o)
 Unsupported_26 (gtk_tree_view_set_row_separator_func)
 #endif /* HASGTK26 */
 
+#ifdef HASGTK212
+CAMLprim value
+ml_gtk_tree_view_set_tooltip_cell (value treeview, value tooltip,
+                                   value path, value col, value cell,
+                                   value unit)
+{
+  gtk_tree_view_set_tooltip_cell (
+    GtkTreeView_val(treeview),
+    GtkTooltip_val(tooltip),
+    GtkTreePath_optval(path),
+    GtkTreeViewColumn_optval(col),
+    GtkCellRenderer_optval(cell) );
+  return (Val_unit);
+} /* All those lines because of that: http://caml.inria.fr/mantis/view.php?id=4396 */
+ML_bc6(ml_gtk_tree_view_set_tooltip_cell)
+ML_3 (gtk_tree_view_set_tooltip_row, GtkTreeView_val, GtkTooltip_val, GtkTreePath_val, Unit)
+CAMLprim value
+ml_gtk_tree_view_get_tooltip_context (value treeview, value x, value y, value kbd)
+{
+  CAMLparam4 (treeview, x, y, kbd);
+  CAMLlocal3(tup, opt, sub);
+  gint _x = Int_val(x);
+  gint _y = Int_val(y);
+  GtkTreeModel *model;
+  GtkTreePath *path;
+  GtkTreeIter iter;
+  gboolean boo;
+  
+  boo = gtk_tree_view_get_tooltip_context (
+    GtkTreeView_val(treeview),
+    &_x, &_y, Bool_val(kbd),
+    &model, &path, &iter );
+  
+  tup = alloc_tuple(3);
+  Store_field(tup, 0, Val_int(_x));
+  Store_field(tup, 1, Val_int(_y));
+  opt = Val_unit;
+  if (boo) {
+    sub = alloc_tuple(3);
+    Store_field(sub, 0, Val_GAnyObject(model));
+    Store_field(sub, 1, Val_GtkTreePath(path));
+    Store_field(sub, 2, Val_GtkTreeIter(&iter));
+    opt = ml_some(sub);
+  }
+  Store_field(tup, 2, opt);
+  
+  CAMLreturn (tup);
+}
+ML_1 (gtk_tree_view_get_tooltip_column, GtkTreeView_val, Val_int)
+ML_2 (gtk_tree_view_set_tooltip_column, GtkTreeView_val, Int_val, Unit)
+#else
+Unsupported_212 (gtk_tree_view_set_tooltip_cell)
+Unsupported_212 (gtk_tree_view_set_tooltip_row)
+Unsupported_212 (gtk_tree_view_get_tooltip_context)
+Unsupported_212 (gtk_tree_view_get_tooltip_column)
+Unsupported_212 (gtk_tree_view_set_tooltip_column)
+#endif /* HASGTK212 */
 
 /* GtkCellLayout */
 #ifdef HASGTK24

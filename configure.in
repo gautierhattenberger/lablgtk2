@@ -159,6 +159,11 @@ if expr "$OCAMLVERSION" '>=' '3.08' > /dev/null ; then
 fi
 AC_SUBST(ODOC_DEF)
 
+if expr "$OCAMLVERSION" '>=' '3.11' > /dev/null ; then
+   HAS_PRINTEXC_BACKTRACE="-D HAS_PRINTEXC_BACKTRACE"
+fi
+AC_SUBST(HAS_PRINTEXC_BACKTRACE)
+
 # Check for which kind of threads is used
 AC_MSG_CHECKING(for ocaml threads)
 AC_ARG_WITH(threads,
@@ -199,7 +204,7 @@ AC_PROG_CC
 # platform
 AC_MSG_CHECKING(platform)
 echo "print_endline Sys.os_type ;;" > conftest.ml
-ac_ocaml_platform=$(ocaml conftest.ml)
+ac_ocaml_platform=$(ocaml conftest.ml | tr -d '\r')
 AC_MSG_RESULT($ac_ocaml_platform)
 if test $ac_ocaml_platform = Win32 ; then
     OCAMLWIN32=yes
@@ -209,6 +214,15 @@ else
     OCAMLWIN32=no
     EXE=
     XS=.so
+fi
+
+# Working native Dynlink
+AC_MSG_CHECKING(native dynlink)
+echo "Dynlink.loadfile \"foo\";;" > test_dynlink.ml
+if ($CAMLOPT -shared -o test_dynlink.cmxs test_dynlink.ml) 2> /dev/null ; then
+   HAS_NATIVE_DYNLINK=yes
+else
+   HAS_NATIVE_DYNLINK=no
 fi
 
 # GTK 2 auto configuration
@@ -298,11 +312,15 @@ LABLGTK_PKG(GTKSOURCEVIEW, gtksourceview,
             [  --without-gtksourceview      override autodetected gtksourceview support],
             gtksourceview-1.0)
 
+LABLGTK_PKG(GTKSOURCEVIEW2, gtksourceview2,
+            [  --without-gtksourceview2      override autodetected gtksourceview 2 support],
+            gtksourceview-2.0)
+
 LABLGTK_PKG(GTKQUARTZ, quartz,
-            [  --without-quartz      override autodetected gtksourceview support],
+            [  --without-quartz      override autodetected quartz support],
             gtk+-quartz-2.0)
 
-PKG_CHECK_MODULES(GTKALL,$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEWPKG $GTKQUARTZPKG)
+PKG_CHECK_MODULES(GTKALL,$GTKPKG $GTKGLPKG $GLADEPKG $RSVGPKG $GNOMECANVASPKG $GNOMEUIPKG $PANELPKG $GTKSPELLPKG $GTKSOURCEVIEW2PKG $GTKQUARTZPKG)
 
 AC_ARG_ENABLE(debug,
         [  --enable-debug          enable debug mode],
@@ -322,6 +340,7 @@ AC_SUBST(OCAMLLEX)
 AC_SUBST(OCAMLYACC)
 AC_SUBST(THREADS_LIB)
 AC_SUBST(HAS_DLL_SUPPORT)
+AC_SUBST(HAS_NATIVE_DYNLINK)
 
 AC_SUBST(CAMLC)
 AC_SUBST(CAMLOPT)
@@ -350,6 +369,7 @@ fi])
 
 echo ; echo "LablGTK configuration:"
 echo "	threads  	$THREADS_LIB"
+echo "	native dynlink 	$HAS_NATIVE_DYNLINK"
 CONF_SUMMARY(GtkGLArea, GTKGL)
 CONF_SUMMARY(libglade, GLADE)
 CONF_SUMMARY(librsvg , RSVG)
@@ -357,7 +377,8 @@ CONF_SUMMARY(libgnomecanvas, GNOMECANVAS)
 CONF_SUMMARY(libgnomeui, GNOMEUI)
 CONF_SUMMARY(libpanelapplet, PANEL)
 CONF_SUMMARY(gtkspell, GTKSPELL)
-CONF_SUMMARY(gtksourceview, GTKSOURCEVIEW)
+CONF_SUMMARY(gtksourceview 1, GTKSOURCEVIEW)
+CONF_SUMMARY(gtksourceview 2, GTKSOURCEVIEW2)
 CONF_SUMMARY(quartz   , GTKQUARTZ)
 echo
 echo $ECHO_N "	debug   $ECHO_C"

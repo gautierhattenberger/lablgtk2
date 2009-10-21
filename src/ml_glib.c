@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_glib.c 1408 2008-07-23 12:40:06Z ben_99_9 $ */
+/* $Id: ml_glib.c 1445 2009-02-09 17:13:00Z ben_99_9 $ */
 
 #include <string.h>
 #include <locale.h>
@@ -388,7 +388,7 @@ CAMLprim value ml_g_io_channel_read_chars(value io, value str, value offset,
   return Val_unit;
 }
 #else
-Unsupported_22(ml_g_io_channel_read_chars)
+Unsupported_22(g_io_channel_read_chars)
 #endif
 
 /* single-linked lists */

@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gdk.ml 1369 2007-09-25 02:56:09Z garrigue $ *)
+(* $Id: gdk.ml 1452 2009-05-08 10:15:38Z garrigue $ *)
 
 open StdLabels
 open Gaux
@@ -779,4 +779,9 @@ module Display = struct
     get_window_at_pointer
       (match display with None -> default ()
       | Some disp -> disp)
+end
+
+module Windowing = struct
+  external get : unit -> [`QUARTZ | `WIN32 | `X11] = "ml_gdk_get_platform"
+  let platform = get ()
 end

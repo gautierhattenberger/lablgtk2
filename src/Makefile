@@ -1,11 +1,11 @@
-# $Id: Makefile 1437 2008-12-26 04:28:27Z garrigue $
+# $Id: Makefile 1486 2009-09-25 09:18:09Z garrigue $
 # Makefile for lablgtk.
 
 COMPILER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS) -w s -c
 LINKER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS)
 COMPOPT = $(CAMLOPT) $(MLFLAGS) -w s -c
 LINKOPT = $(CAMLOPT) $(MLFLAGS)
-LIBRARIAN = $(CAMLMKLIB) -verbose
+LIBRARIAN = $(CAMLMKLIB) -verbose -ocamlc "$(CAMLC)" -ocamlopt "$(CAMLOPT)"
 TOPLEVEL = $(CAMLMKTOP) $(MLFLAGS)
 CAMLP4 = $(CAMLP4O) pr_o.cmo
 
@@ -67,7 +67,9 @@ CCOMPILER = $(CAMLC) -c -ccopt '$(CFLAGS)' -verbose
 endif
 
 ifdef USE_GL
+ifdef LABLGLDIR
 MLFLAGS += -I $(LABLGLDIR)
+endif
 MLLINK += lablgl.cma
 MLLIBS += lablgtkgl.cma
 CLIBS += liblablgtkgl2$(XA)
@@ -127,18 +129,51 @@ GTKSPELLCOBJS = ml_gtkspell$(XO)
 endif
 
 ifdef USE_GTKSOURCEVIEW
-MLLIBS += lablgtksourceview.cma
-CLIBS += liblablgtksourceview$(XA)
-GTKSOURCEVIEWMLOBJS = sourceViewEnums.cmo gtkSourceView.cmo gSourceView.cmo
+byte:: lablgtksourceview.cma liblablgtksourceview$(XA)
+opt:: lablgtksourceview.cmxa liblablgtksourceview$(XA)
+ifeq ($(HAS_NATIVE_DYNLINK),yes)
+opt::  lablgtksourceview.cmxs
+endif
+
+ml_gtksourceview.o: CFLAGS=$(GTKSOURCEVIEWCFLAGS)
+GTKSOURCEVIEWMLOBJS = gtkSourceView.cmo gSourceView.cmo
 GTKSOURCEVIEWCOBJS = ml_gtksourceview$(XO)
-GTKPROPS +=  gtkSourceView.props
+ml_gtksourceview.c: pango_tags.h
+GTKSOURCEVIEWMLOBJSENUM = sourceViewEnums.cmo 
+GTKSOURCEVIEWPROPS = gtkSourceView.props
+CLIBS += liblablgtksourceview$(XA)
+EXTRA_MLLIBS += lablgtksourceview.cma
+EXTRA_OBJS += $(GTKSOURCEVIEWMLOBJS) $(GTKSOURCEVIEWMLOBJSENUM) 
+BEFORE_DEPEND += $(GTKSOURCEVIEWMLOBJS:%.cmo=%.ml) $(GTKSOURCEVIEWPROPS:%.props=%Props.ml) $(GTKSOURCEVIEWPROPS:%.props= o%Props.ml) $(GTKSOURCEVIEWMLOBJSENUM:%.cmo=%.ml)
+lablgtksourceview.cma liblablgtksourceview$(XA): \
+	$(GTKSOURCEVIEWCOBJS) $(GTKSOURCEVIEWMLOBJSENUM) $(GTKSOURCEVIEWPROPS:%.props=%Props.cmo) $(GTKSOURCEVIEWPROPS:%.props=o%Props.cmo) $(GTKSOURCEVIEWMLOBJS)
+	$(LIBRARIAN) -o lablgtksourceview $^ $(GTKSOURCEVIEWLIBS)
+lablgtksourceview.cmxa: $(GTKSOURCEVIEWCOBJS) $(GTKSOURCEVIEWMLOBJSENUM:.cmo=.cmx) $(GTKSOURCEVIEWPROPS:%.props=%Props.cmx) $(GTKSOURCEVIEWPROPS:%.props=o%Props.cmx) $(GTKSOURCEVIEWMLOBJS:.cmo=.cmx)
+	$(LIBRARIAN) -o lablgtksourceview $^ $(GTKSOURCEVIEWLIBS)
+
+endif
+ifdef USE_GTKSOURCEVIEW2
+MLLIBS += lablgtksourceview2.cma
+CLIBS += liblablgtksourceview2$(XA)
+GTKSOURCEVIEW2MLOBJS = gtkSourceView2.cmo gSourceView2.cmo
+GTKSOURCEVIEW2COBJS = ml_gtksourceview2$(XO)
+GTKSOURCEVIEW2MLOBJSENUM = sourceView2Enums.cmo 
+GTKSOURCEVIEW2PROPS = gtkSourceView2.props
+BEFORE_DEPEND += $(GTKSOURCEVIEW2PROPS:%.props=%Props.ml) $(GTKSOURCEVIEW2PROPS:%.props= o%Props.ml) $(GTKSOURCEVIEWMLOBJSENUM:%.cmo=%.ml)
+
+EXTRA_OBJS += $(GTKSOURCEVIEW2MLOBJSENUM)
+lablgtksourceview2.cma liblablgtksourceview2$(XA): \
+	$(GTKSOURCEVIEW2COBJS) $(GTKSOURCEVIEW2MLOBJSENUM) $(GTKSOURCEVIEW2PROPS:%.props=%Props.cmo) $(GTKSOURCEVIEW2PROPS:%.props=o%Props.cmo) $(GTKSOURCEVIEW2MLOBJS)
+	$(LIBRARIAN) -o lablgtksourceview2 $^ $(GTKSOURCEVIEW2LIBS)
+lablgtksourceview2.cmxa: $(GTKSOURCEVIEW2COBJS) $(GTKSOURCEVIEW2MLOBJSENUM:.cmo=.cmx) $(GTKSOURCEVIEW2PROPS:%.props=%Props.cmx) $(GTKSOURCEVIEW2PROPS:%.props=o%Props.cmx) $(GTKSOURCEVIEW2MLOBJS:.cmo=.cmx)
+	$(LIBRARIAN) -o lablgtksourceview2 $^ $(GTKSOURCEVIEW2LIBS)
 endif
 
 ifdef USE_GTKQUARTZ
 CFLAGS += -DHAS_GTKQUARTZ
 endif
 # Rules
-.SUFFIXES: .ml .mli .cmo .cmi .cmx .c $(XO) .d$(XO) .var .h .opt .def .ml4
+.SUFFIXES: .ml .mli .cmo .cmi .cmx .cmxs .cmxa .c $(XO) .d$(XO) .var .h .opt .def .ml4
 .c$(XO):
 	$(CCOMPILER) $<
 .cpp$(XO):
@@ -153,6 +188,9 @@ endif
 	$(COMPOPT) $<
 .ml4.cmo:
 	$(CAMLC) -c -pp "$(CAMLP4O) -impl" -impl $<
+.cmxa.cmxs:
+	$(CAMLOPT) -verbose -o $@ -shared -linkall -I . -ccopt '$(GTK_LIBS)' $<
+
 #.ml4.ml:
 #	$(CAMLP4) -impl $< -o $@
 
@@ -200,21 +238,21 @@ THINITOBJS = gtkThInit.cmo
 EXTRAOBJS = $(INITOBJS) $(THOBJS) $(THINITOBJS)
 ALLOBJS = $(MLXOBJS) $(GLMLOBJS) $(GNOMEMLOBJS) $(GLADEMLOBJS) \
 	$(RSVGMLOBJS) $(GNOMECANVASMLOBJS) $(GNOMEUIMLOBJS) $(PANELMLOBJS) \
-	$(GTKSPELLMLOBJS) $(GTKSOURCEVIEWMLOBJS) \
+	$(GTKSPELLMLOBJS) $(GTKSOURCEVIEW2MLOBJS) \
 	$(INITOBJS)
 ALLTHOBJS = $(THOBJS) $(THINITOBJS)
 PROPOBJS = $(GTKPROPS:%.props=%Props.cmo) $(GTKPROPS:%.props=o%Props.cmo)
 
 # Targets
-byte: $(TARGETS) $(INITOBJS)
-opt:  $(TARGETS) lablgtkopt
+byte:: $(TARGETS) $(INITOBJS)
+opt::  $(TARGETS) lablgtkopt
 
 depend:
 	$(MAKE) real-depend USE_GL=1 USE_GLADE=1 USE_RSVG=1 \
 	  USE_GNOMECANVAS=1 USE_GNOMEUI=1 USE_PANEL=1 USE_GTKSPELL=1 \
-	  USE_GTKSOURCEVIEW=1
-real-depend: $(ENUMOBJS:.cmo=.ml) $(PROPOBJS:.cmo=.ml)
-	ocamldep $(ALLOBJS:.cmo=.ml) $(PROPOBJS:.cmo=.ml) $(ALLTHOBJS:.cmo=.ml) *.mli > .depend
+	  USE_GTKSOURCEVIEW=1 USE_GTKSOURCEVIEW2=1
+real-depend: $(ENUMOBJS:.cmo=.ml) $(PROPOBJS:.cmo=.ml) $(BEFORE_DEPEND)
+	ocamldep $(ALLOBJS:.cmo=.ml) $(PROPOBJS:.cmo=.ml) $(ALLTHOBJS:.cmo=.ml) $(BEFORE_DEPEND) *.mli > .depend
 
 ifeq ($(THREADS_LIB),no)
 lablgtktop$(XE): $(MLLIBS)
@@ -245,11 +283,14 @@ build.ml: Makefile $(CONFIG) build.ml.in
 	sed -e "s|@LABLGTK_MLS@|$(MLOBJS:.cmo=)|" \
 	    -e "s|@EXTRA_MLS@|$(EXTRAOBJS:.cmo=)|" \
 	    -e "s|@PROP_MLS@|$(PROPOBJS:.cmo=)|" \
-	    -e "s|@GTKLIBS@|$(GTKLIBS0)|" \
+	    -e "s|@GTKLIBS@|$(GTKLIBS)|" \
 	    -e "s|@GLADE_MLS@|$(GLADEMLOBJS:.cmo=)|" \
-	    -e "s|@GLADE_LIBS@|$(GLADELIBS0)|" \
+	    -e "s|@GLADE_LIBS@|$(GLADELIBS)|" \
 	    -e "s|@RSVG_MLS@|$(RSVGMLOBJS:.cmo=)|" \
-	    -e "s|@RSVG_LIBS@|$(RSVGLIBS0)|" \
+	    -e "s|@RSVG_LIBS@|$(RSVGLIBS)|" \
+	    -e "s|@CANVAS_MLS@|$(GNOMECANVASMLOBJS:.cmo=)|" \
+	    -e "s|@CANVAS_LIBS@|$(GNOMECANVASLIBS)|" \
+	    -e "s|@TOOLCHAIN@|$(TOOLCHAIN)|" \
 	    < build.ml.in > $@
 
 gdk_pixbuf_mlsource$(XE) : lablgtk.cma gtkInit.cmo gdk_pixbuf_mlsource.ml
@@ -260,6 +301,10 @@ ifeq ($(THREADS_LIB),system)
 lablgtkopt:: $(THOBJS:.cmo=.cmx)
 endif
 
+ifeq ($(HAS_NATIVE_DYNLINK),yes)
+lablgtkopt::  $(MLLIBS:.cma=.cmxs)
+endif
+
 lablgladecc$(XE): xml_lexer.cmo lablgladecc.cmo
 	$(LINKER) -o $@ xml_lexer.cmo lablgladecc.cmo
 
@@ -268,7 +313,8 @@ testcc$(XE): lablgladecc$(XE) lablgtktop
 	./lablgtktop testcc.ml
 	rm -f testcc.ml
 
-PREOBJS= $(MLOBJS) $(EXTRAOBJS) $(GLADEMLOBJS) $(RSVGMLOBJS)
+PREOBJS= $(MLOBJS) $(EXTRAOBJS) $(GLADEMLOBJS) $(RSVGMLOBJS) \
+	$(GNOMECANVASMLOBJS)
 
 preinstall: build.ml
 	mkdir -p "$(INSTALLDIR)" "$(BINDIR)" "$(DLLDIR)"
@@ -283,14 +329,17 @@ preinstall: build.ml
 
 install:
 	mkdir -p "$(INSTALLDIR)" "$(BINDIR)" "$(DLLDIR)"
-	cp $(ALLOBJS:.cmo=.cmi) $(THOBJS:.cmo=.cmi) "$(INSTALLDIR)"
+	cp $(ALLOBJS:.cmo=.cmi) $(EXTRA_OBJS:.cmo=.cmi) "$(INSTALLDIR)"
 	cp -p *.mli "$(INSTALLDIR)"
-	cp -p $(ALLOBJS:.cmo=.ml) $(ALLTHOBJS:.cmo=.ml) "$(INSTALLDIR)"
-	cp $(MLLIBS) $(THOBJS) $(INITOBJS) $(THINITOBJS) "$(INSTALLDIR)"
+	cp -p $(ALLOBJS:.cmo=.ml) $(ALLTHOBJS:.cmo=.ml) $(EXTRA_OBJS:.cmo=.ml) "$(INSTALLDIR)"
+	cp $(EXTRA_MLLIBS) $(MLLIBS) $(THOBJS) $(INITOBJS) $(THINITOBJS) "$(INSTALLDIR)"
 	cp $(CLIBS) "$(INSTALLDIR)"
 	cd "$(INSTALLDIR)" && $(RANLIB) $(CLIBS)
 	cp varcc$(XE) propcc$(XE) "$(INSTALLDIR)"
-	if test $(THREADS_LIB) != system || test $(HAS_DLL_SUPPORT) != yes; \
+	if test $(THREADS_LIB) != no; \
+	   then cp  $(ALLTHOBJS:.cmo=.cmi) $(INSTALLDIR); \
+	fi
+	if test $(THREADS_LIB) = vm || test $(HAS_DLL_SUPPORT) != yes; \
 	   then cp lablgtktop$(XE) "$(INSTALLDIR)"; \
 	fi
 	cp -p *.h "$(INSTALLDIR)"
@@ -308,9 +357,12 @@ installdll:
 	  cp $(CLIBS:lib%$(XA)=dll%$(XA)) "$(INSTALLDIR)"; fi
 
 installopt:
-	cp $(MLLIBS:.cma=.cmxa) $(MLLIBS:.cma=$(XA)) "$(INSTALLDIR)"
-	cd "$(INSTALLDIR)" && $(RANLIB) $(MLLIBS:.cma=$(XA))
-	cp $(ALLOBJS:.cmo=.cmx) "$(INSTALLDIR)"
+	cp $(MLLIBS:.cma=.cmxa) $(MLLIBS:.cma=$(XA)) $(EXTRA_MLLIBS:.cma=.cmxa) $(EXTRA_MLLIBS:.cma=$(XA)) "$(INSTALLDIR)"
+ifeq ($(HAS_NATIVE_DYNLINK),yes)
+	cp $(MLLIBS:.cma=.cmxs) $(EXTRA_MLLIBS:.cma=.cmxs) "$(INSTALLDIR)"
+endif
+	cd "$(INSTALLDIR)" && $(RANLIB) $(MLLIBS:.cma=$(XA)) $(EXTRA_MLLIBS:.cma=$(XA))
+	cp $(ALLOBJS:.cmo=.cmx) $(EXTRA_OBJS:.cmo=.cmx) "$(INSTALLDIR)"
 	cp $(INITOBJS:.cmo=$(XO)) "$(INSTALLDIR)"
 	if test -f gtkThread.cmx; then \
 	   cp $(THOBJS:.cmo=.cmx) $(THOBJS:.cmo=$(XO)) "$(INSTALLDIR)"; fi
@@ -358,11 +410,10 @@ lablgtkspell.cma liblablgtkspell$(XA): $(GTKSPELLCOBJS) $(GTKSPELLMLOBJS)
 lablgtkspell.cmxa: $(GTKSPELLCOBJS) $(GTKSPELLMLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablgtkspell $^ $(GTKSPELLLIBS)
 
-lablgtksourceview.cma liblablgtksourceview$(XA): \
-		$(GTKSOURCEVIEWCOBJS) $(GTKSOURCEVIEWMLOBJS)
-	$(LIBRARIAN) -o lablgtksourceview $^ $(GTKSOURCEVIEWLIBS)
-lablgtksourceview.cmxa: $(GTKSOURCEVIEWCOBJS) $(GTKSOURCEVIEWMLOBJS:.cmo=.cmx)
-	$(LIBRARIAN) -o lablgtksourceview $^ $(GTKSOURCEVIEWLIBS)
+gtkSignal.cmo: gtkSignal.ml
+	$(COMPILER) -pp "$(CAMLP4O) pa_macro.cmo $(HAS_PRINTEXC_BACKTRACE)" $<
+gtkSignal.cmx: gtkSignal.ml
+	$(COMPOPT) -pp "$(CAMLP4O) pa_macro.cmo $(HAS_PRINTEXC_BACKTRACE)" $<
 
 gtkThread.cmo: gtkThread.ml
 	$(COMPILER) $(THFLAGS) gtkThread.ml
@@ -432,6 +483,9 @@ endif
 ifdef USE_GTKSOURCEVIEW
 DOCFILES += gSourceView.mli
 endif
+ifdef USE_GTKSOURCEVIEW2
+DOCFILES += gSourceView2.mli
+endif
 
 OCAMLDOC = ocamldoc
 lablgtk$(XO)doc : $(DOCFILES) $(ALLOBJS)
@@ -453,6 +507,9 @@ $(GNOMEUICOBJS) : gnomeui_tags.h
 $(PANELCOBJS) : panel_tags.h
 $(GTKSOURCEVIEWCOBJS):  ml_glib.h ml_gdk.h ml_gtk.h ml_gobject.h ml_gdkpixbuf.h ml_pango.h \
 			gtk_tags.h gdk_tags.h ml_gtktext.h sourceView_tags.h wrappers.h
+
+$(GTKSOURCEVIEW2COBJS):  ml_glib.h ml_gdk.h ml_gtk.h ml_gobject.h ml_gdkpixbuf.h ml_pango.h \
+			gtk_tags.h gdk_tags.h ml_gtktext.h sourceView2_tags.h wrappers.h
 
 ml_glib$(XO): glib_tags.h ml_glib.h wrappers.h
 ml_gobject$(XO): gobject_tags.h ml_gvaluecaml.h wrappers.h

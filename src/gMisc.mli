@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gMisc.mli 1419 2008-09-22 13:37:06Z zoggy $ *)
+(* $Id: gMisc.mli 1450 2009-04-20 09:15:35Z garrigue $ *)
 
 open Gtk
 open GObj
@@ -83,7 +83,7 @@ class status_icon_signals : Gtk.status_icon Gobject.obj ->
   @gtkdoc gtk GtkStatusIcon *)
 class status_icon : Gtk.gtk_status_icon ->
   object
-    method obj : Gtk.status_icon Gobject.obj
+    val obj : Gtk.status_icon Gobject.obj
     method connect : status_icon_signals
     method blinking : bool
     method get_icon_name : string
