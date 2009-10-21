@@ -1,3 +1,9 @@
+lablgtk2 (2.14.0-1) UNRELEASED; urgency=low
+
+  * New upstream release
+
+ -- Stéphane Glondu <glondu@debian.org>  Wed, 21 Oct 2009 23:18:54 +0200
+
 lablgtk2 (2.12.0-4) unstable; urgency=low
 
   * Big packaging update:
