@@ -1,3 +1,4 @@
 config.log
 config.make
 config.status
+test_dynlink.*
