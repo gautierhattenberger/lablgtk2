@@ -1,4 +1,13 @@
+debian/META.lablgtk2-gnome                        @OCamlStdlibDir@/METAS
 @OCamlDllDir@/dlllablgnomecanvas.so
 @OCamlDllDir@/dlllablgnomeui.so
 @OCamlDllDir@/dlllablpanel.so
 @OCamlDllDir@/dlllablrsvg.so
+@OCamlStdlibDir@/lablgtk2/lablgnomecanvas.cma
+@OCamlStdlibDir@/lablgtk2/lablgnomeui.cma
+@OCamlStdlibDir@/lablgtk2/lablpanel.cma
+@OCamlStdlibDir@/lablgtk2/lablrsvg.cma
+OPT: @OCamlStdlibDir@/lablgtk2/lablgnomecanvas.cmxs
+OPT: @OCamlStdlibDir@/lablgtk2/lablgnomeui.cmxs
+OPT: @OCamlStdlibDir@/lablgtk2/lablpanel.cmxs
+OPT: @OCamlStdlibDir@/lablgtk2/lablrsvg.cmxs

@@ -1,3 +1,10 @@
+debian/META               @OCamlStdlibDir@/lablgtk2
 @OCamlDllDir@/dlllablgtkspell.so
 @OCamlDllDir@/dlllablglade2.so
 @OCamlDllDir@/dlllablgtk2.so
+@OCamlStdlibDir@/lablgtk2/lablglade.cma
+@OCamlStdlibDir@/lablgtk2/lablgtk.cma
+@OCamlStdlibDir@/lablgtk2/lablgtkspell.cma
+OPT: @OCamlStdlibDir@/lablgtk2/lablglade.cmxs
+OPT: @OCamlStdlibDir@/lablgtk2/lablgtk.cmxs
+OPT: @OCamlStdlibDir@/lablgtk2/lablgtkspell.cmxs

@@ -1,4 +1,3 @@
-debian/META               @OCamlStdlibDir@/lablgtk2
 usr/bin/gdk_pixbuf_mlsource
 usr/bin/lablgladecc2
 usr/bin/lablgtk2
@@ -68,9 +67,6 @@ usr/bin/lablgtk2
 @OCamlStdlibDir@/lablgtk2/gTree.*
 @OCamlStdlibDir@/lablgtk2/gUtil.*
 @OCamlStdlibDir@/lablgtk2/gWindow.*
-@OCamlStdlibDir@/lablgtk2/lablglade.*
-@OCamlStdlibDir@/lablgtk2/lablgtk.*
-@OCamlStdlibDir@/lablgtk2/lablgtkspell.*
 @OCamlStdlibDir@/lablgtk2/liblablglade2.a
 @OCamlStdlibDir@/lablgtk2/liblablgtk2.a
 @OCamlStdlibDir@/lablgtk2/liblablgtkspell.a
@@ -94,3 +90,9 @@ usr/bin/lablgtk2
 @OCamlStdlibDir@/lablgtk2/win32.h
 @OCamlStdlibDir@/lablgtk2/wrappers.h
 @OCamlStdlibDir@/lablgtk2/xml_lexer.*
+OPT: @OCamlStdlibDir@/lablgtk2/lablglade.a
+OPT: @OCamlStdlibDir@/lablgtk2/lablglade.cmxa
+OPT: @OCamlStdlibDir@/lablgtk2/lablgtk.a
+OPT: @OCamlStdlibDir@/lablgtk2/lablgtk.cmxa
+OPT: @OCamlStdlibDir@/lablgtk2/lablgtkspell.a
+OPT: @OCamlStdlibDir@/lablgtk2/lablgtkspell.cmxa

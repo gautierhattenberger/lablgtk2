@@ -1,6 +1,6 @@
-debian/META.lablgtksourceview                      @OCamlStdlibDir@/METAS
 @OCamlStdlibDir@/lablgtk2/sourceView*
 @OCamlStdlibDir@/lablgtk2/gSourceView*
 @OCamlStdlibDir@/lablgtk2/gtkSourceView*
-@OCamlStdlibDir@/lablgtk2/lablgtksourceview*
 @OCamlStdlibDir@/lablgtk2/liblablgtksourceview*
+OPT: @OCamlStdlibDir@/lablgtk2/lablgtksourceview2.a
+OPT: @OCamlStdlibDir@/lablgtk2/lablgtksourceview2.cmxa
