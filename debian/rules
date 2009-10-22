@@ -19,7 +19,6 @@ override_dh_auto_configure:
 
 .PHONY: override_dh_auto_build
 override_dh_auto_build:
-	$(MAKE) depend
 	$(MAKE)
 ifneq ($(OCAML_OPT_ARCH),)
 	$(MAKE) opt
