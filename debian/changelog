@@ -1,8 +1,13 @@
-lablgtk2 (2.14.0-1) UNRELEASED; urgency=low
+lablgtk2 (2.14.0-1) experimental; urgency=low
 
-  * New upstream release
+  * New upstream release:
+    - replace libgtksourceview by libgtksourceview2 everywhere
+      (Closes: #532905)
+    - debian/patches:
+      + remove Add-libgnomeui-header.patch
+      + add Patch-to-build-with-GtkSourceView-2.0.patch
 
- -- Stéphane Glondu <glondu@debian.org>  Wed, 21 Oct 2009 23:18:54 +0200
+ -- Stéphane Glondu <glondu@debian.org>  Thu, 22 Oct 2009 20:11:12 +0200
 
 lablgtk2 (2.12.0-4) unstable; urgency=low
 
