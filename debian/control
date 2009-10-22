@@ -70,15 +70,15 @@ Description: runtime libraries for OCaml bindings to GNOME
  bytecode executables using GNOME functionalities (panel-applet, gnomeui,
  gnome-canvas, rsvg).
 
-Package: liblablgtksourceview-ocaml
+Package: liblablgtksourceview2-ocaml
 Architecture: any
 Depends:
  ${ocaml:Depends},
  ${shlibs:Depends},
  ${misc:Depends}
 Provides: ${ocaml:Provides}
-Description: OCaml bindings for libgtksourceview (runtime)
- This is the OCaml binding for the GtkSourceView widget, a text widget that
+Description: OCaml bindings for libgtksourceview2 (runtime)
+ This is the OCaml binding for the GtkSourceView2 widget, a text widget that
  extends the standard GTK+ 2.x text widget with syntax highlighting and other
  features typical of a source editor.
  .
@@ -135,22 +135,22 @@ Description: OCaml bindings to GNOME
  This package contains the development files of lablgtk for libraries using
  GNOME functionalities (panel-applet, gnomeui, gnome-canvas, rsvg).
 
-Package: liblablgtksourceview-ocaml-dev
+Package: liblablgtksourceview2-ocaml-dev
 Architecture: any
 Depends:
- libgtksourceview-dev,
+ libgtksourceview2.0-dev,
  ${ocaml:Depends},
  ${shlibs:Depends},
  ${misc:Depends}
 Provides: ${ocaml:Provides}
 Recommends: liblablgtk2-ocaml-doc
 Replaces: liblablgtk2-ocaml-dev (<= 2.10.0-2)
-Description: OCaml bindings for libgtksourceview, a source editor GTK+ widget
- This is the OCaml binding for the GtkSourceView widget, a text widget that
+Description: OCaml bindings for libgtksourceview2, a source editor GTK+ widget
+ This is the OCaml binding for the GtkSourceView2 widget, a text widget that
  extends the standard GTK+ 2.x text widget with syntax highlighting and other
  features typical of a source editor.
  .
- This package contains the development part of the lablgtksourceview package.
+ This package contains the development part of the lablgtksourceview2 package.
 
 Package: liblablgtk2-ocaml-doc
 Section: doc
@@ -160,7 +160,7 @@ Enhances:
  liblablgtk2-ocaml-dev,
  liblablgtk2-gl-ocaml-dev,
  liblablgtk2-gnome-ocaml-dev,
- liblablgtksourceview-ocaml-dev
+ liblablgtksourceview2-ocaml-dev
 Description: OCaml bindings to Gtk+ version 2 (documentation)
  LablGTK2 contains bindings for GTK+ 2.x and OCaml.
  .
