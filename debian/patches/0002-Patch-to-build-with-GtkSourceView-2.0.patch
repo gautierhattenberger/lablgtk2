@@ -1,0 +1,60 @@
+From: Stephane Glondu <steph@glondu.net>
+Date: Thu, 22 Oct 2009 17:10:39 +0200
+Subject: [PATCH] Patch to build with GtkSourceView-2.0
+
+This patch makes it possible to build version 2.14.0 on a machine that
+has GtkSourceView-2.0 installed but not GtkSourceView-1.0.  An obvious
+typo, I think.
+
+Patch submitted on labgtk2 mailing-list and forwarded to Debian bug in
+#532905.
+
+Signed-off-by: Mike Spivey <mike@comlab.ox.ac.uk>
+Signed-off-by: Stephane Glondu <steph@glondu.net>
+---
+ src/gSourceView2.mli  |    4 ++--
+ src/gtkSourceView2.ml |    4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/gSourceView2.mli b/src/gSourceView2.mli
+index 6c6a581..698605d 100644
+--- a/src/gSourceView2.mli
++++ b/src/gSourceView2.mli
+@@ -251,7 +251,7 @@ val source_view :
+ 
+ val iter_forward_search :
+   GText.iter ->
+-  SourceViewEnums.source_search_flag list ->
++  SourceView2Enums.source_search_flag list ->
+   start:< as_iter : Gtk.text_iter; .. > ->
+   stop:< as_iter : Gtk.text_iter; .. > ->
+   ?limit:< as_iter : Gtk.text_iter; .. > ->
+@@ -259,7 +259,7 @@ val iter_forward_search :
+ 
+ val iter_backward_search :
+   GText.iter ->
+-  SourceViewEnums.source_search_flag list ->
++  SourceView2Enums.source_search_flag list ->
+   start:< as_iter : Gtk.text_iter; .. > ->
+   stop:< as_iter : Gtk.text_iter; .. > ->
+   ?limit:< as_iter : Gtk.text_iter; .. > ->
+diff --git a/src/gtkSourceView2.ml b/src/gtkSourceView2.ml
+index 4a13869..adbc428 100644
+--- a/src/gtkSourceView2.ml
++++ b/src/gtkSourceView2.ml
+@@ -189,12 +189,12 @@ end
+ module SourceViewMisc =
+ struct
+   external iter_backward_search:
+-       Gtk.text_iter -> string -> SourceViewEnums.source_search_flag list ->
++       Gtk.text_iter -> string -> SourceView2Enums.source_search_flag list ->
+ 	start: Gtk.text_iter -> stop: Gtk.text_iter -> Gtk.text_iter option ->
+ 	(Gtk.text_iter * Gtk.text_iter) option =
+     "ml_gtk_source_iter_backward_search_bc" "ml_gtk_source_iter_backward_search"
+   external iter_forward_search:
+-      Gtk.text_iter -> string -> SourceViewEnums.source_search_flag list ->
++      Gtk.text_iter -> string -> SourceView2Enums.source_search_flag list ->
+ 	start: Gtk.text_iter -> stop: Gtk.text_iter -> Gtk.text_iter option ->
+ 	(Gtk.text_iter * Gtk.text_iter) option =
+     "ml_gtk_source_iter_forward_search_bc" "ml_gtk_source_iter_forward_search"
+-- 
