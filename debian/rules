@@ -34,6 +34,11 @@ override_dh_auto_clean:
 .PHONY: override_dh_auto_install
 override_dh_auto_install:
 	$(MAKE) install DESTDIR=$(DESTDIR)
+# remove files related to gtksourceview1 (uncompiled anyway... and
+# make dh_ocamldoc fail)
+	rm \
+	  debian/tmp/usr/lib/ocaml/lablgtk2/gtkSourceView_types.mli \
+	  debian/tmp/usr/lib/ocaml/lablgtk2/gSourceView.mli
 
 .PHONY: override_dh_installexamples
 override_dh_installexamples:
