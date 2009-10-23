@@ -1,6 +1,12 @@
 Lablgtk2 Debian source package
 ==============================
 
+Repackaging upstream sources
+----------------------------
+
+The "applications" directory has been removed from upstream sources
+because they do not come with a clear license.
+
 Patching upstream sources
 -------------------------
 
@@ -13,4 +19,4 @@ dom-{apply,save}-patches, from the dh-ocaml (>= 0.5) package. Please
 refer to the appendix about Git in the Debian OCaml Packaging Policy
 (from the same package).
 
- -- Stéphane Glondu <glondu@debian.org>, Wed, 23 Sep 2009 22:44:29 +0200
+ -- Stéphane Glondu <glondu@debian.org>, Fri, 23 Oct 2009 15:40:37 +0200
