@@ -1,3 +1,10 @@
+lablgtk2 (2.14.0+dfsg-2) unstable; urgency=low
+
+  * Upload to unstable
+  * Make liblablgtksourceview2-* replace/conflict with previous version
+
+ -- Stéphane Glondu <glondu@debian.org>  Sun, 29 Nov 2009 19:20:34 +0100
+
 lablgtk2 (2.14.0+dfsg-1) experimental; urgency=low
 
   * New upstream release:

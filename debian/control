@@ -77,6 +77,8 @@ Depends:
  ${shlibs:Depends},
  ${misc:Depends}
 Provides: ${ocaml:Provides}
+Replaces: liblablgtksourceview-ocaml
+Conflicts: liblablgtksourceview-ocaml
 Description: OCaml bindings for libgtksourceview2 (runtime)
  This is the OCaml binding for the GtkSourceView2 widget, a text widget that
  extends the standard GTK+ 2.x text widget with syntax highlighting and other
@@ -144,7 +146,8 @@ Depends:
  ${misc:Depends}
 Provides: ${ocaml:Provides}
 Recommends: liblablgtk2-ocaml-doc
-Replaces: liblablgtk2-ocaml-dev (<= 2.10.0-2)
+Replaces: liblablgtksourceview-ocaml-dev
+Conflicts: liblablgtksourceview-ocaml-dev
 Description: OCaml bindings for libgtksourceview2, a source editor GTK+ widget
  This is the OCaml binding for the GtkSourceView2 widget, a text widget that
  extends the standard GTK+ 2.x text widget with syntax highlighting and other
