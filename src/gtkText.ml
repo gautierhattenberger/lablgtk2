@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gtkText.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id: gtkText.ml 1499 2010-04-08 08:00:42Z garrigue $ *)
 
 open Gaux
 open Gobject
@@ -47,8 +47,8 @@ module Buffer = struct
     = "ml_gtk_text_buffer_get_line_count"
   external get_char_count : text_buffer -> int 
     = "ml_gtk_text_buffer_get_char_count"
-  external get_tag_table : text_buffer -> text_tag_table 
-    = "ml_gtk_text_buffer_get_tag_table"
+  (* external get_tag_table : text_buffer -> text_tag_table 
+    = "ml_gtk_text_buffer_get_tag_table" *)
   external insert : text_buffer -> text_iter -> string stable -> unit
     = "ml_gtk_text_buffer_insert"
   let insert a b c = insert a b (stable_copy c)

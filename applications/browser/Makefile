@@ -1,11 +1,11 @@
-# $Id: Makefile 1229 2004-11-19 01:41:32Z garrigue $
+# $Id: Makefile 1513 2010-05-20 10:34:55Z garrigue $
 # Makefile for lablgtk.
 
 all: browser
 
 CAMLC = ocamlc
 CAMLOPT = ocamlopt
-COMPILER = $(CAMLC) $(MLFLAGS) -w s -c
+COMPILER = $(CAMLC) $(MLFLAGS) -w s -warn-error A -c
 LINKER = $(CAMLC) $(MLFLAGS)
 COMPOPT = $(CAMLOPT) $(MLFLAGS) -w s -c
 LINKOPT = $(CAMLOPT) $(MLFLAGS)

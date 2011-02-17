@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gWindow.ml 1450 2009-04-20 09:15:35Z garrigue $ *)
+(* $Id: gWindow.ml 1515 2010-06-08 08:50:23Z garrigue $ *)
 
 open Gaux
 open Gtk
@@ -46,7 +46,6 @@ class window_skel obj = object (self)
   method activate_focus () = Window.activate_focus obj
   method activate_default () = Window.activate_default obj
   method add_accel_group = Window.add_accel_group obj
-  method set_modal = set obj P.modal
   method set_default_size ~width ~height =
     set obj P.default_width width;
     set obj P.default_height height
@@ -172,7 +171,7 @@ class ['a] dialog_ext obj = object (self)
 end
 
 class ['a] dialog obj = object (self)
-  inherit ['a] dialog_ext obj
+  inherit ['a] dialog_ext (obj :> Gtk.dialog obj)
   method connect : 'a dialog_signals = new dialog_signals obj (self#decode)
 end
 
@@ -194,7 +193,7 @@ let dialog ?(no_separator=false) =
 type any_response = [GtkEnums.response | `OTHER of int]
 
 class dialog_any obj = object (self)
-  inherit [any_response] dialog_base obj
+  inherit [any_response] dialog_base (obj :> Gtk.dialog obj)
   method private encode = function
       `OTHER n -> n
     | #GtkEnums.response as v -> Dialog.std_response v

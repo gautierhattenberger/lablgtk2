@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gButton.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id: gButton.ml 1499 2010-04-08 08:00:42Z garrigue $ *)
 
 open Gaux
 open Gobject
@@ -34,7 +34,6 @@ open GContainer
 class button_skel obj = object (self)
   inherit bin obj
   inherit button_props
-  method private obj = obj
   method clicked () = Button.clicked obj
   method grab_default () =
     set Widget.P.can_default obj true;
@@ -104,7 +103,6 @@ end
 class color_button obj = object
   inherit button_skel obj
   inherit color_button_props
-  method private obj = obj
   method connect = new color_button_signals obj
 end
 
@@ -120,7 +118,6 @@ end
 class font_button obj = object
   inherit button_skel obj
   inherit font_button_props
-  method private obj = obj
   method connect = new font_button_signals obj
 end
 

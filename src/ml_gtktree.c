@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gtktree.c 1456 2009-05-13 05:05:55Z garrigue $ */
+/* $Id: ml_gtktree.c 1496 2010-01-14 15:38:03Z ben_99_9 $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -684,6 +684,7 @@ ML_1 (gtk_tree_view_get_tooltip_column, GtkTreeView_val, Val_int)
 ML_2 (gtk_tree_view_set_tooltip_column, GtkTreeView_val, Int_val, Unit)
 #else
 Unsupported_212 (gtk_tree_view_set_tooltip_cell)
+Unsupported_212 (gtk_tree_view_set_tooltip_cell_bc)
 Unsupported_212 (gtk_tree_view_set_tooltip_row)
 Unsupported_212 (gtk_tree_view_get_tooltip_context)
 Unsupported_212 (gtk_tree_view_get_tooltip_column)
@@ -1578,3 +1579,17 @@ CAMLprim value ml_custom_model_rows_reordered (value tree_model_val, value path,
   }
   return Val_unit;)
 }
+
+CAMLprim value ml_gtk_tree_view_get_visible_range(value treeview) {
+     CAMLparam1(treeview);
+     CAMLlocal1(result);
+     GtkTreePath *startp, *endp;
+     if (! gtk_tree_view_get_visible_range(GtkTreeView_val(treeview),
+					   &startp, &endp))
+	  CAMLreturn(Val_unit);
+     result = alloc_tuple(2);
+     Store_field(result, 0, Val_GtkTreePath(startp));
+     Store_field(result, 1, Val_GtkTreePath(endp));
+     CAMLreturn(ml_some(result));
+}
+	  

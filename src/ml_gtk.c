@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gtk.c 1467 2009-08-29 21:28:12Z ben_99_9 $ */
+/* $Id: ml_gtk.c 1502 2010-04-22 12:26:30Z ben_99_9 $ */
 
 #include <string.h>
 #include <gtk/gtk.h>
@@ -979,7 +979,7 @@ CAMLprim value ml_gtk_get_version (value unit)
 }
 
 ML_0 (gtk_get_current_event_time, copy_int32)
-ML_0 (gtk_get_current_event, Val_GdkEvent)
+ML_0 (gtk_get_current_event, Check_null(Val_GdkEvent))
 ML_1 (gtk_get_event_widget, GdkEvent_val, Val_GtkWidget)
 ML_2 (gtk_propagate_event, GtkWidget_val, GdkEvent_val, Unit)
 

@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
- (* $Id: gText.ml 1415 2008-09-04 15:59:15Z ben_99_9 $ *)
+ (* $Id: gText.ml 1499 2010-04-08 08:00:42Z garrigue $ *)
 
 open StdLabels
 open Gaux
@@ -429,7 +429,7 @@ class buffer_skel obj = object(self)
   method as_buffer = obj
   method line_count = Buffer.get_line_count obj
   method char_count = Buffer.get_char_count obj
-  method tag_table =  Buffer.get_tag_table obj
+  (* method tag_table =  Buffer.get_tag_table obj *)
   method insert
     ?iter 
     ?(tag_names : string list = [])
