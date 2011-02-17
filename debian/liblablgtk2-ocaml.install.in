@@ -5,6 +5,6 @@ debian/META               @OCamlStdlibDir@/lablgtk2
 @OCamlStdlibDir@/lablgtk2/lablglade.cma
 @OCamlStdlibDir@/lablgtk2/lablgtk.cma
 @OCamlStdlibDir@/lablgtk2/lablgtkspell.cma
-OPT: @OCamlStdlibDir@/lablgtk2/lablglade.cmxs
-OPT: @OCamlStdlibDir@/lablgtk2/lablgtk.cmxs
-OPT: @OCamlStdlibDir@/lablgtk2/lablgtkspell.cmxs
+DYN: @OCamlStdlibDir@/lablgtk2/lablglade.cmxs
+DYN: @OCamlStdlibDir@/lablgtk2/lablgtk.cmxs
+DYN: @OCamlStdlibDir@/lablgtk2/lablgtkspell.cmxs

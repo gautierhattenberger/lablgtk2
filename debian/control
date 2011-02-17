@@ -10,7 +10,7 @@ Uploaders:
  Stéphane Glondu <glondu@debian.org>
 Build-Depends:
  debhelper (>= 8),
- dh-ocaml (>= 0.9),
+ dh-ocaml (>= 0.9.5~),
  ocaml (>= 3.11.1-3~),
  camlp4 (>= 3.11),
  liblablgl-ocaml-dev (>= 1.04-3~),

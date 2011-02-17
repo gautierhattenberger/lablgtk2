@@ -1,4 +1,4 @@
 debian/META.lablgtksourceview2                      @OCamlStdlibDir@/METAS
 @OCamlDllDir@/dlllablgtksourceview2.so
 @OCamlStdlibDir@/lablgtk2/lablgtksourceview2.cma
-OPT: @OCamlStdlibDir@/lablgtk2/lablgtksourceview2.cmxs
+DYN: @OCamlStdlibDir@/lablgtk2/lablgtksourceview2.cmxs
