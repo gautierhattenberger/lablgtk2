@@ -25,7 +25,7 @@ Build-Depends:
  libgnomeui-dev,
  libpanel-applet2-dev,
  libgtksourceview2.0-dev (>= 2.10)
-Standards-Version: 3.8.3
+Standards-Version: 3.9.1
 Homepage: http://wwwfun.kurims.kyoto-u.ac.jp/soft/lsl/lablgtk.html
 Vcs-Git: git://git.debian.org/git/pkg-ocaml-maint/packages/lablgtk2.git
 Vcs-Browser: http://git.debian.org/?p=pkg-ocaml-maint/packages/lablgtk2.git
@@ -78,7 +78,7 @@ Depends:
  ${misc:Depends}
 Provides: ${ocaml:Provides}
 Replaces: liblablgtksourceview-ocaml
-Conflicts: liblablgtksourceview-ocaml
+Breaks: liblablgtksourceview-ocaml (<< 2.14.0+dfsg-1~)
 Description: OCaml bindings for libgtksourceview2 (runtime)
  This is the OCaml binding for the GtkSourceView2 widget, a text widget that
  extends the standard GTK+ 2.x text widget with syntax highlighting and other
@@ -147,7 +147,7 @@ Depends:
 Provides: ${ocaml:Provides}
 Recommends: liblablgtk2-ocaml-doc
 Replaces: liblablgtksourceview-ocaml-dev
-Conflicts: liblablgtksourceview-ocaml-dev
+Breaks: liblablgtksourceview-ocaml-dev (<< 2.14.0+dfsg-1~)
 Description: OCaml bindings for libgtksourceview2, a source editor GTK+ widget
  This is the OCaml binding for the GtkSourceView2 widget, a text widget that
  extends the standard GTK+ 2.x text widget with syntax highlighting and other
