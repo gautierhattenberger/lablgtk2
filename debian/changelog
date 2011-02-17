@@ -1,5 +1,7 @@
-lablgtk2 (2.14.0+dfsg-3) UNRELEASED; urgency=low
+lablgtk2 (2.14.2+dfsg-1) UNRELEASED; urgency=low
 
+  * New upstream release
+    - remove Patch-to-build-with-GtkSourceView-2.0 (applied upstream)
   * Bump build-dependency to libgtksourceview2.0-dev
 
  -- Stéphane Glondu <glondu@debian.org>  Wed, 21 Jul 2010 11:02:37 +0200
