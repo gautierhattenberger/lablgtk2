@@ -66,6 +66,7 @@ usr/bin/lablgtk2
 @OCamlStdlibDir@/lablgtk2/gToolbox.*
 @OCamlStdlibDir@/lablgtk2/gTree.*
 @OCamlStdlibDir@/lablgtk2/gUtil.*
+@OCamlStdlibDir@/lablgtk2/gutf8.*
 @OCamlStdlibDir@/lablgtk2/gWindow.*
 @OCamlStdlibDir@/lablgtk2/liblablglade2.a
 @OCamlStdlibDir@/lablgtk2/liblablgtk2.a
