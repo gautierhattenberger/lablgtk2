@@ -11,7 +11,8 @@ Uploaders:
 Build-Depends:
  debhelper (>= 8),
  dh-ocaml (>= 0.9.5~),
- ocaml (>= 3.11.1-3~),
+ ocaml-nox (>= 3.11.1-3~),
+ ocaml,
  camlp4 (>= 3.11),
  liblablgl-ocaml-dev (>= 1.04-3~),
  libncurses5-dev,
