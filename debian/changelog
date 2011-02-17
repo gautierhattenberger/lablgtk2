@@ -1,10 +1,15 @@
 lablgtk2 (2.14.2+dfsg-1) UNRELEASED; urgency=low
 
-  * New upstream release
+  * New upstream release (Closes: #585455)
     - remove Patch-to-build-with-GtkSourceView-2.0 (applied upstream)
-  * Bump build-dependency to libgtksourceview2.0-dev
+  * debian/control:
+    - remove Stefano from Uploaders
+    - bump build-dependency to libgtksourceview2.0-dev
+    - bump Standards-Version to 3.9.1
+  * Bump debhelper compat level to 8
+  * Switch source package format to 3.0 (quilt)
 
- -- Stéphane Glondu <glondu@debian.org>  Wed, 21 Jul 2010 11:02:37 +0200
+ -- Stéphane Glondu <glondu@debian.org>  Thu, 17 Feb 2011 10:30:08 +0100
 
 lablgtk2 (2.14.0+dfsg-2) unstable; urgency=low
 
