@@ -23,8 +23,7 @@ Build-Depends:
  libgtkspell-dev,
  libgnomeui-dev,
  libpanel-applet2-dev,
- libgtksourceview2.0-dev (>= 2.10),
- quilt (>= 0.46-7~)
+ libgtksourceview2.0-dev (>= 2.10)
 Standards-Version: 3.8.3
 Homepage: http://wwwfun.kurims.kyoto-u.ac.jp/soft/lsl/lablgtk.html
 Vcs-Git: git://git.debian.org/git/pkg-ocaml-maint/packages/lablgtk2.git
