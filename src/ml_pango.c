@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_pango.c 1347 2007-06-20 07:40:34Z guesdon $ */
+/* $Id: ml_pango.c 1501 2010-04-11 21:07:18Z oandrieu $ */
 
 #include <stdio.h>
 #include <pango/pango.h>
@@ -109,6 +109,13 @@ ML_1 (pango_font_metrics_get_approximate_digit_width,
 #define Val_PangoFont_new(val) Val_GObject_new(G_OBJECT(val))
 ML_2 (pango_font_get_metrics, PangoFont_val, PangoLanguage_val,
       Val_PangoFontMetrics_new)
+
+/* PangoFontMap */
+
+#define Val_PangoFontMap_new(val) Val_GObject_new(G_OBJECT(val))
+ML_3 (pango_font_map_load_font, PangoFontMap_val, PangoContext_val,
+      PangoFontDescription_val,
+      Val_PangoFont_new)
 
 /* Enums */
 

@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gMenu.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id: gMenu.ml 1499 2010-04-08 08:00:42Z garrigue $ *)
 
 open Gaux
 open Gobject
@@ -191,7 +191,6 @@ let menu ?accel_path ?border_width ?packing ?show () =
 class option_menu obj = object
   inherit GButton.button_skel obj
   method connect = new GButton.button_signals obj
-  method event = new GObj.event_ops obj
   method set_menu (menu : menu) = set OptionMenu.P.menu obj menu#as_menu
   method get_menu = new menu (get OptionMenu.P.menu obj)
   method remove_menu () = OptionMenu.remove_menu obj

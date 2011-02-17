@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gTree.mli 1454 2009-05-12 10:19:38Z garrigue $ *)
+(* $Id: gTree.mli 1523 2010-07-25 12:42:26Z garrigue $ *)
 
 open Gobject
 open Gtk
@@ -398,6 +398,7 @@ class view : tree_view obj ->
       x:int -> y:int -> (tree_path * view_column * int * int) option
     method get_cell_area :
         ?path:tree_path -> ?col:view_column -> unit -> Gdk.Rectangle.t
+    method get_visible_range : unit -> (tree_path * tree_path) option
     method hadjustment : GData.adjustment
     method headers_visible : bool
     method insert_column : view_column -> int -> int
@@ -557,9 +558,10 @@ class cell_renderer_pixbuf : Gtk.cell_renderer_pixbuf obj ->
   end
 
 (** @gtkdoc gtk GtkCellRendererText *)
-class cell_renderer_text_signals : Gtk.cell_renderer_text obj ->
+class cell_renderer_text_signals : ([>Gtk.cell_renderer_text] as 'a) obj ->
   object
     inherit GObj.gtkobj_signals
+    val obj : 'a obj
     method edited : callback:(Gtk.tree_path -> string -> unit) -> GtkSignal.id
   end
 
@@ -595,10 +597,20 @@ class cell_renderer_progress : Gtk.cell_renderer_progress obj ->
 
 (** @since GTK 2.6
     @gtkdoc gtk GtkCellRendererCombo *)
+class cell_renderer_combo_signals : ([>Gtk.cell_renderer_combo] as 'a) obj ->
+  object
+    inherit cell_renderer_text_signals
+    val obj : 'a obj
+    method changed :
+      callback:(Gtk.tree_path -> Gtk.tree_iter -> unit) -> GtkSignal.id
+  end
+
+(** @since GTK 2.6
+    @gtkdoc gtk GtkCellRendererCombo *)
 class cell_renderer_combo : Gtk.cell_renderer_combo obj ->
   object
     inherit[Gtk.cell_renderer_combo,cell_properties_combo] cell_renderer_skel
-    method connect : cell_renderer_text_signals
+    method connect : cell_renderer_combo_signals
     method set_fixed_height_from_font : int -> unit
   end
 

@@ -1,4 +1,4 @@
-# $Id: Makefile 1486 2009-09-25 09:18:09Z garrigue $
+# $Id: Makefile 1518 2010-06-25 09:23:44Z garrigue $
 # Makefile for lablgtk.
 
 COMPILER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS) -w s -c
@@ -104,7 +104,6 @@ MLLIBS += lablgnomeui.cma
 CLIBS += liblablgnomeui$(XA)
 GNOMEUIMLOBJS = gnomeDruid.cmo gnoDruid.cmo
 GNOMEUICOBJS = ml_gnomedruid$(XO)
-endif
 
 ifdef USE_PANEL
 MLLIBS += lablpanel.cma
@@ -112,6 +111,8 @@ CLIBS += liblablpanel$(XA)
 PANELMLOBJS = panel.cmo
 PANELCOBJS = ml_panel$(XO)
 endif
+endif
+
 
 ifdef USE_RSVG
 MLLIBS += lablrsvg.cma
@@ -167,6 +168,7 @@ lablgtksourceview2.cma liblablgtksourceview2$(XA): \
 	$(LIBRARIAN) -o lablgtksourceview2 $^ $(GTKSOURCEVIEW2LIBS)
 lablgtksourceview2.cmxa: $(GTKSOURCEVIEW2COBJS) $(GTKSOURCEVIEW2MLOBJSENUM:.cmo=.cmx) $(GTKSOURCEVIEW2PROPS:%.props=%Props.cmx) $(GTKSOURCEVIEW2PROPS:%.props=o%Props.cmx) $(GTKSOURCEVIEW2MLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablgtksourceview2 $^ $(GTKSOURCEVIEW2LIBS)
+lablgtksourceview2.cmxs: DYNLINKLIBS=$(GTKSOURCEVIEW2_LIBS)
 endif
 
 ifdef USE_GTKQUARTZ
@@ -189,7 +191,8 @@ endif
 .ml4.cmo:
 	$(CAMLC) -c -pp "$(CAMLP4O) -impl" -impl $<
 .cmxa.cmxs:
-	$(CAMLOPT) -verbose -o $@ -shared -linkall -I . -ccopt '$(GTK_LIBS)' $<
+	$(CAMLOPT) -verbose -o $@ -shared -linkall -I . \
+        -ccopt '$(filter -L%, $(DYNLINKLIBS))' $<
 
 #.ml4.ml:
 #	$(CAMLP4) -impl $< -o $@
@@ -214,7 +217,7 @@ GTKPROPS += gtkBase.props gtkBin.props gtkButton.props gtkEdit.props \
 	gtkList.props gtkMenu.props gtkMisc.props gtkPack.props \
 	gtkRange.props gtkText.props gtkTree.props gtkFile.props \
 	gtkAction.props gtkBroken.props gtkAssistant.props
-MLOBJS1 =  gaux.cmo gpointer.cmo glib.cmo gobject.cmo
+MLOBJS1 =  gaux.cmo gpointer.cmo gutf8.cmo glib.cmo gobject.cmo
 ENUMOBJS += gdkEnums.cmo pangoEnums.cmo gtkEnums.cmo
 MLOBJS2 = pango.cmo gdk.cmo gdkEvent.cmo gdkKeysyms.cmo gdkPixbuf.cmo \
 	gtk.cmo gtkSignal.cmo gtkStock.cmo gtkObject.cmo
@@ -242,6 +245,7 @@ ALLOBJS = $(MLXOBJS) $(GLMLOBJS) $(GNOMEMLOBJS) $(GLADEMLOBJS) \
 	$(INITOBJS)
 ALLTHOBJS = $(THOBJS) $(THINITOBJS)
 PROPOBJS = $(GTKPROPS:%.props=%Props.cmo) $(GTKPROPS:%.props=o%Props.cmo)
+BEFORE_DEPEND += gtkSignal.ml
 
 # Targets
 byte:: $(TARGETS) $(INITOBJS)
@@ -252,7 +256,8 @@ depend:
 	  USE_GNOMECANVAS=1 USE_GNOMEUI=1 USE_PANEL=1 USE_GTKSPELL=1 \
 	  USE_GTKSOURCEVIEW=1 USE_GTKSOURCEVIEW2=1
 real-depend: $(ENUMOBJS:.cmo=.ml) $(PROPOBJS:.cmo=.ml) $(BEFORE_DEPEND)
-	ocamldep $(ALLOBJS:.cmo=.ml) $(PROPOBJS:.cmo=.ml) $(ALLTHOBJS:.cmo=.ml) $(BEFORE_DEPEND) *.mli > .depend
+	ocamldep $(ALLOBJS:.cmo=.ml) $(PROPOBJS:.cmo=.ml) \
+	  $(ALLTHOBJS:.cmo=.ml) $(BEFORE_DEPEND) *.mli > .depend
 
 ifeq ($(THREADS_LIB),no)
 lablgtktop$(XE): $(MLLIBS)
@@ -293,7 +298,7 @@ build.ml: Makefile $(CONFIG) build.ml.in
 	    -e "s|@TOOLCHAIN@|$(TOOLCHAIN)|" \
 	    < build.ml.in > $@
 
-gdk_pixbuf_mlsource$(XE) : lablgtk.cma gtkInit.cmo gdk_pixbuf_mlsource.ml
+gdk_pixbuf_mlsource$(XE) : lablgtk.cma gdk_pixbuf_mlsource.ml
 	$(CAMLC) -o $@ -I . $^
 
 lablgtkopt:: $(MLLIBS:.cma=.cmxa) $(INITOBJS:.cmo=.cmx)
@@ -305,8 +310,10 @@ ifeq ($(HAS_NATIVE_DYNLINK),yes)
 lablgtkopt::  $(MLLIBS:.cma=.cmxs)
 endif
 
-lablgladecc$(XE): xml_lexer.cmo lablgladecc.cmo
-	$(LINKER) -o $@ xml_lexer.cmo lablgladecc.cmo
+LABLGLADECCOBJS = gutf8.cmo xml_lexer.cmo lablgladecc.cmo
+
+lablgladecc$(XE): $(LABLGLADECCOBJS)
+	$(LINKER) -o $@ $(LABLGLADECCOBJS)
 
 testcc$(XE): lablgladecc$(XE) lablgtktop
 	./lablgladecc -test > testcc.ml
@@ -337,7 +344,7 @@ install:
 	cd "$(INSTALLDIR)" && $(RANLIB) $(CLIBS)
 	cp varcc$(XE) propcc$(XE) "$(INSTALLDIR)"
 	if test $(THREADS_LIB) != no; \
-	   then cp  $(ALLTHOBJS:.cmo=.cmi) $(INSTALLDIR); \
+	   then cp  $(ALLTHOBJS:.cmo=.cmi) "$(INSTALLDIR)"; \
 	fi
 	if test $(THREADS_LIB) = vm || test $(HAS_DLL_SUPPORT) != yes; \
 	   then cp lablgtktop$(XE) "$(INSTALLDIR)"; \
@@ -371,21 +378,25 @@ lablgtk.cma liblablgtk2$(XA): $(COBJS) $(MLOBJS)
 	$(LIBRARIAN) -o lablgtk -oc lablgtk2 $^ $(GTKLIBS)
 lablgtk.cmxa: $(COBJS) $(MLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablgtk -oc lablgtk2 $^ $(GTKLIBS)
+lablgtk.cmxs: DYNLINKLIBS=$(GTK_LIBS)
 
 lablgtkgl.cma liblablgtkgl2$(XA): $(GLCOBJS) $(GLMLOBJS)
 	$(LIBRARIAN) -o lablgtkgl -oc lablgtkgl2 $^ $(GTKGLLIBS)
 lablgtkgl.cmxa: $(GLCOBJS) $(GLMLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablgtkgl -oc lablgtkgl2 $^ $(GTKGLLIBS)
+lablgtkgl.cmxs: DYNLINKLIBS=$(GTKGL_LIBS)
 
 lablglade.cma liblablglade2$(XA): $(GLADECOBJS) $(GLADEMLOBJS)
 	$(LIBRARIAN) -o lablglade -oc lablglade2 $^ $(GLADELIBS)
 lablglade.cmxa: $(GLADECOBJS) $(GLADEMLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablglade -oc lablglade2 $^ $(GLADELIBS)
+lablglade.cmxs: DYNLINKLIBS=$(GLADE_LIBS)
 
 lablrsvg.cma liblablrsvg$(XA): $(RSVGCOBJS) $(RSVGMLOBJS)
 	$(LIBRARIAN) -o lablrsvg $^ $(RSVGLIBS)
 lablrsvg.cmxa: $(RSVGCOBJS) $(RSVGMLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablrsvg $^ $(RSVGLIBS)
+lablrsvg.cmxs: DYNLINKLIBS=$(RSVG_LIBS)
 
 lablgnomecanvas.cma liblablgnomecanvas$(XA): \
 		$(GNOMECANVASCOBJS) $(GNOMECANVASMLOBJS)
@@ -393,27 +404,29 @@ lablgnomecanvas.cma liblablgnomecanvas$(XA): \
 lablgnomecanvas.cmxa: $(GNOMECANVASCOBJS) $(GNOMECANVASMLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablgnomecanvas $^ $(GNOMECANVASLIBS)
 # gnoCanvas.cmo: COMPILER+= -i
+lablgnomecanvas.cmxs: DYNLINKLIBS=$(GNOMECANVAS_LIBS)
 
 lablgnomeui.cma liblablgnomeui$(XA): $(GNOMEUICOBJS) $(GNOMEUIMLOBJS)
 	$(LIBRARIAN) -o lablgnomeui $^ $(GNOMEUILIBS)
 lablgnomeui.cmxa: $(GNOMEUICOBJS) $(GNOMEUIMLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablgnomeui $^ $(GNOMEUILIBS)
 # gnoDruid.cmo: COMPILER+= -i
+lablgnomeui.cmxs: DYNLINKLIBS=$(GNOMEUI_LIBS)
 
 lablpanel.cma liblablpanel$(XA): $(PANELCOBJS) $(PANELMLOBJS)
 	$(LIBRARIAN) -o lablpanel $^ $(PANELLIBS)
 lablpanel.cmxa: $(PANELCOBJS) $(PANELMLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablpanel $^ $(PANELLIBS)
+lablpanel.cmxs: DYNLINKLIBS=$(PANEL_LIBS)
 
 lablgtkspell.cma liblablgtkspell$(XA): $(GTKSPELLCOBJS) $(GTKSPELLMLOBJS)
 	$(LIBRARIAN) -o lablgtkspell $^ $(GTKSPELLLIBS)
 lablgtkspell.cmxa: $(GTKSPELLCOBJS) $(GTKSPELLMLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablgtkspell $^ $(GTKSPELLLIBS)
+lablgtkspell.cmxs: DYNLINKLIBS=$(GTKSPELL_LIBS)
 
-gtkSignal.cmo: gtkSignal.ml
-	$(COMPILER) -pp "$(CAMLP4O) pa_macro.cmo $(HAS_PRINTEXC_BACKTRACE)" $<
-gtkSignal.cmx: gtkSignal.ml
-	$(COMPOPT) -pp "$(CAMLP4O) pa_macro.cmo $(HAS_PRINTEXC_BACKTRACE)" $<
+gtkSignal.ml: gtkSignal.ml4
+	$(CAMLP4O) pa_macro.cmo $(HAS_PRINTEXC_BACKTRACE) -impl $< -o $@
 
 gtkThread.cmo: gtkThread.ml
 	$(COMPILER) $(THFLAGS) gtkThread.ml
@@ -440,7 +453,7 @@ check_externals$(XE): check_externals.cmo
 
 clean:
 	rm -f *.cm* *.o *.a *.so *.exe *.obj *.lib *.dll *_tags.[ch] *.gch \
-	  $(TARGETS) varcc.ml xml_lexer.ml \
+	  $(TARGETS) varcc.ml gtkSignal.ml xml_lexer.ml \
 	  propcc$(XE) check_externals$(XE) check_externals.ml propcc.ml \
 	  *Enums.ml *Props.ml
 	rm -f \#*\# *~
