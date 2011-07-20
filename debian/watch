@@ -1,5 +1,6 @@
 version=3
 opts=dversionmangle=s/\+dfsg\d*$// \
-http://wwwfun.kurims.kyoto-u.ac.jp/soft/lsl/lablgtk.html \
-  dist/lablgtk-(\d+\.[\d.]+)\.tar\.gz
-  # forcing the '.' in version number to skip CVS snapshots
+http://forge.ocamlcore.org/frs/?group_id=220 .*/lablgtk-(.*)\.tar\.gz
+# Upstream git repository:
+#   http://forge.ocamlcore.org/anonscm/git/lablgtk/lablgtk.git
+#   http://forge.ocamlcore.org/scm/browser.php?group_id=220
