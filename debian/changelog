@@ -1,3 +1,11 @@
+lablgtk2 (2.14.2+dfsg-2) unstable; urgency=low
+
+  * Remove gnome-panel support (Closes: #638133)
+  * Remove duplicate changelog from liblablgtk2-ocaml
+  * Bump Standards-Version to 3.9.2 (no changes)
+
+ -- Stéphane Glondu <glondu@debian.org>  Wed, 17 Aug 2011 08:31:55 +0200
+
 lablgtk2 (2.14.2+dfsg-1) unstable; urgency=low
 
   * New upstream release (Closes: #585455)
