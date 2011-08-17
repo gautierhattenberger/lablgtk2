@@ -22,7 +22,6 @@ Build-Depends:
  libgnomecanvas2-dev,
  libgtkspell-dev,
  libgnomeui-dev,
- libpanel-applet2-dev,
  libgtksourceview2.0-dev (>= 2.10)
 Standards-Version: 3.9.1
 Homepage: http://wwwfun.kurims.kyoto-u.ac.jp/soft/lsl/lablgtk.html
@@ -65,8 +64,8 @@ Provides: ${ocaml:Provides}
 Description: runtime libraries for OCaml bindings to GNOME
  lablgtk2 contains bindings for GTK+ 2.x and Objective Caml.
  .
- This package include only the dynamic libraries needed for running dynamic
- bytecode executables using GNOME functionalities (panel-applet, gnomeui,
+ This package include only the dynamic libraries needed for running
+ dynamic bytecode executables using GNOME functionalities (gnomeui,
  gnome-canvas, rsvg).
 
 Package: liblablgtksourceview2-ocaml
@@ -124,7 +123,6 @@ Depends:
  librsvg2-dev,
  libgnomecanvas2-dev,
  libgnomeui-dev,
- libpanel-applet2-dev,
  ${ocaml:Depends},
  ${shlibs:Depends},
  ${misc:Depends}
@@ -134,7 +132,7 @@ Description: OCaml bindings to GNOME
  lablgtk2 contains bindings for GTK+ 2.x and Objective Caml.
  .
  This package contains the development files of lablgtk for libraries using
- GNOME functionalities (panel-applet, gnomeui, gnome-canvas, rsvg).
+ GNOME functionalities (gnomeui, gnome-canvas, rsvg).
 
 Package: liblablgtksourceview2-ocaml-dev
 Architecture: any
