@@ -23,7 +23,7 @@ Build-Depends:
  libgtkspell-dev,
  libgnomeui-dev,
  libgtksourceview2.0-dev (>= 2.10)
-Standards-Version: 3.9.2
+Standards-Version: 3.9.3
 Homepage: http://wwwfun.kurims.kyoto-u.ac.jp/soft/lsl/lablgtk.html
 Vcs-Git: git://git.debian.org/git/pkg-ocaml-maint/packages/lablgtk2.git
 Vcs-Browser: http://git.debian.org/?p=pkg-ocaml-maint/packages/lablgtk2.git
