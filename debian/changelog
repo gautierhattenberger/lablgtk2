@@ -1,3 +1,10 @@
+lablgtk2 (2.14.2+dfsg-3) unstable; urgency=low
+
+  * Update version in META files (Closes: #673835)
+  * Bump Standards-Version to 3.9.3
+
+ -- Stéphane Glondu <glondu@debian.org>  Tue, 12 Jun 2012 08:10:15 +0200
+
 lablgtk2 (2.14.2+dfsg-2) unstable; urgency=low
 
   * Remove gnome-panel support (Closes: #638133)
