@@ -1,3 +1,9 @@
+lablgtk2 (2.14.2+dfsg-4) UNRELEASED; urgency=low
+
+  * Remove Sylvain Le Gall from uploaders
+
+ -- Sylvain Le Gall <gildor@debian.org>  Fri, 21 Sep 2012 01:15:45 +0000
+
 lablgtk2 (2.14.2+dfsg-3) unstable; urgency=low
 
   * Update version in META files (Closes: #673835)
