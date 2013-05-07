@@ -7,7 +7,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: calc.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id$ *)
 
 (* A simple calculator ported from LablTk to LablGtk *)
 

@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gnomeCanvas.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id$ *)
 
 type canvas = [Gtk.layout|`canvas]
 type item   = [`gtk|`canvasitem]

@@ -1,5 +1,5 @@
 (* -*- caml -*- *)
-(* $Id: varcc.ml4 1320 2006-07-04 03:23:40Z garrigue $ *)
+(* $Id$ *)
 
 (* Compile a list of variant tags into CPP defines *) 
 
@@ -167,7 +167,11 @@ let process ic ~hc ~cc =
       let convs = List.rev !all_convs in
       List.iter convs ~f:(fun (s,_,_,_) -> oc "    ml_table_%s,\n" s);
       oc "  };\n";
-      oc "  return (value)ml_lookup_tables;";
+      (* When he have only one conversion, we must return it directly instead of       * an array that would be converted to a tuple *)
+      if List.length convs = 1 then
+        oc "  return (value)ml_lookup_tables[0];"
+      else
+        oc "  return (value)ml_lookup_tables;";
       oc "}\n";
       let mlc = open_out (!package ^ "Enums.ml") in
       let ppf = Format.formatter_of_out_channel mlc in

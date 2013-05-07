@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_rsvg.c 1347 2007-06-20 07:40:34Z guesdon $ */
+/* $Id$ */
 /* Author: Olivier Andrieu */
 
 #include <gdk-pixbuf/gdk-pixbuf.h>

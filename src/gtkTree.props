@@ -1,4 +1,4 @@
-(* $Id: gtkTree.props 1523 2010-07-25 12:42:26Z garrigue $ *)
+(* $Id$ *)
 
 prefix "Gtk"
 

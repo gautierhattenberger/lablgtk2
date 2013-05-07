@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gpointer.h 1347 2007-06-20 07:40:34Z guesdon $ */
+/* $Id$ */
 
 #define RegData_val(val) (Field(val,0))
 #define RegPath_val(val) (Field(val,1))

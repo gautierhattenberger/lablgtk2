@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gEdit.ml 1426 2008-10-07 18:41:02Z ben_99_9 $ *)
+(* $Id$ *)
 
 open Gaux
 open Gtk
@@ -107,6 +107,7 @@ class entry obj = object
   inherit editable obj
   method connect = new entry_signals obj
   inherit entry_props
+  method as_entry = (obj :> Gtk.entry obj)
   method event = new GObj.event_ops obj
   method append_text = Entry.append_text obj
   method prepend_text = Entry.prepend_text obj

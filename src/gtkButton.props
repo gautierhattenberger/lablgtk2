@@ -1,4 +1,4 @@
-(* $Id: gtkButton.props 1411 2008-08-03 14:43:59Z ben_99_9 $ *)
+(* $Id$ *)
 
 prefix "Gtk"
 

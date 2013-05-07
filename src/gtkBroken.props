@@ -1,4 +1,4 @@
-(* $Id: gtkBroken.props 1127 2004-03-18 07:05:30Z garrigue $ *)
+(* $Id$ *)
 
 prefix "Gtk"
 

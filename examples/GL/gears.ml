@@ -7,7 +7,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gears.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id$ *)
 
 (*
  * 3-D gear wheels.  This program is in the public domain.

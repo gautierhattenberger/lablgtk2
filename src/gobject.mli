@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gobject.mli 1443 2009-01-20 09:49:48Z ben_99_9 $ *)
+(* $Id$ *)
 
 type -'a obj
 type g_type
@@ -70,6 +70,9 @@ type ('a, 'b) property = { name : string; conv : 'b data_conv }
 
 type fundamental_type =
   [ `INVALID | `NONE | `INTERFACE | `PARAM | base_data ]
+
+type signal_type =
+  [ `RUN_FIRST | `RUN_LAST | `NO_RECURSE | `ACTION | `NO_HOOKS ]
 
 exception Cannot_cast of string * string
 

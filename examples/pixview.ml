@@ -7,7 +7,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: pixview.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id$ *)
 
 (* An image viewer, supporting all formats allowed by GdkPixbuf *)
 

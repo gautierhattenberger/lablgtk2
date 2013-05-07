@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gRange.mli 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id$ *)
 
 open Gtk
 open GObj
@@ -69,7 +69,11 @@ class range_signals : [> Gtk.range] obj ->
     inherit GObj.widget_signals
     method adjust_bounds : callback:(float -> unit) -> GtkSignal.id
     method move_slider : callback:(Tags.scroll_type -> unit) -> GtkSignal.id
+    method change_value : callback:(Tags.scroll_type -> float -> unit) -> GtkSignal.id
     method value_changed : callback:(unit -> unit) -> GtkSignal.id
+    method notify_adjustment : callback:(GData.adjustment -> unit) -> GtkSignal.id
+    method notify_inverted : callback:(bool -> unit) -> GtkSignal.id
+    method notify_update_policy : callback:(GtkEnums.update_type -> unit) -> GtkSignal.id
   end
 
 (** Base class for widgets which visualize an adjustment
@@ -78,6 +82,7 @@ class range : ([> Gtk.range] as 'a) obj ->
   object
     inherit GObj.widget
     val obj : 'a obj
+    method as_range : Gtk.range Gtk.obj
     method connect : range_signals
     method event : GObj.event_ops
     method set_adjustment : GData.adjustment -> unit

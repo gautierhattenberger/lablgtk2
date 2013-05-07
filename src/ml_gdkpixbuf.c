@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gdkpixbuf.c 1405 2008-04-14 18:38:16Z oandrieu $ */
+/* $Id$ */
 
 #include <string.h>
 #include <gdk/gdk.h>
@@ -124,6 +124,8 @@ value Val_GdkPixbuf_ (GdkPixbuf *pb, gboolean ref)
   *p = ref ? g_object_ref (pb) : pb;
   return ret; 
 }
+
+Make_Val_option(GdkPixbuf)
 
 CAMLprim value ml_gdkpixbuf_init(value unit)
 {
