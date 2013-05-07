@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gObj.ml 1454 2009-05-12 10:19:38Z garrigue $ *)
+(* $Id$ *)
 
 open StdLabels
 open Gaux
@@ -37,6 +37,8 @@ class ['a] gobject_signals obj = object
   method after = {< after = true >}
   method private connect : 'b. ('a,'b) GtkSignal.t -> callback:'b -> _ =
     fun sgn ~callback -> GtkSignal.connect obj ~sgn ~after ~callback
+  method private notify : 'b. ('a, 'b) property -> callback:('b -> unit) -> _ =
+    fun prop ~callback -> GtkSignal.connect_property obj ~prop ~callback
 end
 
 class gobject_ops obj = object

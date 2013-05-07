@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: glib.mli 1408 2008-07-23 12:40:06Z ben_99_9 $ *)
+(* $Id$ *)
 
 (** Interface to Glib functions 
     @gtkdoc glib index *)
@@ -45,6 +45,7 @@ module Main : sig
   type locale_category =
     [ `ALL | `COLLATE | `CTYPE | `MESSAGES | `MONETARY | `NUMERIC | `TIME ]
   val setlocale : locale_category -> string option -> string 
+  val wrap_poll_func : unit -> unit
 end
 
 val int_of_priority : [< `HIGH | `DEFAULT | `HIGH_IDLE | `DEFAULT_IDLE | `LOW] -> int

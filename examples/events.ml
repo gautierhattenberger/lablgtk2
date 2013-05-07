@@ -7,7 +7,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: events.ml 1406 2008-05-07 10:06:14Z ben_99_9 $ *)
+(* $Id$ *)
 
 (* This is a direct translation to Gtk2.
    This is actually meaningless, as the new text widget lets you

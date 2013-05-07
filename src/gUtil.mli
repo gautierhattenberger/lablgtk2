@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gUtil.mli 1393 2008-01-18 01:17:21Z garrigue $ *)
+(* $Id$ *)
 
 (** {3 Utility classes for programming with GTK objects} *)
 

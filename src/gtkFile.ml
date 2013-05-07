@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gtkFile.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id$ *)
 
 external _gtkfile_init : unit -> unit = "ml_gtkfile_init"
 let () = _gtkfile_init ()

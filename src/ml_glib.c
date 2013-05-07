@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_glib.c 1445 2009-02-09 17:13:00Z ben_99_9 $ */
+/* $Id$ */
 
 #include <string.h>
 #include <locale.h>
@@ -295,6 +295,26 @@ CAMLprim value ml_g_idle_add (value o_prio, value clos)
 }
 
 ML_1 (g_source_remove, Int_val, Unit)
+
+static GPollFunc poll_func = NULL;
+
+static gint ml_poll (GPollFD *ufds, guint nfsd, gint timeout)
+{
+    gint res;
+    caml_enter_blocking_section();
+    res = poll_func(ufds, nfsd, timeout);
+    caml_leave_blocking_section();
+    return res;
+}
+
+CAMLprim value ml_g_wrap_poll_func (value unit)
+{
+    if (!poll_func) {
+        poll_func = g_main_context_get_poll_func(NULL);
+        g_main_context_set_poll_func (NULL, ml_poll);
+    }
+    return Val_unit;
+}
 
 /* GIOChannel */
 

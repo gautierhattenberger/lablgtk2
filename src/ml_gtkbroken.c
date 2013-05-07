@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_gtkbroken.c 1347 2007-06-20 07:40:34Z guesdon $ */
+/* $Id$ */
 
 /* GtkTree and GtkText are broken, but some people still want them */
 

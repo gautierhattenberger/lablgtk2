@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gdkPixbuf.mli 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id$ *)
 
 (** Object for manipulating image data 
     @gtkdoc gdk-pixbuf index *)

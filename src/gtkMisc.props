@@ -1,4 +1,4 @@
-(* $Id: gtkMisc.props 1527 2010-09-09 08:02:22Z garrigue $ *)
+(* $Id$ *)
 
 header {
 open Gtk

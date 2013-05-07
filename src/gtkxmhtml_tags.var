@@ -1,4 +1,4 @@
-(* $Id: gtkxmhtml_tags.var 467 2000-11-15 10:25:05Z garrigue $ *)
+(* $Id$ *)
 
 type string_direction = "TSTRING_DIRECTION_" [
   | `R_TO_L

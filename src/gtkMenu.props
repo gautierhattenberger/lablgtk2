@@ -1,4 +1,4 @@
-(* $Id: gtkMenu.props 1402 2008-03-25 08:55:03Z garrigue $ *)
+(* $Id$ *)
 
 prefix "Gtk"
 

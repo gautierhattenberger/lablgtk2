@@ -7,10 +7,10 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: csview.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id$ *)
 
 (* Compile with
-     ocamlc -pp camlp4o -I +lablgtk2 lablgtk.cma csview.ml -o csview
+     ocamlc -pp camlp4o -I ../src lablgtk.cma csview.ml -o csview
    or run with
      lablgtk2 camlp4o.cma csview.ml <file.csv>
 *)

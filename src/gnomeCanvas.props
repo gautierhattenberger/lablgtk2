@@ -1,4 +1,4 @@
-(* $Id: gnomeCanvas.props 976 2003-07-02 03:04:12Z garrigue $ *)
+(* $Id$ *)
 
 header {
 open Gobject

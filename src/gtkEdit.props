@@ -1,4 +1,4 @@
-(* $Id: gtkEdit.props 1425 2008-10-05 16:21:55Z ben_99_9 $ *)
+(* $Id$ *)
 
 prefix "Gtk"
 

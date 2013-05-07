@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: ml_glib.h 1362 2007-08-17 03:52:05Z garrigue $ */
+/* $Id$ */
 
 CAMLexport value copy_string_g_free (char *str); /* for g_strings only */
 

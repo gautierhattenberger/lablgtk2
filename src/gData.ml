@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gData.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id$ *)
 
 open Gaux
 open Gobject
@@ -131,7 +131,7 @@ class clipboard ~selection = object (self)
         w
 
   method set_contents ~targets ~get:get_func ~clear:clear_func =
-    let widget = self#init_widget in
+    let widget : widget = self#init_widget in
     self#call_clear;
     get_cb <- get_func;
     clear_cb <- Some clear_func;

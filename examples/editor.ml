@@ -7,7 +7,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: editor.ml 1347 2007-06-20 07:40:34Z guesdon $ *)
+(* $Id$ *)
 
 (* Uses the deprecated old text widget. See editor2.ml for the new one *)
 

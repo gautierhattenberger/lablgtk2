@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gdk.ml 1452 2009-05-08 10:15:38Z garrigue $ *)
+(* $Id$ *)
 
 open StdLabels
 open Gaux
@@ -102,7 +102,8 @@ module Tags = struct
 
   type modifier =
     [ `SHIFT | `LOCK | `CONTROL | `MOD1 | `MOD2 | `MOD3 | `MOD4 | `MOD5
-    | `BUTTON1 | `BUTTON2 | `BUTTON3 | `BUTTON4 | `BUTTON5 ]
+    | `BUTTON1 | `BUTTON2 | `BUTTON3 | `BUTTON4 | `BUTTON5 | `SUPER
+    | `HYPER | `META | `RELEASE ]
 
   type drag_action =
     [ `DEFAULT | `COPY | `MOVE | `LINK | `PRIVATE | `ASK ]
@@ -306,6 +307,9 @@ module Window = struct
   external set_cursor : window -> cursor -> unit = 
     "ml_gdk_window_set_cursor"
   external clear : window -> unit = "ml_gdk_window_clear"
+  external clear_area :
+    window -> x:int -> y:int -> width:int -> height:int -> unit
+    = "ml_gdk_window_clear"
   external get_xwindow : [>`drawable] obj -> xid = "ml_GDK_WINDOW_XWINDOW"
 
   let set_back_pixmap w pix = 

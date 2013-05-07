@@ -7,7 +7,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: glade_demo.ml 1462 2009-05-21 01:24:34Z garrigue $ *)
+(* $Id$ *)
 
 (* An experiment on using libglade in lablgtk *)
 

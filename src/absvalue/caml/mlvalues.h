@@ -20,7 +20,7 @@
 /*                                                                        */
 /**************************************************************************/
 
-/* $Id: mlvalues.h 1347 2007-06-20 07:40:34Z guesdon $ */
+/* $Id$ */
 
 #ifndef CAML_GTK_MLVALUES_H
 #define CAML_MLVALUES_H

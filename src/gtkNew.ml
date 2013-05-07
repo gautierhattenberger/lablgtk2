@@ -20,7 +20,7 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(* $Id: gtkNew.ml 1419 2008-09-22 13:37:06Z zoggy $ *)
+(* $Id$ *)
 
 open StdLabels
 open Gtk
@@ -28,7 +28,7 @@ open Gtk
 type t
 
 (* if you modify this type modify widget_info_array
-   in ml_gtk.c in accordance *)
+   in ml_gtknew.c in accordance *)
 type object_type =
   | OBJECT  | WIDGET  | MISC  | LABEL  | ACCELLABEL  | TIPSQUERY  | ARROW
   | IMAGE   | PIXMAP  | CONTAINER  | BIN  | ALIGNMENT  | FRAME  | ASPECTFRAME
