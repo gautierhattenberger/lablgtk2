@@ -1,8 +1,13 @@
-lablgtk2 (2.14.2+dfsg-4) UNRELEASED; urgency=low
+lablgtk2 (2.16.0+dfsg-1) UNRELEASED; urgency=low
 
+  [ Lifeng Sun ]
+  * Team upload.
+  * New upstream release.
+
+  [ Sylvain Le Gall ]
   * Remove Sylvain Le Gall from uploaders
 
- -- Sylvain Le Gall <gildor@debian.org>  Fri, 21 Sep 2012 01:15:45 +0000
+ -- Lifeng Sun <lifongsun@gmail.com>  Sun, 12 May 2013 08:27:39 +0800
 
 lablgtk2 (2.14.2+dfsg-3) unstable; urgency=low
 
