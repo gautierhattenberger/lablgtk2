@@ -1,0 +1,14 @@
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -427,9 +427,9 @@
+       then \
+         echo $(CLIBS:lib%$(XA)=dll%$(XA)) ; \
+     fi`
+-	$(RANLIB) $(CLIBS:%="`ocamlfind query lablgtk2 | tr -d '\r'`"/%)
++	$(RANLIB) $(CLIBS:%="$(OCAMLFIND_DESTDIR)"/lablgtk2/%)
+ 	@if test -f lablgtk.cmxa; \
+-	  then ($(RANLIB) $(MLLIBS:%.cma="`ocamlfind query lablgtk2 | tr -d '\r'`"/%$(XA)) $(EXTRA_MLLIBS:%.cma="`ocamlfind query lablgtk2 | tr -d '\r'`"/%$(XA)) ); fi
++	  then ($(RANLIB) $(MLLIBS:%.cma="$(OCAMLFIND_DESTDIR)"/lablgtk2/%$(XA)) $(EXTRA_MLLIBS:%.cma="$(OCAMLFIND_DESTDIR)"/lablgtk2/%$(XA)) ); fi
+ 	rm lablgtk2$(XB)
+ 	$(MAKE) INSTALLDIR=`ocamlfind query lablgtk2 | tr -d '\r'` lablgtk2$(XB)
+ 	cp lablgtk2$(XB) "$(BINDIR)"

@@ -6,6 +6,8 @@
 
 include /usr/share/ocaml/ocamlvars.mk
 DESTDIR := $(CURDIR)/debian/tmp
+export OCAMLFIND_DESTDIR=$(DESTDIR)/$(OCAML_STDLIB_DIR)
+export OCAMLFIND_LDCONF=ignore
 
 %:
 	dh $@ --with ocaml
@@ -33,6 +35,7 @@ override_dh_auto_clean:
 
 .PHONY: override_dh_auto_install
 override_dh_auto_install:
+	mkdir -p '$(OCAMLFIND_DESTDIR)'
 	$(MAKE) install DESTDIR=$(DESTDIR)
 # remove files related to gtksourceview1 (uncompiled anyway... and
 # make dh_ocamldoc fail)
