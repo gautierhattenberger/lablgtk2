@@ -4,6 +4,7 @@ lablgtk2 (2.16.0+dfsg-1) unstable; urgency=low
   * Team upload.
   * New upstream release.
   * Bump Standards-Version to 3.9.4.
+  * Build depends on ocaml-findlib.
 
   [ Sylvain Le Gall ]
   * Remove Sylvain Le Gall from uploaders
