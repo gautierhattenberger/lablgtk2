@@ -25,8 +25,8 @@ Build-Depends:
  ocaml-findlib
 Standards-Version: 3.9.4
 Homepage: http://forge.ocamlcore.org/projects/lablgtk/
-Vcs-Git: git://git.debian.org/git/pkg-ocaml-maint/packages/lablgtk2.git
-Vcs-Browser: http://git.debian.org/?p=pkg-ocaml-maint/packages/lablgtk2.git
+Vcs-Git: git://anonscm.debian.org/pkg-ocaml-maint/packages/lablgtk2.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-ocaml-maint/packages/lablgtk2.git
 
 Package: liblablgtk2-ocaml
 Architecture: any
