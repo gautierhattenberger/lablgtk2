@@ -1,10 +1,15 @@
-lablgtk2 (2.16.0+dfsg-1) unstable; urgency=low
+lablgtk2 (2.16.0+dfsg-1~exp1) experimental; urgency=low
 
   [ Lifeng Sun ]
   * Team upload.
   * New upstream release.
-  * Bump Standards-Version to 3.9.4.
   * Build depends on ocaml-findlib.
+  * Switch debian/copyright to Machine readable format.
+  * Bump debhelper compat level to 9.
+  * debian/control:
+    - Bump Standards-Version to 3.9.4.
+    - Update Homepage.
+    - Build depends on ocaml-findlib.
 
   [ Sylvain Le Gall ]
   * Remove Sylvain Le Gall from uploaders
