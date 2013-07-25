@@ -9,7 +9,7 @@ Uploaders:
 Build-Depends:
  debhelper (>= 8),
  dh-ocaml (>= 0.9.5~),
- ocaml-nox (>= 3.11.1-3~),
+ ocaml-nox (>= 4.00.1),
  ocaml,
  camlp4 (>= 3.11),
  liblablgl-ocaml-dev (>= 1.04-3~),
@@ -22,7 +22,7 @@ Build-Depends:
  libgtkspell-dev,
  libgnomeui-dev,
  libgtksourceview2.0-dev (>= 2.10),
- ocaml-findlib
+ ocaml-findlib (>= 1.3.2)
 Standards-Version: 3.9.4
 Homepage: http://forge.ocamlcore.org/projects/lablgtk/
 Vcs-Git: git://anonscm.debian.org/pkg-ocaml-maint/packages/lablgtk2.git
