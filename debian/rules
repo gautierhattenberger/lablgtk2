@@ -32,6 +32,7 @@ override_dh_auto_clean:
 	if [ -f debian/src.depend.backup ]; then \
 	  mv debian/src.depend.backup src/.depend; \
 	fi
+	$(RM) config.log config.make config.status test_dynlink.*
 
 .PHONY: override_dh_auto_install
 override_dh_auto_install:
