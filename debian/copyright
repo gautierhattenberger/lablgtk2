@@ -1,45 +1,91 @@
-This package was debianized by Sven LUTHER <luther@debian.org> on
-Sun,  3 Dec 2000 12:06:26 +0100.
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: lablgtk2
+Upstream-Contact: Jacques Garrigue <garrigue@math.nagoya-u.ac.jp>
+Source: http://forge.ocamlcore.org/projects/lablgtk/
 
-It was downloaded from :
-  http://wwwfun.kurims.kyoto-u.ac.jp/soft/olabl/lablgtk.html
+Files: *
+Copyright: Jacques Garrigue <garrigue@math.nagoya-u.ac.jp>
+           Benjamin Monate  <benjamin.monate@free.fr>
+           Olivier Andrieu  <oandrieu@nerim.net>
+           Adrien Nader     <camaradetux@gmail.com>
+           Jun Furuse       <jun.furuse@gmail.com>
+           Maxence Guesdon  <maxence.guesdon@inria.fr>
+           Stefano Zacchiroli  <zack@cs.unibo.it>
+           Hubert Fauque <hubert.fauque@wanadoo.fr>
+           Koji Kagawa <kagawa@eng.kagawa-u.ac.jp>
+License: LGPL-2.1 with exception
 
-Upstream Authors :
- Copyright (C) Jacques Garrigue <garrigue@kurims.kyoto-u.ac.jp>
- Copyright (C) Benjamin Monate <monate@lix.polytechnique.fr>
+Files: src/ml_rsvg.c
+Copyright: Olivier Andrieu <andrieu@ijm.jussieu.fr>
+License: LGPL-2.1 with exception
 
- For lablgtk1:
- Copyright (C) Hubert Fauque <hubert.fauque@wanadoo.fr>
- Copyright (C) Jun Furuse <Jun.Furuse@inria.fr>
- Copyright (C) Koji Kagawa <kagawa@eng.kagawa-u.ac.jp>
+Files: configure.in
+Copyright: 2001 Jean-Christophe Filliâtre
+License: LGPL-2.1 with exception
 
- For the librsvg bindings:
- Copyright (C) Olivier Andrieu <andrieu@ijm.jussieu.fr>
+Files: src/gdkprivate-win32.h
+Copyright: 1995-1997 Peter Mattis
+           1995-1997 Spencer Kimball
+           1995-1997 Josh MacDonald
+           1998-2002 Tor Lillqvist
+License: LGPL-2+
+ On Debian systems, the complete text of the GNU Library General
+ Public License can be found in `/usr/share/common-licenses/LGPL-2'.
 
- For configure.in:
- Copyright (C) 2001 Jean-Christophe Filliâtre
+Files: examples/*
+Copyright: Jacques Garrigue <garrigue@math.nagoya-u.ac.jp>
+           Benjamin Monate  <benjamin.monate@free.fr>
+           Olivier Andrieu  <oandrieu@nerim.net>
+           Adrien Nader     <camaradetux@gmail.com>
+           Jun Furuse       <jun.furuse@gmail.com>
+           Maxence Guesdon  <maxence.guesdon@inria.fr>
+           Stefano Zacchiroli  <zack@cs.unibo.it>
+License:
+ There is no specific licensing policy for these files, but you may freely
+ take inspiration from the code, and copy parts of it in your application.
 
- For gdk-private-win32.h:
- Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
- Copyright (C) 1998-2002 Tor Lillqvist
+Files: examples/GL/tutorial-*.ml
+Copyright: 2007 Maxence Guesdon <maxence.guesdon@inria.fr>
+License: GPL-2+
+ On Debian systems, the complete text of the GNU General Public
+ License can be found in `/usr/share/common-licenses/GPL-2'.
 
- For tutorial-*.ml:
- Copyright (C) 2001 David MENTRE
+Files: examples/GL/gears.ml
+Copyright: Brian Paul
+           Jacques Garrigue
+           Eric Cooper <ecc@cmu.edu>
+License: public domain
+ This program is in the public domain.
 
- For lablgtksourceview:
- Copyright (C) 2005 Stefano Zacchiroli <zack@cs.unibo.it>
- Copyright (C) 2006 Stefano Zacchiroli <zack@cs.unibo.it>
- Copyright (C) 2006 Maxence Guesdon <maxence.guesdon@inria.fr>
+Files: src/gtkSourceView.props
+       src/gtkSourceView_types.mli
+       src/sourceView_tags.var
+       src/gtkSourceView2.props
+       src/gtkSourceView2_types.mli
+       src/sourceView2_tags.var
+Copyright: 2005-2006 Stefano Zacchiroli <zack@cs.unibo.it>
+           2006 Maxence Guesdon <maxence.guesdon@inria.fr>
+License: LGPL-2.1
+ On Debian systems, the complete text of the GNU Library General
+ Public License can be found in `/usr/share/common-licenses/LGPL-2.1'.
 
-Copyright:
-
-LablGtk is distributed under the terms the LGPL licence, which can be
-found in the /usr/share/common-licenses/LGPL-2.1 file on debian systems.
-
-Notice that this version includes binding for the librsvg, a SVG-files
-render. Since librsvg is licenced under the GPL, linking to it via the
-lablrsvg puts the resulting work under the GPL also.
-
-Notice that this version includes examples of lablgtk use, that are licensed
-under GPL, which can be found in the /usr/share/common-licenses/GPL-2 file on
-debian systems.
+License: LGPL-2.1 with exception
+ LablGtk is distributed under the terms the LGPL licence, which can be
+ found in the /usr/share/common-licenses/LGPL-2.1 file on debian systems.
+ .
+ As a special exception to the GNU Library General Public License, you
+ may link, statically or dynamically, a "work that uses the Library"
+ with a publicly distributed version of the Library to produce an
+ executable file containing portions of the Library, and distribute
+ that executable file under terms of your choice, without any of the
+ additional requirements listed in clause 6 of the GNU Library General
+ Public License.  By "a publicly distributed version of the Library",
+ we mean either the unmodified Library as distributed by INRIA, or a
+ modified version of the Library that is distributed under the
+ conditions defined in clause 3 of the GNU Library General Public
+ License.  This exception does not however invalidate any other reasons
+ why the executable file might be covered by the GNU Library General
+ Public License.
+ .
+ On Debian systems, the complete text of the GNU Library General
+ Public License can be found in `/usr/share/common-licenses/LGPL-2.1'.
