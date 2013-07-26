@@ -1,3 +1,9 @@
+lablgtk2 (2.16.0+dfsg-1~exp2) experimental; urgency=low
+
+  * Update version in META files
+
+ -- Stéphane Glondu <glondu@debian.org>  Fri, 26 Jul 2013 08:44:10 +0200
+
 lablgtk2 (2.16.0+dfsg-1~exp1) experimental; urgency=low
 
   [ Lifeng Sun ]
