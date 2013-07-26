@@ -43,6 +43,8 @@ override_dh_auto_install:
 	rm \
 	  debian/tmp/usr/lib/ocaml/lablgtk2/gtkSourceView_types.mli \
 	  debian/tmp/usr/lib/ocaml/lablgtk2/gSourceView.mli
+# remove files related to uncompiled gnome-panel (see #638133)
+	rm debian/tmp/usr/lib/ocaml/lablgtk2/panel.mli
 
 .PHONY: override_dh_installexamples
 override_dh_installexamples:
@@ -50,4 +52,5 @@ override_dh_installexamples:
 
 .PHONY: override_dh_install
 override_dh_install:
-	dh_install --list-missing
+# FIXME, we should use upstream META and remove -XMETA below
+	dh_install --fail-missing -XMETA -Xbuild.ml
