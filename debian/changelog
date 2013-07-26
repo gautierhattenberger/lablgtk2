@@ -1,3 +1,10 @@
+lablgtk2 (2.16.0+dfsg-1~exp3) experimental; urgency=low
+
+  * Fix installation of META files
+  * Respect upstream convention for lablgtk2.sourceview2
+
+ -- Stéphane Glondu <glondu@debian.org>  Fri, 26 Jul 2013 09:23:00 +0200
+
 lablgtk2 (2.16.0+dfsg-1~exp2) experimental; urgency=low
 
   * Update version in META files
