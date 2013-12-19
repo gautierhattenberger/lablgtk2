@@ -1,6 +1,16 @@
+From: Lifeng Sun <lifongsun@gmail.com>
+Date: Sun, 12 May 2013 08:30:34 +0800
+Subject: Fix install path.
+
+---
+ src/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/Makefile b/src/Makefile
+index c498882..f4200dc 100755
 --- a/src/Makefile
 +++ b/src/Makefile
-@@ -427,9 +427,9 @@
+@@ -427,9 +427,9 @@ findlib-install:
        then \
          echo $(CLIBS:lib%$(XA)=dll%$(XA)) ; \
      fi`
@@ -12,3 +22,4 @@
  	rm lablgtk2$(XB)
  	$(MAKE) INSTALLDIR=`ocamlfind query lablgtk2 | tr -d '\r'` lablgtk2$(XB)
  	cp lablgtk2$(XB) "$(BINDIR)"
+-- 
