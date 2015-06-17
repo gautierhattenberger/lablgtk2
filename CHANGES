@@ -1,5 +1,72 @@
 LablGTK changes log
 
+In Lablgtk-2.18.3:
+
+2014.10.06 [Jacques]
+  * add Gdk.Window.create_foreign and set_transient_for functions (Tim Cuthbertson)
+
+2014.09.20 [Jacques]
+  * CAMLparam initializes with Val_unit rather than 0 since ocaml 4.02.
+    Fix a related problem in ml_gobject.
+    This caused random crashes with unison (Christopher Zimmermann, PR#1425)
+    
+  * Also factorize some code to use Val_option_*
+  * Replace XID by GdkNativeWindow where required.
+    You may need to insert calls to Gdk.Window.native_of_xid in some places.
+
+In Lablgtk-2.18.2:
+
+2014.09.17 [Jacques]
+  * Revert old commit which broke notify signals
+  * Quote $(FLINSTALLDIR) in Makefile (cf PR#1342)
+  * Update applications/browser for 4.02
+
+2014.08.22 [Jacques]
+  * Make Float_val an alias for Double_val, since it was used
+    wrongly anyway (Felix Ruess)
+  * Make GObj.misc_ops#add_accelerator polymorphic in the widget of
+    the signal (Erkki Seppala)
+  * Use properties in GtkAdjustment, rather than direct accessors
+
+2013.12.31 [Jacques]
+  * fix GtkTree.IconView.get_path_at_pos (Thomas Leonard)
+
+In Lablgtk-2.18.1:
+
+2013.12.6 [Jacques]
+  * add gtksourceview2 to windows binaries
+
+In Lablgtk-2.18.0:
+
+2013.10.01 [Jacques]
+  * prepare release
+  * update applications for 4.01
+  * various fixes in windows port
+
+2013.9.17 [Jacques]
+  * add some GTK enumerations and update stock icon list
+  * add properties GtkTreeView.enable_{tree,grid}_lines
+  * add properties GtkEntry.{primary,secondary}_icon_{stock,name,pixbuf},
+    see examples/entry2.ml for usage
+
+2013.7.29 [Pierre-Marie]
+  * add tags in GtkMovementStep
+
+2013.2.19 [Jacques]
+  * fix compatibility with ocaml 4.01 (?lab for non-optional arguments)
+
+2012.08.26 [Pierre-Marie]
+  * add handling of new modifiers
+
+2012.08.26 [Jacques]
+  * detect findlib during configuration
+  * support DESTDIR with findlib-install
+
+2012.08.26 [Jacques]
+  * indicate that only old-install supports DESTDIR
+  * have old-install copy the META file too
+  * cleanup the two phases of findlib-install
+
 In Lablgtk-2.16.0:
 
 2012.08.23 [Jacques]

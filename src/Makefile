@@ -17,6 +17,7 @@ INSTALLDIR = $(LIBDIR)/lablgtk2
 DLLDIR = $(LIBDIR)/stublibs
 
 include $(CONFIG)
+#GTKCFLAGS += -Werror -Wno-error=deprecated-declarations
 
 TARGETS = varcc$(XE) lablgtktop$(XE) lablgtk2$(XB) gdk_pixbuf_mlsource$(XE) \
 	$(THINITOBJS) build.ml
@@ -163,12 +164,15 @@ GTKSOURCEVIEW2COBJS = ml_gtksourceview2$(XO)
 GTKSOURCEVIEW2MLOBJSENUM = sourceView2Enums.cmo
 GTKSOURCEVIEW2PROPS = gtkSourceView2.props
 BEFORE_DEPEND += $(GTKSOURCEVIEW2PROPS:%.props=%Props.ml) $(GTKSOURCEVIEW2PROPS:%.props= o%Props.ml) $(GTKSOURCEVIEWMLOBJSENUM:%.cmo=%.ml)
-
 EXTRA_OBJS += $(GTKSOURCEVIEW2MLOBJSENUM)
+GTKSOURCEVIEW2ALLMLOBJS = $(GTKSOURCEVIEW2MLOBJSENUM) \
+	$(GTKSOURCEVIEW2PROPS:%.props=%Props.cmo) \
+	$(GTKSOURCEVIEW2PROPS:%.props=o%Props.cmo) $(GTKSOURCEVIEW2MLOBJS)
 lablgtksourceview2.cma liblablgtksourceview2$(XA): \
-	$(GTKSOURCEVIEW2COBJS) $(GTKSOURCEVIEW2MLOBJSENUM) $(GTKSOURCEVIEW2PROPS:%.props=%Props.cmo) $(GTKSOURCEVIEW2PROPS:%.props=o%Props.cmo) $(GTKSOURCEVIEW2MLOBJS)
+  $(GTKSOURCEVIEW2COBJS) $(GTKSOURCEVIEW2ALLMLOBJS)
 	$(LIBRARIAN) -o lablgtksourceview2 $^ $(GTKSOURCEVIEW2LIBS)
-lablgtksourceview2.cmxa: $(GTKSOURCEVIEW2COBJS) $(GTKSOURCEVIEW2MLOBJSENUM:.cmo=.cmx) $(GTKSOURCEVIEW2PROPS:%.props=%Props.cmx) $(GTKSOURCEVIEW2PROPS:%.props=o%Props.cmx) $(GTKSOURCEVIEW2MLOBJS:.cmo=.cmx)
+lablgtksourceview2.cmxa: \
+  $(GTKSOURCEVIEW2COBJS) $(GTKSOURCEVIEW2ALLMLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablgtksourceview2 $^ $(GTKSOURCEVIEW2LIBS)
 lablgtksourceview2.cmxs: DYNLINKLIBS=$(GTKSOURCEVIEW2_LIBS)
 endif
@@ -185,7 +189,7 @@ endif
 .c.d$(XO):
 	$(CAMLC) -c -ccopt '-MT -DCAML_DLL -Fo$@ $(CFLAGS)' $<
 .ml.cmo:
-	$(COMPILER) $<
+	$(COMPILER) $(PRINCIPAL) $<
 .mli.cmi:
 	$(COMPILER) $<
 .ml.cmx:
@@ -228,8 +232,8 @@ MLOBJS3 = gtkData.cmo gtkBase.cmo gtkPack.cmo gtkButton.cmo \
 	gtkMenu.cmo gtkMisc.cmo gtkWindow.cmo gtkList.cmo \
 	gtkBin.cmo gtkEdit.cmo gtkRange.cmo gtkText.cmo gtkTree.cmo \
 	gtkFile.cmo gtkMain.cmo gtkBroken.cmo \
-	gPango.cmo gDraw.cmo gObj.cmo gData.cmo gMain.cmo
-MLOBJS4 = gContainer.cmo gPack.cmo gButton.cmo gText.cmo \
+	gPango.cmo gDraw.cmo gObj.cmo ogtkBaseProps.cmo gData.cmo
+MLOBJS4 = gMain.cmo gContainer.cmo gPack.cmo gButton.cmo gText.cmo \
 	gMenu.cmo gMisc.cmo gTree.cmo gList.cmo gFile.cmo gWindow.cmo \
 	gAssistant.cmo \
 	gBin.cmo gEdit.cmo gRange.cmo gAction.cmo gBroken.cmo \
@@ -274,7 +278,7 @@ lablgtktop$(XE): $(MLLIBS) $(THOBJS) $(CONFIG)
 endif
 
 lablgtk2: Makefile $(CONFIG) lablgtk2.in
-	sed -e "s|@INSTALLDIR@|$(INSTALLDIR)|g" \
+	sed -e "s|@INSTALLDIR@|$(LABLGTKDIR)|g" \
 	    -e "s|@LABLGLDIR@|$(LABLGLDIR)|g" \
 	    -e "s|@MLLIBS@|$(MLLINK) $(MLLIBS)|g" \
 	    -e "s|@INITOBJS@|$(INITOBJS)|g" \
@@ -299,6 +303,8 @@ build.ml: Makefile $(CONFIG) build.ml.in
 	    -e "s|@RSVG_LIBS@|$(RSVGLIBS)|" \
 	    -e "s|@CANVAS_MLS@|$(GNOMECANVASMLOBJS:.cmo=)|" \
 	    -e "s|@CANVAS_LIBS@|$(GNOMECANVASLIBS)|" \
+	    -e "s|@SOURCEVIEW2_MLS@|$(GTKSOURCEVIEW2ALLMLOBJS:.cmo=)|" \
+	    -e "s|@SOURCEVIEW2_LIBS@|$(GTKSOURCEVIEW2LIBS)|" \
 	    -e "s|@TOOLCHAIN@|$(TOOLCHAIN)|" \
 	    < build.ml.in > $@
 
@@ -325,12 +331,12 @@ testcc$(XE): lablgladecc$(XE) lablgtktop
 	rm -f testcc.ml
 
 PREOBJS= $(MLOBJS) $(EXTRAOBJS) $(GLADEMLOBJS) $(RSVGMLOBJS) \
-	$(GNOMECANVASMLOBJS)
+	$(GNOMECANVASMLOBJS) $(GTKSOURCEVIEW2ALLMLOBJS)
 
 # Install ml sources and C binaries, can then rebuild using build.ml
 preinstall:
 	mkdir -p "$(INSTALLDIR)" "$(BINDIR)" "$(DLLDIR)"
-	cp $(PREOBJS:.cmo=.ml) "$(INSTALLDIR)"
+	cp $(PREOBJS:.cmo=.ml) gtkSourceView2_types.mli "$(INSTALLDIR)"
 	for f in $(PREOBJS:.cmo=.mli); do \
 	  if test -f $$f; then cp $$f "$(INSTALLDIR)"; fi; done
 	cp build.ml "$(INSTALLDIR)"
@@ -343,7 +349,7 @@ preinstall:
 old-install:
 	mkdir -p "$(INSTALLDIR)" "$(BINDIR)" "$(DLLDIR)"
 	cp $(ALLOBJS:.cmo=.cmi) $(EXTRA_OBJS:.cmo=.cmi) "$(INSTALLDIR)"
-	cp -p *.mli "$(INSTALLDIR)"
+	cp -p ../META *.mli "$(INSTALLDIR)"
 	cp -p $(ALLOBJS:.cmo=.ml) $(ALLTHOBJS:.cmo=.ml) \
 	      $(EXTRA_OBJS:.cmo=.ml) build.ml "$(INSTALLDIR)"
 	cp $(EXTRA_MLLIBS) $(MLLIBS) $(INITOBJS) "$(INSTALLDIR)"
@@ -390,8 +396,16 @@ old-uninstall:
 
 # Install using ocamlfind
 findlib-install:
+	@if test "$(OCAMLFIND)" = no; then \
+	  echo "Cannot use ocamlfind, use old-install."; \
+	  exit 2; fi
 	mkdir -p "$(BINDIR)"
-	ocamlfind install lablgtk2 ../META \
+	mkdir -p "$(DESTDIR)$(FINDLIBDIR)"
+	@if test -f "$(DESTDIR)$(OCAMLLDCONF)"; then :; else \
+	  touch "$(DESTDIR)$(OCAMLLDCONF)"; fi
+	$(OCAMLFIND) install -destdir "$(DESTDIR)$(FINDLIBDIR)" \
+	  -ldconf "$(DESTDIR)$(OCAMLLDCONF)" \
+    lablgtk2 ../META \
     build.ml \
     $(CLIBS) \
     $(ALLOBJS:.cmo=.cmi) $(EXTRA_OBJS:.cmo=.cmi) \
@@ -427,19 +441,22 @@ findlib-install:
       then \
         echo $(CLIBS:lib%$(XA)=dll%$(XA)) ; \
     fi`
-	$(RANLIB) $(CLIBS:%="`ocamlfind query lablgtk2 | tr -d '\r'`"/%)
-	@if test -f lablgtk.cmxa; \
-	  then ($(RANLIB) $(MLLIBS:%.cma="`ocamlfind query lablgtk2 | tr -d '\r'`"/%$(XA)) $(EXTRA_MLLIBS:%.cma="`ocamlfind query lablgtk2 | tr -d '\r'`"/%$(XA)) ); fi
-	rm lablgtk2$(XB)
-	$(MAKE) INSTALLDIR=`ocamlfind query lablgtk2 | tr -d '\r'` lablgtk2$(XB)
+	rm -f lablgtk2
+	$(MAKE) lablgtk2 LABLGTKDIR="$(FINDLIBDIR)/lablgtk2"
 	cp lablgtk2$(XB) "$(BINDIR)"
 	if test -f lablgladecc$(XE); then \
 	  cp lablgladecc$(XE) "$(BINDIR)/lablgladecc2$(XE)"; \
 	fi
 	cp gdk_pixbuf_mlsource$(XE) "$(BINDIR)"
+	$(RANLIB) $(CLIBS:%="$(FLINSTALLDIR)"/%)
+	@if test -f lablgtk.cmxa; then \
+	  echo "Execute $(RANLIB) in $(FLINSTALLDIR)"; \
+	  $(RANLIB) $(MLLIBS:%.cma="$(FLINSTALLDIR)"/%$(XA)) \
+		    $(EXTRA_MLLIBS:%.cma="$(FLINSTALLDIR)"/%$(XA)) ; \
+	 fi
 
 findlib-uninstall:
-	ocamlfind remove lablgtk2
+	$(OCAMLFIND) remove lablgtk2
 	for f in lablgladecc2$(XE) lablgtk2$(XB) gdk_pixbuf_mlsource$(XE); \
 	  do rm -f "$(BINDIR)"/$$f; done
 

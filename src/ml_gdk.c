@@ -270,14 +270,15 @@ ML_5 (gdk_window_clear_area, GdkWindow_val, Int_val, Int_val, Int_val, Int_val,
       Unit)
 ML_0 (GDK_ROOT_PARENT, Val_GdkWindow)
 ML_1 (gdk_window_get_parent, GdkWindow_val, Val_GdkWindow)
+ML_2 (gdk_window_set_transient_for, GdkWindow_val, GdkWindow_val, Unit)
+ML_1 (gdk_window_foreign_new, GdkNativeWindow_val, Val_GdkWindow)
 
 #if defined(_WIN32) || defined(__CYGWIN__) || defined(HAS_GTKQUARTZ)
 CAMLprim value ml_GDK_WINDOW_XWINDOW(value v)
 {
- ml_raise_gdk ("Not available for Win32");
+ ml_raise_gdk ("ml_GDK_WINDOW_XWINDOW: only for X11");
  return Val_unit;
-} 
-
+}
 #else
 ML_1 (GDK_WINDOW_XWINDOW, GdkDrawable_val, Val_XID)
 #endif
@@ -878,7 +879,8 @@ Make_Extractor (GdkEventSelection, GdkEvent_arg(Selection), target,
                 Val_GdkAtom)
 Make_Extractor (GdkEventSelection, GdkEvent_arg(Selection), property,
                 Val_GdkAtom)
-Make_Extractor (GdkEventSelection, GdkEvent_arg(Selection), requestor, Val_XID)
+Make_Extractor (GdkEventSelection, GdkEvent_arg(Selection), requestor,
+                Val_GdkNativeWindow)
 
 Make_Extractor (GdkEventProximity, GdkEvent_arg(Proximity),
                 device, Val_GdkDevice)

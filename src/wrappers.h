@@ -43,6 +43,7 @@ CAMLexport void ml_raise_null_pointer (void) Noreturn;
 CAMLexport value Val_pointer (void *);
 CAMLprim value copy_string_check (const char*);
 value copy_string_or_null (const char *);
+value Val_option_string (const char *s);
 
 value string_list_of_strv (const char * const *v);
 value string_list_of_strv2 (char **v);
@@ -254,7 +255,8 @@ CAMLprim value cname##_bc (value *argv, int argn) \
 /* parameter conversion */
 #define Bool_ptr(x) ((long) x - 1)
 #define Char_val Int_val
-#define Float_val(x) ((float)Double_val(x))
+#define Float_val Double_val
+/* #define Float_val(x) ((float)Double_val(x)) */
 #define SizedString_val(x) String_val(x), string_length(x)
 
 #define Option_val(val,unwrap,default) \

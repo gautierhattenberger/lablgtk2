@@ -231,9 +231,10 @@ ML_1 (gtk_object_sink, GtkObject_val, Unit)
 ML_6 (gtk_adjustment_new, Float_val, Float_val, Float_val, Float_val,
       Float_val, Float_val, Val_GtkObject_sink)
 ML_bc6 (ml_gtk_adjustment_new)
-ML_2 (gtk_adjustment_set_value, GtkAdjustment_val, Float_val, Unit)
 ML_3 (gtk_adjustment_clamp_page, GtkAdjustment_val,
       Float_val, Float_val, Unit)
+/*
+ML_2 (gtk_adjustment_set_value, GtkAdjustment_val, Float_val, Unit)
 Make_Extractor (gtk_adjustment_get, GtkAdjustment_val, lower, copy_double)
 Make_Extractor (gtk_adjustment_get, GtkAdjustment_val, upper, copy_double)
 Make_Extractor (gtk_adjustment_get, GtkAdjustment_val, value, copy_double)
@@ -247,7 +248,7 @@ CAMLprim value ml_gtk_adjustment_set(value lower, value upper,
                             value page_size, value adjustment)
 {
     GtkAdjustment *adj = GtkAdjustment_val(adjustment);
-#define Update_field(name) adj->name = Option_val(name,Double_val,adj->name)
+#define Update_field(name) (adj->name = Option_val(name,Double_val,adj->name)
     Update_field(lower);
     Update_field(upper);
     Update_field(step_increment);
@@ -257,6 +258,7 @@ CAMLprim value ml_gtk_adjustment_set(value lower, value upper,
     return Val_unit;
 }
 ML_bc6(ml_gtk_adjustment_set)
+*/
 
 /* gtktooltips.h */
 
@@ -400,7 +402,7 @@ CAMLprim value ml_gtk_widget_style_get_property (value w, value n)
     pspec = gtk_widget_class_find_style_property
                (GTK_WIDGET_GET_CLASS (widget), name);
     if (pspec) {
-        value ret = ml_g_value_new ();
+        ret = ml_g_value_new ();
         GValue *gv = GValueptr_val (ret);
         g_value_init (gv, G_PARAM_SPEC_VALUE_TYPE (pspec));
         gtk_widget_style_get_property (widget, name, gv);
@@ -735,8 +737,9 @@ CAMLprim value ml_gtk_file_selection_get_selections (value sel)
   gchar** selections =
     gtk_file_selection_get_selections(GtkFileSelection_val(sel));
   gchar** orig = selections;
-  CAMLparam0();
-  CAMLlocal3(ret,prev,next);
+  value ret = Val_unit;
+  CAMLparam1(ret);
+  CAMLlocal2(prev,next);
   for (prev = (value)((&ret)-1); *selections != NULL; selections++) {
     next = alloc(2,0);
     Store_field(prev, 1, next);
@@ -965,7 +968,7 @@ Make_Extractor (gtk_font_selection_dialog, GtkFontSelectionDialog_val,
 #ifdef _WIN32
 Unsupported(gtk_plug_new)
 #else
-ML_1 (gtk_plug_new, XID_val, Val_GtkWidget_window)
+ML_1 (gtk_plug_new, GdkNativeWindow_val, Val_GtkWidget_window)
 #endif
 
 /* gtksocket.h */
@@ -973,7 +976,7 @@ ML_1 (gtk_plug_new, XID_val, Val_GtkWidget_window)
 Unsupported(gtk_socket_steal)
 #else
 #define GtkSocket_val(val) check_cast(GTK_SOCKET,val)
-ML_2 (gtk_socket_steal, GtkSocket_val, XID_val, Unit)
+ML_2 (gtk_socket_steal, GtkSocket_val, GdkNativeWindow_val, Unit)
 #endif
 
 /* gtkmain.h */

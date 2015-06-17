@@ -43,6 +43,7 @@ type +'a event
 type drag_context = [`dragcontext] Gobject.obj
 type cursor
 type xid = int32
+type native_window
 type device
 type display
 
@@ -137,7 +138,8 @@ module Convert = struct
       = "ml_test_GdkModifier_val"
   let modifier i =
     List.filter [`SHIFT;`LOCK;`CONTROL;`MOD1;`MOD2;`MOD3;`MOD4;`MOD5;
-		 `BUTTON1;`BUTTON2;`BUTTON3;`BUTTON4;`BUTTON5]
+		 `BUTTON1;`BUTTON2;`BUTTON3;`BUTTON4;`BUTTON5;`SUPER;
+                 `HYPER;`META;`RELEASE]
       ~f:(fun m -> test_modifier m i)
   external test_window_state : window_state -> int -> bool
       = "ml_test_GdkWindowState_val"
@@ -294,8 +296,14 @@ module Drawable = struct
     = "ml_gdk_drawable_get_size"
 end
 
+module Windowing = struct
+  external get : unit -> [`QUARTZ | `WIN32 | `X11] = "ml_gdk_get_platform"
+  let platform = get ()
+end
+
 module Window = struct
   let cast w : window = Gobject.try_cast w "GdkWindow"
+  external create_foreign : native_window -> window = "ml_gdk_window_foreign_new"
   type background_pixmap = [ `NONE | `PARENT_RELATIVE | `PIXMAP of pixmap]
   external get_parent : window -> window = "ml_gdk_window_get_parent"
   external get_position : window -> int * int = "ml_gdk_window_get_position"
@@ -322,6 +330,15 @@ module Window = struct
 
   (* for backward compatibility for lablgtk1 programs *)	  
   let get_visual = Drawable.get_visual
+
+  let xid_of_native (w : native_window) : xid =
+    if Windowing.platform = `X11 then Obj.magic w else
+    failwith "Gdk.Window.xid_of_native only allowed for X11"
+  let native_of_xid (id : xid) : native_window =
+    if Windowing.platform = `X11 then Obj.magic id else
+    failwith "Gdk.Window.native_of_xid only allowed for X11"
+
+  external set_transient_for : window -> window -> unit = "ml_gdk_window_set_transient_for"
 end
 
 module PointArray = struct
@@ -783,9 +800,4 @@ module Display = struct
     get_window_at_pointer
       (match display with None -> default ()
       | Some disp -> disp)
-end
-
-module Windowing = struct
-  external get : unit -> [`QUARTZ | `WIN32 | `X11] = "ml_gdk_get_platform"
-  let platform = get ()
 end
