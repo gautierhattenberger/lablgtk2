@@ -1,3 +1,9 @@
+lablgtk2 (2.18.3+dfsg-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Stéphane Glondu <glondu@debian.org>  Wed, 17 Jun 2015 14:33:00 +0200
+
 lablgtk2 (2.16.0+dfsg-1) unstable; urgency=low
 
   * Upload to unstable
