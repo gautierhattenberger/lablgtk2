@@ -274,7 +274,7 @@ lablgtktop$(XE): $(MLLIBS) $(THOBJS) $(CONFIG)
 endif
 
 lablgtk2: Makefile $(CONFIG) lablgtk2.in
-	sed -e "s|@INSTALLDIR@|$(INSTALLDIR)|g" \
+	sed -e "s|@INSTALLDIR@|$(LABLGTKDIR)|g" \
 	    -e "s|@LABLGLDIR@|$(LABLGLDIR)|g" \
 	    -e "s|@MLLIBS@|$(MLLINK) $(MLLIBS)|g" \
 	    -e "s|@INITOBJS@|$(INITOBJS)|g" \
@@ -343,7 +343,7 @@ preinstall:
 old-install:
 	mkdir -p "$(INSTALLDIR)" "$(BINDIR)" "$(DLLDIR)"
 	cp $(ALLOBJS:.cmo=.cmi) $(EXTRA_OBJS:.cmo=.cmi) "$(INSTALLDIR)"
-	cp -p *.mli "$(INSTALLDIR)"
+	cp -p ../META *.mli "$(INSTALLDIR)"
 	cp -p $(ALLOBJS:.cmo=.ml) $(ALLTHOBJS:.cmo=.ml) \
 	      $(EXTRA_OBJS:.cmo=.ml) build.ml "$(INSTALLDIR)"
 	cp $(EXTRA_MLLIBS) $(MLLIBS) $(INITOBJS) "$(INSTALLDIR)"
@@ -390,8 +390,16 @@ old-uninstall:
 
 # Install using ocamlfind
 findlib-install:
+	@if test "$(OCAMLFIND)" = no; then \
+	  echo "Cannot use ocamlfind, use old-install."; \
+	  exit 2; fi
 	mkdir -p "$(BINDIR)"
-	ocamlfind install lablgtk2 ../META \
+	mkdir -p "$(DESTDIR)$(FINDLIBDIR)"
+	@if test -f "$(DESTDIR)$(OCAMLLDCONF)"; then :; else \
+	  touch "$(DESTDIR)$(OCAMLLDCONF)"; fi
+	$(OCAMLFIND) install -destdir "$(DESTDIR)$(FINDLIBDIR)" \
+	  -ldconf "$(DESTDIR)$(OCAMLLDCONF)" \
+    lablgtk2 ../META \
     build.ml \
     $(CLIBS) \
     $(ALLOBJS:.cmo=.cmi) $(EXTRA_OBJS:.cmo=.cmi) \
@@ -427,19 +435,22 @@ findlib-install:
       then \
         echo $(CLIBS:lib%$(XA)=dll%$(XA)) ; \
     fi`
-	$(RANLIB) $(CLIBS:%="`ocamlfind query lablgtk2 | tr -d '\r'`"/%)
-	@if test -f lablgtk.cmxa; \
-	  then ($(RANLIB) $(MLLIBS:%.cma="`ocamlfind query lablgtk2 | tr -d '\r'`"/%$(XA)) $(EXTRA_MLLIBS:%.cma="`ocamlfind query lablgtk2 | tr -d '\r'`"/%$(XA)) ); fi
-	rm lablgtk2$(XB)
-	$(MAKE) INSTALLDIR=`ocamlfind query lablgtk2 | tr -d '\r'` lablgtk2$(XB)
+	rm -f lablgtk2
+	$(MAKE) lablgtk2 LABLGTKDIR="$(FINDLIBDIR)/lablgtk2"
 	cp lablgtk2$(XB) "$(BINDIR)"
 	if test -f lablgladecc$(XE); then \
 	  cp lablgladecc$(XE) "$(BINDIR)/lablgladecc2$(XE)"; \
 	fi
 	cp gdk_pixbuf_mlsource$(XE) "$(BINDIR)"
+	$(RANLIB) $(CLIBS:%=$(FLINSTALLDIR)/%)
+	@if test -f lablgtk.cmxa; then \
+	  echo "Execute $(RANLIB) in $(FLINSTALLDIR)"; \
+	  $(RANLIB) $(MLLIBS:%.cma=$(FLINSTALLDIR)/%$(XA)) \
+		    $(EXTRA_MLLIBS:%.cma=$(FLINSTALLDIR)/%$(XA)) ; \
+	 fi
 
 findlib-uninstall:
-	ocamlfind remove lablgtk2
+	$(OCAMLFIND) remove lablgtk2
 	for f in lablgladecc2$(XE) lablgtk2$(XB) gdk_pixbuf_mlsource$(XE); \
 	  do rm -f "$(BINDIR)"/$$f; done
 

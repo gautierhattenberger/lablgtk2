@@ -36,6 +36,7 @@
 #include <caml/alloc.h>
 #include <caml/memory.h>
 #include <caml/callback.h>
+#include <caml/threads.h>
 
 #include "wrappers.h"
 #include "ml_glib.h"
@@ -243,7 +244,7 @@ ML_2(g_log_set_fatal_mask, String_option_val, Int_val, Unit)
 
 CAMLprim value ml_g_log (value domain, value level, value msg)
 {
-  g_log (String_option_val(domain), Int_val(level), "%s", String_val(msg));
+  g_log (String_val(domain), Int_val(level), "%s", String_val(msg));
   return Val_unit;
 }
 

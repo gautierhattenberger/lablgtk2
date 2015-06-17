@@ -154,6 +154,22 @@ if test "$CAMLP4O" = no ; then
 	AC_MSG_ERROR(Cannot find camlp4o.)
 fi
 
+AC_CHECK_PROG(OCAMLFIND,ocamlfind,ocamlfind,no)
+if test "`$OCAMLFIND printconf stdlib`" != "`$CAMLC -where`"; then
+  AC_MSG_WARN(Ignoring ocamlfind, it uses a different OCaml installation.)
+  OCAMLFIND=no
+fi
+
+if test "$OCAMLFIND" = no; then
+FINDLIBDIR=""
+OCAMLLDCONF=""
+else
+FINDLIBDIR="`ocamlfind printconf destdir | tr -d '\\r'`"
+echo "$OCAMLFIND library path is $FINDLIBDIR"
+OCAMLLDCONF="`ocamlfind printconf ldconf | tr -d '\\r'`"
+echo "$OCAMLFIND ldconf path is $OCAMLLDCONF"
+fi
+
 if expr "$OCAMLVERSION" '>=' '4' > /dev/null ; then
    ODOC_DEF="-D OCAML_400"
 fi
@@ -351,6 +367,9 @@ AC_SUBST(OCAMLDOC)
 AC_SUBST(CAMLMKTOP)
 AC_SUBST(CAMLMKLIB)
 AC_SUBST(CAMLP4O)
+AC_SUBST(OCAMLFIND)
+AC_SUBST(FINDLIBDIR)
+AC_SUBST(OCAMLLDCONF)
 AC_SUBST(LABLGLDIR)
 AC_SUBST(HAVE_SVGZ)
 AC_SUBST(USE_CC)

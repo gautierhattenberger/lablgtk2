@@ -1,9 +1,9 @@
 
-             LablGTK2 2.16.0 : an interface to the GIMP Tool Kit
+             LablGTK2 2.18.0 : an interface to the GIMP Tool Kit
 
 Needed:
-        ocaml-3.11 or more (4.00 is preferred)
-        gtk+-2.x (gtk+-2.12.x for full functionality)
+        ocaml-3.11 or more (4.01 is preferred)
+        gtk+-2.x (gtk+-2.16.x for full functionality)
         findlib 1.2.1 or more (for default install)
         GNU make (there is no standard for conditionals)
 
@@ -67,10 +67,9 @@ How to compile:
                 override autodetected gtksourceview2 support
         --enable-debug: enable debug mode
 
-  Type "make install" or "make install DESTDIR=..." to install using
-  findlib. The commands lablgtk2, gdk_pixbuf_mlsource, and
-  lablgladecc2, are copied directly to the configured executable
-  directory. Installation paths are prefixed by DESTDIR when given.
+  Type "make install" to install using findlib.
+  The commands lablgtk2, gdk_pixbuf_mlsource, and lablgladecc2,
+  are copied directly to the configured executable directory.
 
   The following findlib packages are provided (according to configuration):
 
@@ -87,10 +86,11 @@ How to compile:
         lablgtk2.sourceview
         lablgtk2.sourceview2
 
-  You can alternatively use "make old-install" to use the old
+  You can alternatively use "make old-install" or
+  "make old-install DESTDIR=/my/prefix" to use the old
   installation procedure, which does not rely on findlib.
   By default, the library is installed at +lablgtk2.
-  Again, installation paths are prefixed by DESTDIR when given.
+  All installation paths are prefixed by DESTDIR when given.
 
 Contents:
 
