@@ -91,6 +91,36 @@ usr/bin/lablgtk2
 @OCamlStdlibDir@/lablgtk2/win32.h
 @OCamlStdlibDir@/lablgtk2/wrappers.h
 @OCamlStdlibDir@/lablgtk2/xml_lexer.*
+@OCamlStdlibDir@/lablgtk2/gtkActionProps.*
+@OCamlStdlibDir@/lablgtk2/gtkAssistantProps.*
+@OCamlStdlibDir@/lablgtk2/gtkBaseProps.*
+@OCamlStdlibDir@/lablgtk2/gtkBinProps.*
+@OCamlStdlibDir@/lablgtk2/gtkBrokenProps.*
+@OCamlStdlibDir@/lablgtk2/gtkButtonProps.*
+@OCamlStdlibDir@/lablgtk2/gtkEditProps.*
+@OCamlStdlibDir@/lablgtk2/gtkFileProps.*
+@OCamlStdlibDir@/lablgtk2/gtkListProps.*
+@OCamlStdlibDir@/lablgtk2/gtkMenuProps.*
+@OCamlStdlibDir@/lablgtk2/gtkMiscProps.*
+@OCamlStdlibDir@/lablgtk2/gtkPackProps.*
+@OCamlStdlibDir@/lablgtk2/gtkRangeProps.*
+@OCamlStdlibDir@/lablgtk2/gtkTextProps.*
+@OCamlStdlibDir@/lablgtk2/gtkTreeProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkActionProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkAssistantProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkBaseProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkBinProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkBrokenProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkButtonProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkEditProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkFileProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkListProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkMenuProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkMiscProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkPackProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkRangeProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkTextProps.*
+@OCamlStdlibDir@/lablgtk2/ogtkTreeProps.*
 OPT: @OCamlStdlibDir@/lablgtk2/lablglade.a
 OPT: @OCamlStdlibDir@/lablgtk2/lablglade.cmxa
 OPT: @OCamlStdlibDir@/lablgtk2/lablgtk.a

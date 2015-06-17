@@ -6,7 +6,7 @@
 
 include /usr/share/ocaml/ocamlvars.mk
 DESTDIR := $(CURDIR)/debian/tmp
-export OCAMLFIND_DESTDIR=$(DESTDIR)/$(OCAML_STDLIB_DIR)
+export OCAMLFIND_DESTDIR=$(OCAML_STDLIB_DIR)
 export OCAMLFIND_LDCONF=ignore
 
 %:
