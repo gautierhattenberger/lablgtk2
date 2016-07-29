@@ -1,7 +1,4 @@
 -I src
 -I @OCamlStdlibDir@/lablgl
 -I @OCamlStdlibDir@/threads
---include debian/liblablgtk2-ocaml-dev@OCamlStdlibDir@/lablgtk2
---include debian/liblablgtk2-gl-ocaml-dev@OCamlStdlibDir@/lablgtk2
---include debian/liblablgtk2-gnome-ocaml-dev@OCamlStdlibDir@/lablgtk2
---include debian/liblablgtksourceview2-ocaml-dev@OCamlStdlibDir@/lablgtk2
+--include debian/tmp@OCamlStdlibDir@/lablgtk2
