@@ -1,4 +1,4 @@
-lablgtk2 (2.18.3+dfsg-2) UNRELEASED; urgency=medium
+lablgtk2 (2.18.3+dfsg-2) unstable; urgency=medium
 
   * Team upload.
   * Pull sources from the build path for building documentation.
