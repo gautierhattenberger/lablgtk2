@@ -10,7 +10,7 @@ automatically). So don't build a binding for this function.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/config.make.in b/config.make.in
-index 14d3cdd..8d1dfff 100644
+index feb27ad..0f5a32e 100644
 --- a/config.make.in
 +++ b/config.make.in
 @@ -22,7 +22,7 @@ EXE=@EXE@
@@ -22,4 +22,3 @@ index 14d3cdd..8d1dfff 100644
  USE_GNOMECANVAS=@USE_GNOMECANVAS@
  USE_GNOMEUI=@USE_GNOMEUI@
  USE_PANEL=@USE_PANEL@
--- 
