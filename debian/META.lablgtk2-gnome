@@ -7,11 +7,6 @@ package "gnomecanvas" (
   archive(native) = "lablgnomecanvas.cmxa"
 )
 
-package "gnomeui" (
-  archive(byte) = "lablgnomeui.cma"
-  archive(native) = "lablgnomeui.cmxa"
-)
-
 package "panel" (
   archive(byte) = "lablpanel.cma"
   archive(native) = "lablpanel.cmxa"
