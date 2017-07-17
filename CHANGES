@@ -1,9 +1,34 @@
 LablGTK changes log
 
+In Lablgtk-2.18.4:
+
+2016.04.27 [Jacques]
+  * disable camlp4 make rule when no camlp4o available
+  * update applications
+  * rename GC module to GMain.Gc_custom
+
+2016.04.11 [Jacques]
+  * Fix ml_gnome_canvas_c2w (Didier Le Botlan)
+
+2016.03.06 [Jacques]
+  * remove build dependency on camlp4 (still needed for tree version)
+  * allow to change the GC speed (i.e. the impact of custom blocks)
+    see GMain.GC.set_speed.
+
+2016.03.04 [Jacques]
+  * use own definition of alloc_custom, to be sure to allocate in the heap
+
+2015.04.16 [Jacques]
+  * fix GtkTree.TreeModel.cast
+
+2015.02.06 [Jacques]
+  * add get_image and get_pixbuf to GDraw.drawable.
+
 In Lablgtk-2.18.3:
 
 2014.10.06 [Jacques]
-  * add Gdk.Window.create_foreign and set_transient_for functions (Tim Cuthbertson)
+  * add Gdk.Window.create_foreign and set_transient_for functions
+    (Tim Cuthbertson)
 
 2014.09.20 [Jacques]
   * CAMLparam initializes with Val_unit rather than 0 since ocaml 4.02.
