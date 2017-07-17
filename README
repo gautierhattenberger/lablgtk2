@@ -1,8 +1,8 @@
 
-             LablGTK2 2.18.3 : an interface to the GIMP Tool Kit
+             LablGTK2 2.18.5 : an interface to the GIMP Tool Kit
 
 Needed:
-        ocaml-3.11 or more (4.02 is preferred)
+        ocaml-3.11 or more (4.04 is preferred)
         gtk+-2.x (gtk+-2.16.x for full functionality)
         findlib 1.2.1 or more (for default install)
         GNU make (there is no standard for conditionals)
@@ -278,6 +278,12 @@ Memory management:
   added to a container widget, it will automatically be destroyed when
   its last container is destroyed. For this reason you need only
   destroy toplevel widgets.
+
+  Since too frequent GC can severely degrade performance, since 2.18.4
+  it is possible to change the contribution of custom blocks to the
+  GC cycle, using the function GMain.Gc.set_speed. The default is 10%
+  of what it was in 2.18.3. If you set it to 0, custom block allocation
+  has no impact, and you should consider running the Gc by hand.
 
   IMPORTANT: Some Gtk data structures are allocated in the Caml heap,
   and their use in signals (Gtk functions internally cally callbacks)

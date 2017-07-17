@@ -1,6 +1,6 @@
 # Makefile for lablgtk.
 
-COMPILER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS) -w s -c
+COMPILER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS) -w s-3+52 -warn-error A-52 -c
 LINKER = $(CAMLC) $(MLFLAGS) $(MLBYTEFLAGS)
 COMPOPT = $(CAMLOPT) $(MLFLAGS) -w s -c
 LINKOPT = $(CAMLOPT) $(MLFLAGS)
@@ -22,8 +22,8 @@ include $(CONFIG)
 TARGETS = varcc$(XE) lablgtktop$(XE) lablgtk2$(XB) gdk_pixbuf_mlsource$(XE) \
 	$(THINITOBJS) build.ml
 
-all: byte
-world: byte $(CAMLBEST)
+all: dist byte
+world: dist byte $(CAMLBEST)
 install: findlib-install
 uninstall: findlib-uninstall
 
@@ -194,14 +194,15 @@ endif
 	$(COMPILER) $<
 .ml.cmx:
 	$(COMPOPT) $<
-.ml4.cmo:
-	$(CAMLC) -c -pp "$(CAMLP4O) -impl" -impl $<
+ifneq ($(CAMLP4O),no)
+.ml4.ml:
+	$(CAMLP4O) -impl $< -o $@
+endif
+#.ml4.cmo:
+#	$(CAMLC) -c -pp "$(CAMLP4O) -impl" -impl $<
 .cmxa.cmxs:
 	$(CAMLOPT) -verbose -o $@ -shared -linkall -I . \
         -ccopt '$(filter -L%, $(DYNLINKLIBS))' $<
-
-#.ml4.ml:
-#	$(CAMLP4) -impl $< -o $@
 
 %_tags.h %_tags.c %Enums.ml: %_tags.var varcc$(XE)
 	./varcc $<
@@ -254,7 +255,7 @@ ALLOBJS = $(MLOBJS) $(GLMLOBJS) $(GNOMEMLOBJS) $(GLADEMLOBJS) \
 	$(INITOBJS)
 ALLTHOBJS = $(THOBJS) $(THINITOBJS)
 PROPOBJS = $(GTKPROPS:%.props=%Props.cmo) $(GTKPROPS:%.props=o%Props.cmo)
-BEFORE_DEPEND += gtkSignal.ml
+ML4SRC = check_externals.ml propcc.ml varcc.ml
 
 # Targets
 byte:: $(TARGETS) $(INITOBJS)
@@ -511,8 +512,8 @@ lablgtkspell.cmxa: $(GTKSPELLCOBJS) $(GTKSPELLMLOBJS:.cmo=.cmx)
 	$(LIBRARIAN) -o lablgtkspell $^ $(GTKSPELLLIBS)
 lablgtkspell.cmxs: DYNLINKLIBS=$(GTKSPELL_LIBS)
 
-gtkSignal.ml: gtkSignal.ml4
-	$(CAMLP4O) pa_macro.cmo $(HAS_PRINTEXC_BACKTRACE) -impl $< -o $@
+#gtkSignal.ml: gtkSignal.ml4
+#	$(CAMLP4O) pa_macro.cmo $(HAS_PRINTEXC_BACKTRACE) -impl $< -o $@
 
 gtkThread.cmo: gtkThread.ml $(CONFIG)
 	$(COMPILER) $(THFLAGS) $<
@@ -542,10 +543,13 @@ check_externals$(XE): check_externals.cmo
 
 clean:
 	rm -f *.cm* *.o *.a *.so *.exe *.obj *.lib *.dll *_tags.[ch] *.gch \
-	  $(TARGETS) varcc.ml gtkSignal.ml xml_lexer.ml \
-	  propcc$(XE) check_externals$(XE) check_externals.ml propcc.ml \
+	  $(TARGETS) xml_lexer.ml propcc$(XE) check_externals$(XE) \
 	  *Enums.ml *Props.ml
 	rm -f \#*\# *~
+
+dist: $(ML4SRC)
+dist-clean:
+	rm -f $(ML4SRC)
 
 
 DOCFILES = gPango.ml gDraw.mli gObj.mli gMain.mli gData.mli \
@@ -590,18 +594,18 @@ DOCFILES += gSourceView2.mli
 endif
 
 OCAMLDOC = ocamldoc
-lablgtk$(XO)doc : $(DOCFILES) $(ALLOBJS)
-	$(OCAMLDOC) -dump $@ -v $(if $(LABLGLDIR),-I $(LABLGLDIR)) $(DOCFILES)
+lablgtk.odoc : $(DOCFILES) $(ALLOBJS)
+	$(OCAMLDOC) -dump $@ $(if $(LABLGLDIR),-I $(LABLGLDIR)) $(DOCFILES)
 gtkdoc.cmo : gtkdoc.ml
 	$(CAMLC) -I +ocamldoc -pp "$(CAMLP4O) pa_macro.cmo $(ODOC_DEF)" -c $<
 DOCDIR=../doc
-DOC_URI=file:///usr/share/gtk-doc/html
+#DOC_URI=file:///usr/share/gtk-doc/html
 DOC_BASE_URI=$(if $(DOC_URI),-base-uri $(DOC_URI))
-doc : lablgtk$(XO)doc gtkdoc.cmo
+doc : lablgtk.odoc gtkdoc.cmo
 	mkdir -p $(DOCDIR)/html
-	$(OCAMLDOC) -sort -g ./gtkdoc.cmo $(DOC_BASE_URI) -v -t LablGTK -d $(DOCDIR)/html -load $<
-doc_texi : lablgtk$(XO)doc
-	$(OCAMLDOC) -texi -v -t LablGTK -o $(DOCDIR)/lablgtk2.texi -load $<
+	$(OCAMLDOC) -sort -g ./gtkdoc.cmo $(DOC_BASE_URI) -t LablGTK -d $(DOCDIR)/html -load $<
+doc_texi : lablgtk.odoc
+	$(OCAMLDOC) -texi -t LablGTK -o $(DOCDIR)/lablgtk2.texi -load $<
 
 $(GTKOBJS): pango_tags.h gtk_tags.h ml_gtk.h gdk_tags.h ml_gdk.h \
 	    ml_gobject.h ml_glib.h wrappers.h
@@ -629,7 +633,5 @@ ml_rsvg$(XO): ml_gobject.h ml_gdkpixbuf.h wrappers.h
 ml_gnomecanvas$(XO): ml_gtk.h ml_gobject.h wrappers.h
 ml_gnomedruid$(XO): ml_gtk.h ml_gobject.h wrappers.h
 ml_panel$(XO): ml_gtk.h ml_gobject.h wrappers.h
-
-varcc.cmo: varcc.ml4
 
 include .depend
