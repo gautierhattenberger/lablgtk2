@@ -1,4 +1,4 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: lablgtk2
 Upstream-Contact: Jacques Garrigue <garrigue@math.nagoya-u.ac.jp>
 Source: http://forge.ocamlcore.org/projects/lablgtk/
