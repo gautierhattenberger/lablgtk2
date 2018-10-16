@@ -1,3 +1,11 @@
+lablgtk2 (2.18.5+dfsg-2) UNRELEASED; urgency=medium
+
+  * Build without gtksourceview2 and gnomecanvas (Closes: #885677)
+  * Remove findlib package lablgtk2-gnome.panel
+  * Switch Vcs-* to salsa and other minor changes
+
+ -- Stéphane Glondu <glondu@debian.org>  Tue, 16 Oct 2018 18:16:13 +0200
+
 lablgtk2 (2.18.5+dfsg-1) unstable; urgency=medium
 
   * New upstream release
