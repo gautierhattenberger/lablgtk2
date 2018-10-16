@@ -2,11 +2,6 @@ version="2.16.0"
 directory="+lablgtk2"
 requires = "lablgtk2"
 
-package "panel" (
-  archive(byte) = "lablpanel.cma"
-  archive(native) = "lablpanel.cmxa"
-)
-
 package "rsvg" (
   archive(byte) = "lablrsvg.cma"
   archive(native) = "lablrsvg.cmxa"
