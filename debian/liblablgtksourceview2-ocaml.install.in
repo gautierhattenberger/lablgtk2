@@ -1,3 +1,0 @@
-@OCamlStdlibDir@/lablgtk2/dlllablgtksourceview2.so  @OCamlDllDir@
-@OCamlStdlibDir@/lablgtk2/lablgtksourceview2.cma
-DYN: @OCamlStdlibDir@/lablgtk2/lablgtksourceview2.cmxs
