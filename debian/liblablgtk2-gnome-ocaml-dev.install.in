@@ -1,9 +1,4 @@
 @OCamlStdlibDir@/lablgtk2/rsvg.*
-@OCamlStdlibDir@/lablgtk2/gnomeCanvas.*
-@OCamlStdlibDir@/lablgtk2/gnoCanvas.*
-@OCamlStdlibDir@/lablgtk2/liblablgnomecanvas.*
 @OCamlStdlibDir@/lablgtk2/liblablrsvg.*
-OPT: @OCamlStdlibDir@/lablgtk2/lablgnomecanvas.a
-OPT: @OCamlStdlibDir@/lablgtk2/lablgnomecanvas.cmxa
 OPT: @OCamlStdlibDir@/lablgtk2/lablrsvg.a
 OPT: @OCamlStdlibDir@/lablgtk2/lablrsvg.cmxa

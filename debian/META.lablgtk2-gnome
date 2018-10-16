@@ -2,11 +2,6 @@ version="2.16.0"
 directory="+lablgtk2"
 requires = "lablgtk2"
 
-package "gnomecanvas" (
-  archive(byte)	= "lablgnomecanvas.cma"
-  archive(native) = "lablgnomecanvas.cmxa"
-)
-
 package "panel" (
   archive(byte) = "lablpanel.cma"
   archive(native) = "lablpanel.cmxa"
