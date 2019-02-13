@@ -1,4 +1,4 @@
-version="2.16.0"
+version="2.18.5"
 requires(mt) = "threads"
 requires(mt,mt_vm) = "threads.vm"
 requires(mt,mt_posix) = "threads.posix"
