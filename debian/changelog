@@ -1,3 +1,10 @@
+lablgtk2 (2.18.5+dfsg-3) unstable; urgency=medium
+
+  * Add liblablgtksourceview2-ocaml{,-dev} back
+  * Update version in META files (Closes: #822949)
+
+ -- Stéphane Glondu <glondu@debian.org>  Wed, 13 Feb 2019 12:50:30 +0100
+
 lablgtk2 (2.18.5+dfsg-2) unstable; urgency=medium
 
   * Build without gtksourceview2 and gnomecanvas (Closes: #885677)
