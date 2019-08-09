@@ -7,7 +7,7 @@ Uploaders:
  Ralf Treinen <treinen@debian.org>,
  Stéphane Glondu <glondu@debian.org>
 Build-Depends:
- debhelper (>= 9),
+ debhelper (>= 12),
  dh-ocaml (>= 0.9.5~),
  ocaml-nox (>= 4.00.1),
  ocaml,

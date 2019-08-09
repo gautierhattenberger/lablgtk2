@@ -56,6 +56,6 @@ override_dh_auto_install:
 override_dh_installexamples:
 	dh_installexamples --exclude='.cvsignore'
 
-.PHONY: override_dh_install
-override_dh_install:
-	dh_install --fail-missing -Xbuild.ml
+.PHONY: override_dh_missing
+override_dh_missing:
+	dh_missing --fail-missing -Xbuild.ml
