@@ -1,9 +1,8 @@
 (**************************************************************************)
 (*    Lablgtk - Examples                                                  *)
 (*                                                                        *)
-(*    There is no specific licensing policy, but you may freely           *)
-(*    take inspiration from the code, and copy parts of it in your        *)
-(*    application.                                                        *)
+(*    This code is in the public domain.                                  *)
+(*    You may freely copy parts of it in your application.                *)
 (*                                                                        *)
 (**************************************************************************)
 
@@ -24,9 +23,9 @@ let file_dialog ~title ~callback ?filename () =
   sel#show ()
 
 let input_channel b ic =
-  let buf = String.create 1024 and len = ref 0 in
+  let buf = Bytes.create 1024 and len = ref 0 in
   while len := input ic buf 0 1024; !len > 0 do
-    Buffer.add_substring b buf 0 !len
+    Buffer.add_subbytes b buf 0 !len
   done
 
 let with_file name ~f =

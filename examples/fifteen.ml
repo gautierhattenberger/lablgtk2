@@ -1,9 +1,8 @@
 (**************************************************************************)
 (*    Lablgtk - Examples                                                  *)
 (*                                                                        *)
-(*    There is no specific licensing policy, but you may freely           *)
-(*    take inspiration from the code, and copy parts of it in your        *)
-(*    application.                                                        *)
+(*    This code is in the public domain.                                  *)
+(*    You may freely copy parts of it in your application.                *)
 (*                                                                        *)
 (**************************************************************************)
 
@@ -58,7 +57,7 @@ let _ = window#connect#destroy ~callback:GMain.Main.quit
 
 let tbl = GPack.table ~rows:4 ~columns:4 ~homogeneous:true ~packing:window#add ()
 let dummy = GMisc.label ~text:"" ~packing:(tbl#attach ~left:3 ~top:3) ()
-let arr = Array.create_matrix ~dimx:4 ~dimy:4 dummy
+let arr = Array.make_matrix ~dimx:4 ~dimy:4 dummy
 let init = game_init ()
 let _ =
   for i = 0 to 15 do
