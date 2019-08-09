@@ -1,9 +1,8 @@
 (**************************************************************************)
 (*    Lablgtk - Examples                                                  *)
 (*                                                                        *)
-(*    There is no specific licensing policy, but you may freely           *)
-(*    take inspiration from the code, and copy parts of it in your        *)
-(*    application.                                                        *)
+(*    This code is in the public domain.                                  *)
+(*    You may freely copy parts of it in your application.                *)
 (*                                                                        *)
 (**************************************************************************)
 
@@ -24,10 +23,10 @@ let () =
   Io.add_watch ch ~prio:0 ~cond:[`IN; `HUP; `ERR] ~callback:
     begin fun c -> 
       if List.mem `IN c then begin
-	let buf = " " in
+	let buf = Bytes.create 1 in
 	(* On Windows, you must use Io.read *)
 	let len = Glib.Io.read ch ~buf ~pos:0 ~len:1 in
-	len = 1 && (buffer#insert buf; true) end
+	len = 1 && (buffer#insert (Bytes.to_string buf); true) end
       else if List.mem `HUP c then begin
 	prerr_endline "got `HUP, exiting in 5s" ;
 	Timeout.add 5000 (fun () -> Main.quit () ; false) ;

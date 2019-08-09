@@ -1,9 +1,8 @@
 (**************************************************************************)
 (*    Lablgtk - Examples                                                  *)
 (*                                                                        *)
-(*    There is no specific licensing policy, but you may freely           *)
-(*    take inspiration from the code, and copy parts of it in your        *)
-(*    application.                                                        *)
+(*    This code is in the public domain.                                  *)
+(*    You may freely copy parts of it in your application.                *)
 (*                                                                        *)
 (**************************************************************************)
 
@@ -86,7 +85,7 @@ let create_buttons =
 	    ~row_spacings:3 ~col_spacings:3 ~border_width:10
 	    ~packing:box1#add () in
 
-	let button = Array.create 9 (GButton.button ~label:"button1" ()) in
+	let button = Array.make 9 (GButton.button ~label:"button1" ()) in
 	for i = 2 to 9 do
 	  button.(i-1) <- GButton.button ~label:("button" ^ string_of_int i) ();
 	done;
