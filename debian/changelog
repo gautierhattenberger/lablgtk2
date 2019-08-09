@@ -1,3 +1,10 @@
+lablgtk2 (2.18.8+dfsg-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+  * Update Homepage and debian/watch
+
+ -- Stéphane Glondu <glondu@debian.org>  Fri, 09 Aug 2019 16:16:26 +0200
+
 lablgtk2 (2.18.5+dfsg-3) unstable; urgency=medium
 
   * Add liblablgtksourceview2-ocaml{,-dev} back
