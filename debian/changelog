@@ -4,6 +4,8 @@ lablgtk2 (2.18.8+dfsg-1) UNRELEASED; urgency=medium
   * Update Homepage and debian/watch
   * Bump Standards-Version to 4.4.0
   * Bump debhelper compat level to 12
+  * Remove Samuel from Uploaders
+  * Remove camlp4 from Build-Depends
 
  -- Stéphane Glondu <glondu@debian.org>  Fri, 09 Aug 2019 16:16:26 +0200
 
