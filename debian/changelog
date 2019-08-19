@@ -1,4 +1,4 @@
-lablgtk2 (2.18.8+dfsg-1) UNRELEASED; urgency=medium
+lablgtk2 (2.18.8+dfsg-1) unstable; urgency=medium
 
   * New upstream release
   * Update Homepage and debian/watch
@@ -7,7 +7,7 @@ lablgtk2 (2.18.8+dfsg-1) UNRELEASED; urgency=medium
   * Remove Samuel from Uploaders
   * Remove camlp4 from Build-Depends
 
- -- Stéphane Glondu <glondu@debian.org>  Fri, 09 Aug 2019 16:16:26 +0200
+ -- Stéphane Glondu <glondu@debian.org>  Mon, 19 Aug 2019 11:52:31 +0200
 
 lablgtk2 (2.18.5+dfsg-3) unstable; urgency=medium
 
