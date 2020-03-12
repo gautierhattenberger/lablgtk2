@@ -2,6 +2,11 @@ version="2.18.5"
 directory="+lablgtk2"
 requires = "lablgtk2"
 
+package "gnomecanvas" (
+  archive(byte)	= "lablgnomecanvas.cma"
+  archive(native) = "lablgnomecanvas.cmxa"
+)
+
 package "rsvg" (
   archive(byte) = "lablrsvg.cma"
   archive(native) = "lablrsvg.cmxa"
