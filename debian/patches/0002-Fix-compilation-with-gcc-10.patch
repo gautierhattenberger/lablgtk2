@@ -1,0 +1,36 @@
+From: Stephane Glondu <steph@glondu.net>
+Date: Fri, 31 Jul 2020 10:30:05 +0200
+Subject: Fix compilation with gcc-10
+
+Bug-Debian: https://bugs.debian.org/957413
+---
+ src/ml_gdk.c | 2 ++
+ src/ml_gdk.h | 2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/ml_gdk.c b/src/ml_gdk.c
+index e4ed433..394f142 100644
+--- a/src/ml_gdk.c
++++ b/src/ml_gdk.c
+@@ -55,6 +55,8 @@
+ #define GDK_WINDOW_TYPE_HINT_DOCK GDK_WINDOW_TYPE_HINT_NORMAL
+ #endif
+ 
++CAMLexport lookup_info *ml_table_extension_events;
++
+ CAMLprim void ml_raise_gdk (const char *errmsg)
+ {
+   static value * exn = NULL;
+diff --git a/src/ml_gdk.h b/src/ml_gdk.h
+index 75d01d7..88d8746 100644
+--- a/src/ml_gdk.h
++++ b/src/ml_gdk.h
+@@ -102,7 +102,7 @@ CAMLexport value Val_GdkEvent (GdkEvent *);
+ CAMLexport int OptFlags_GdkModifier_val (value);
+ CAMLexport int Flags_GdkModifier_val (value);
+ CAMLexport int Flags_Event_mask_val (value);
+-CAMLexport lookup_info *ml_table_extension_events;
++extern lookup_info *ml_table_extension_events;
+ #define Extension_events_val(key) ml_lookup_to_c(ml_table_extension_events,key)
+ 
+ #define GdkDragContext_val(val) check_cast(GDK_DRAG_CONTEXT,val)
