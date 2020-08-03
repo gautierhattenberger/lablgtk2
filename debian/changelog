@@ -1,3 +1,9 @@
+lablgtk2 (2.18.8+dfsg-3) UNRELEASED; urgency=medium
+
+  * Build without glade
+
+ -- Stéphane Glondu <glondu@debian.org>  Mon, 03 Aug 2020 11:13:23 +0200
+
 lablgtk2 (2.18.8+dfsg-2) unstable; urgency=medium
 
   * Fix compilation with gcc-10 (Closes: #957413)
