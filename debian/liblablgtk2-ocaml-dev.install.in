@@ -1,5 +1,4 @@
 usr/bin/gdk_pixbuf_mlsource
-usr/bin/lablgladecc2
 usr/bin/lablgtk2
 @OCamlStdlibDir@/lablgtk2/gAction.*
 @OCamlStdlibDir@/lablgtk2/gAssistant.*
@@ -20,7 +19,6 @@ usr/bin/lablgtk2
 @OCamlStdlibDir@/lablgtk2/gDraw.*
 @OCamlStdlibDir@/lablgtk2/gEdit.*
 @OCamlStdlibDir@/lablgtk2/gFile.*
-@OCamlStdlibDir@/lablgtk2/glade.*
 @OCamlStdlibDir@/lablgtk2/glib.*
 @OCamlStdlibDir@/lablgtk2/glib_tags.h
 @OCamlStdlibDir@/lablgtk2/gList.*
@@ -68,7 +66,6 @@ usr/bin/lablgtk2
 @OCamlStdlibDir@/lablgtk2/gUtil.*
 @OCamlStdlibDir@/lablgtk2/gutf8.*
 @OCamlStdlibDir@/lablgtk2/gWindow.*
-@OCamlStdlibDir@/lablgtk2/liblablglade2.a
 @OCamlStdlibDir@/lablgtk2/liblablgtk2.a
 @OCamlStdlibDir@/lablgtk2/liblablgtkspell.a
 @OCamlStdlibDir@/lablgtk2/ml_domain.h
@@ -121,8 +118,6 @@ usr/bin/lablgtk2
 @OCamlStdlibDir@/lablgtk2/ogtkRangeProps.*
 @OCamlStdlibDir@/lablgtk2/ogtkTextProps.*
 @OCamlStdlibDir@/lablgtk2/ogtkTreeProps.*
-OPT: @OCamlStdlibDir@/lablgtk2/lablglade.a
-OPT: @OCamlStdlibDir@/lablgtk2/lablglade.cmxa
 OPT: @OCamlStdlibDir@/lablgtk2/lablgtk.a
 OPT: @OCamlStdlibDir@/lablgtk2/lablgtk.cmxa
 OPT: @OCamlStdlibDir@/lablgtk2/lablgtkspell.a
