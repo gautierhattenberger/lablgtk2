@@ -33,25 +33,16 @@
 #include <caml/mlvalues.h>
 #include <caml/fail.h>
 #include <caml/custom.h>
-#include <caml/minor_gc.h>
-#define Is_young_block(v) \
-  (Is_block(v) && (value*)(v) < young_end && (value*)(v) > young_start)
-
-#ifndef Bytes_val
-#define Bytes_val String_val
-#endif
+CAMLextern char *young_start, *young_end; /* from minor_gc.h */
 
 CAMLexport value copy_memblock_indirected (void *src, asize_t size);
 value alloc_memblock_indirected (asize_t size);
-CAMLexport value ml_alloc_custom(struct custom_operations * ops,
-                                 uintnat size, mlsize_t mem, mlsize_t max);
 CAMLprim value ml_some (value);
 value ml_cons (value, value);
 CAMLexport void ml_raise_null_pointer (void) Noreturn;
 CAMLexport value Val_pointer (void *);
 CAMLprim value copy_string_check (const char*);
 value copy_string_or_null (const char *);
-value Val_option_string (const char *s);
 
 value string_list_of_strv (const char * const *v);
 value string_list_of_strv2 (char **v);
@@ -65,50 +56,6 @@ typedef struct { value key; int data; } lookup_info;
 CAMLexport value ml_lookup_from_c (const lookup_info table[], int data);
 CAMLexport int ml_lookup_to_c (const lookup_info table[], value key);
 CAMLexport value ml_lookup_flags_getter (const lookup_info table[], int data);
-
-/* Compatibility */
-#include <gtk/gtkversion.h>
-#if GTK_CHECK_VERSION(2,2,0) && !defined(DISABLE_GTK22)
-#define HASGTK22
-#endif
-#if GTK_CHECK_VERSION(2,4,0) && !defined(DISABLE_GTK24)
-#define HASGTK24
-#endif
-#if GTK_CHECK_VERSION(2,5,3) && !defined(DISABLE_GTK26)
-#define HASGTK26
-#endif
-#if GTK_CHECK_VERSION(2,8,0) && !defined(DISABLE_GTK28)
-#define HASGTK28
-#endif
-#if GTK_CHECK_VERSION(2,10,0) && !defined(DISABLE_GTK210)
-#define HASGTK210
-#endif
-#if GTK_CHECK_VERSION(2,12,0) && !defined(DISABLE_GTK212)
-#define HASGTK212
-#endif
-
-/* Wrapper generators */
-
-#define Unsupported_22(cname) \
-CAMLprim value ml_##cname () \
-{ failwith(#cname " unsupported in Gtk 2.x < 2.2"); }
-#define Unsupported Unsupported_22
-#define Unsupported_24(cname) \
-CAMLprim value ml_##cname () \
-{ failwith(#cname " unsupported in Gtk 2.x < 2.4"); }
-#define Unsupported_26(cname) \
-CAMLprim value ml_##cname () \
-{ failwith(#cname " unsupported in Gtk 2.x < 2.6"); }
-#define Unsupported_28(cname) \
-CAMLprim value ml_##cname () \
-{ failwith(#cname " unsupported in Gtk 2.x < 2.8"); }
-
-#define Unsupported_210(cname) \
-CAMLprim value ml_##cname () \
-{ failwith(#cname " unsupported in Gtk 2.x < 2.10"); }
-#define Unsupported_212(cname) \
-CAMLprim value ml_##cname () \
-{ failwith(#cname " unsupported in Gtk 2.x < 2.12"); }
 
 #define ID(x) (x)
 
@@ -263,8 +210,7 @@ CAMLprim value cname##_bc (value *argv, int argn) \
 /* parameter conversion */
 #define Bool_ptr(x) ((long) x - 1)
 #define Char_val Int_val
-#define Float_val Double_val
-/* #define Float_val(x) ((float)Double_val(x)) */
+#define Float_val(x) ((float)Double_val(x))
 #define SizedString_val(x) String_val(x), string_length(x)
 
 #define Option_val(val,unwrap,default) \
@@ -296,7 +242,7 @@ static struct custom_operations ml_custom_##type = \
   custom_hash_default, custom_serialize_default, custom_deserialize_default };\
 CAMLprim value Val_##type (type *p) \
 { value ret; if (!p) ml_raise_null_pointer(); \
-  ret = ml_alloc_custom (&ml_custom_##type, sizeof(value), adv, 1000); \
+  ret = alloc_custom (&ml_custom_##type, sizeof(value), adv, 1000); \
   initialize (&Field(ret,1), (value) p); init(p); return ret; }
 
 #define Make_Val_final_pointer_ext(type, ext, init, final, adv) \
@@ -307,7 +253,7 @@ static struct custom_operations ml_custom_##type##ext = \
   custom_hash_default, custom_serialize_default, custom_deserialize_default };\
 CAMLprim value Val_##type##ext (type *p) \
 { value ret; if (!p) ml_raise_null_pointer(); \
-  ret = ml_alloc_custom (&ml_custom_##type##ext, sizeof(value), adv, 1000); \
+  ret = alloc_custom (&ml_custom_##type##ext, sizeof(value), adv, 1000); \
   initialize (&Field(ret,1), (value) p); init(p); return ret; }
 
 #define Make_Val_final_pointer_compare(type, init, comp, final, adv) \
@@ -320,7 +266,7 @@ static struct custom_operations ml_custom_##type = \
   custom_hash_default, custom_serialize_default, custom_deserialize_default };\
 CAMLprim value Val_##type (type *p) \
 { value ret; if (!p) ml_raise_null_pointer(); \
-  ret = ml_alloc_custom (&ml_custom_##type, sizeof(value), adv, 1000); \
+  ret = alloc_custom (&ml_custom_##type, sizeof(value), adv, 1000); \
   initialize (&Field(ret,1), (value) p); init(p); return ret; }
 
 #define Pointer_val(val) ((void*)Field(val,1))
@@ -370,8 +316,6 @@ CAMLprim int OptFlags_##conv (value list) \
 #define Val_optstring copy_string_or_null
 #define Optstring_val(v) (string_length(v) ? String_val(v) : (char*)NULL)
 #define Val_option(v,f) (v ? ml_some(f(v)) : Val_unit)
-#define Make_Val_option(T) \
-value Val_option_##T(T* v) { return Val_option(v,Val_##T); }
 
 #define Check_null(v) (v ? v : (ml_raise_null_pointer (), v))
 
