@@ -1,3 +1,9 @@
+lablgtk2 (2.18.11-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Stéphane Glondu <glondu@debian.org>  Sun, 23 Aug 2020 12:21:01 +0200
+
 lablgtk2 (2.18.8+dfsg-3) unstable; urgency=medium
 
   * Build without glade
