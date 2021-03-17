@@ -13,6 +13,7 @@ Build-Depends:
  libncurses5-dev,
  libgtk2.0-dev,
  libgtkgl2.0-dev,
+ libglade2-dev,
  librsvg2-dev,
  libgtkspell-dev,
  ocaml-findlib
@@ -66,6 +67,7 @@ Architecture: any
 Suggests: liblablgtk2-gl-ocaml-dev, liblablgtk2-gnome-ocaml-dev
 Depends:
  libgtk2.0-dev,
+ libglade2-dev,
  libgtkspell-dev,
  ${ocaml:Depends},
  ${shlibs:Depends},
