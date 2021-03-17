@@ -14,6 +14,12 @@ package "init" (
   archive(native) = "gtkInit.cmx"
 )
 
+package "glade" (
+  requires = "lablgtk2"
+  archive(byte) = "lablglade.cma"
+  archive(native) = "lablglade.cmxa"
+)
+
 package "gtkspell" (
   requires = "lablgtk2"
   archive(byte) = "lablgtkspell.cma"
