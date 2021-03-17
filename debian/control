@@ -15,6 +15,7 @@ Build-Depends:
  libgtkgl2.0-dev,
  libglade2-dev,
  librsvg2-dev,
+ libgnomecanvas2-dev,
  libgtkspell-dev,
  libgtksourceview2.0-dev (>= 2.10),
  ocaml-findlib
@@ -61,7 +62,8 @@ Description: runtime libraries for OCaml bindings to GNOME
  lablgtk2 contains bindings for GTK+ 2.x and Objective Caml.
  .
  This package include only the dynamic libraries needed for running
- dynamic bytecode executables using GNOME functionalities (rsvg).
+ dynamic bytecode executables using GNOME functionalities (gnome-canvas,
+ rsvg).
 
 Package: liblablgtksourceview2-ocaml
 Architecture: any
@@ -116,6 +118,7 @@ Package: liblablgtk2-gnome-ocaml-dev
 Architecture: any
 Depends:
  librsvg2-dev,
+ libgnomecanvas2-dev,
  ${ocaml:Depends},
  ${shlibs:Depends},
  ${misc:Depends}
@@ -125,7 +128,7 @@ Description: OCaml bindings to GNOME
  lablgtk2 contains bindings for GTK+ 2.x and Objective Caml.
  .
  This package contains the development files of lablgtk for libraries using
- GNOME functionalities (rsvg).
+ GNOME functionalities (gnome-canvas, rsvg).
 
 Package: liblablgtksourceview2-ocaml-dev
 Architecture: any

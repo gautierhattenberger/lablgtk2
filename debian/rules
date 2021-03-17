@@ -16,7 +16,7 @@ export OCAMLFIND_LDCONF=ignore
 override_dh_auto_configure:
 	cp  src/.depend debian/src.depend.backup
 	dh_auto_configure -- --with-gl --with-glade --with-rsvg		\
-	--without-gnomecanvas --with-gtkspell --without-gnomeui \
+	--with-gnomecanvas --with-gtkspell --without-gnomeui \
 	--with-gtksourceview2
 
 .PHONY: override_dh_auto_build
@@ -47,8 +47,6 @@ override_dh_auto_install:
 	rm debian/tmp/usr/lib/ocaml/lablgtk2/panel.mli
 # remove files related to libgnomeui (see #868392)
 	rm debian/tmp/usr/lib/ocaml/lablgtk2/gnoDruid.mli
-# remove files related to libgnomecanvas (see #885677)
-	rm debian/tmp/usr/lib/ocaml/lablgtk2/gnoCanvas.mli
 # FIXME: we should use upstream META file
 	rm debian/tmp/usr/lib/ocaml/lablgtk2/META
 
