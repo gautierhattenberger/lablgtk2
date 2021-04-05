@@ -6,7 +6,7 @@ Uploaders:
  Ralf Treinen <treinen@debian.org>,
  Stéphane Glondu <glondu@debian.org>
 Build-Depends:
- debhelper-compat (= 13),
+ debhelper,
  dh-ocaml,
  ocaml-nox,
  ocaml,

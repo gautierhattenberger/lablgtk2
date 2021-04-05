@@ -1,3 +1,9 @@
+lablgtk2 (2.18.11-1pprz1) groovy; urgency=medium
+
+  * Support canvas, glade and sourceview for Paparazzi
+
+ -- Gautier Hattenberger <gautier.hattenberger@enac.fr>  Wed, 17 Mar 2021 21:57:22 +0100
+
 lablgtk2 (2.18.11-1) unstable; urgency=medium
 
   * New upstream release
