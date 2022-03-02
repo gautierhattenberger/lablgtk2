@@ -1,3 +1,9 @@
+lablgtk2 (2.18.12-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Stéphane Glondu <glondu@debian.org>  Wed, 02 Mar 2022 08:05:00 +0100
+
 lablgtk2 (2.18.11-1) unstable; urgency=medium
 
   * New upstream release
