@@ -105,7 +105,7 @@ CAMLprim value Val_GList (GList *list, value (*func)(gpointer))
     Field(new_cell,0) = result;
     Field(new_cell,1) = Val_unit;
     if (last_cell == Val_unit) cell = new_cell;
-    else modify(&Field(last_cell,1), new_cell);
+    else caml_modify(&Field(last_cell,1), new_cell);
     last_cell = new_cell;
     list = list->next;
   }
@@ -300,11 +300,15 @@ ML_1 (g_source_remove, Int_val, Unit)
 
 static GPollFunc poll_func = NULL;
 
+int polling = 0;
+
 static gint ml_poll (GPollFD *ufds, guint nfsd, gint timeout)
 {
     gint res;
     caml_enter_blocking_section();
+    polling = 1;
     res = poll_func(ufds, nfsd, timeout);
+    polling = 0;
     caml_leave_blocking_section();
     return res;
 }
@@ -368,7 +372,7 @@ CAMLprim value ml_g_io_channel_read(value io, value str, value offset,
 {
   gsize read;
   switch (g_io_channel_read(GIOChannel_val(io), 
-			    Bytes_val(str) + Int_val(offset),
+			    (gchar*)Bytes_val(str) + Int_val(offset),
 			    Int_val(count),
 			    &read)) {
   case G_IO_ERROR_NONE:
@@ -390,7 +394,7 @@ CAMLprim value ml_g_io_channel_read_chars(value io, value str, value offset,
   GError *err = NULL;
   GIOStatus result = 
     g_io_channel_read_chars(GIOChannel_val(io), 
-		      Bytes_val(str) + Int_val(offset),
+		      (gchar*)Bytes_val(str) + Int_val(offset),
 		      Int_val(count),
 		      &read, 
 		      &err);
@@ -427,7 +431,7 @@ CAMLprim value Val_GSList (GSList *list, value (*func)(gpointer))
     Field(new_cell,0) = result;
     Field(new_cell,1) = Val_unit;
     if (last_cell == Val_unit) cell = new_cell;
-    else modify(&Field(last_cell,1), new_cell);
+    else caml_modify(&Field(last_cell,1), new_cell);
     last_cell = new_cell;
     list = list->next;
   }

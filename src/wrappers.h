@@ -35,7 +35,7 @@
 #include <caml/custom.h>
 #include <caml/minor_gc.h>
 #define Is_young_block(v) \
-  (Is_block(v) && (value*)(v) < young_end && (value*)(v) > young_start)
+  (Is_block(v) && (value*)(v) < caml_young_end && (value*)(v) > caml_young_start)
 
 #ifndef Bytes_val
 #define Bytes_val String_val
@@ -60,8 +60,19 @@ char ** strv_of_string_list (value list);
 CAMLprim value *ml_global_root_new (value v);
 CAMLexport void ml_global_root_destroy (void *data);
 
+/* Pointer conversions */
+#define Pointer_val(val) ((void*)Field(val,1))
+#define Store_pointer(val,p) (Field(val,1)=Val_bp(p))
+#define MLPointer_val(val) \
+        ((int)Field(val,1) == 2 ? &Field(val,2) : (void*)Field(val,1))
+
+#define Val_addr(ptr) (1+(value)ptr)
+#define Addr_val(val) ((void*)(val-1))
+
 /* enums <-> polymorphic variants */
 typedef struct { value key; int data; } lookup_info;
+#define Val_lookup_info(v) Val_pointer((void*)v)
+#define Lookup_info_val(v) ((const lookup_info*)Pointer_val(v))
 CAMLexport value ml_lookup_from_c (const lookup_info table[], int data);
 CAMLexport int ml_lookup_to_c (const lookup_info table[], value key);
 CAMLexport value ml_lookup_flags_getter (const lookup_info table[], int data);
@@ -286,7 +297,7 @@ CAMLprim value cname##_bc (value *argv, int argn) \
  else if (l <= Max_young_wosize) { int i; ret = alloc_tuple(l); \
    for(i=0;i<l;i++) Field(ret,i) = conv(src[i]); } \
  else { int i; ret = alloc_shr(l,0); \
-   for(i=0;i<l;i++) initialize (&Field(ret,i), conv(src[i])); }
+   for(i=0;i<l;i++) caml_initialize (&Field(ret,i), conv(src[i])); }
 
 #define Make_Val_final_pointer(type, init, final, adv) \
 static void ml_final_##type (value val) \
@@ -297,7 +308,7 @@ static struct custom_operations ml_custom_##type = \
 CAMLprim value Val_##type (type *p) \
 { value ret; if (!p) ml_raise_null_pointer(); \
   ret = ml_alloc_custom (&ml_custom_##type, sizeof(value), adv, 1000); \
-  initialize (&Field(ret,1), (value) p); init(p); return ret; }
+  caml_initialize (&Field(ret,1), (value) p); init(p); return ret; }
 
 #define Make_Val_final_pointer_ext(type, ext, init, final, adv) \
 static void ml_final_##type##ext (value val) \
@@ -308,7 +319,7 @@ static struct custom_operations ml_custom_##type##ext = \
 CAMLprim value Val_##type##ext (type *p) \
 { value ret; if (!p) ml_raise_null_pointer(); \
   ret = ml_alloc_custom (&ml_custom_##type##ext, sizeof(value), adv, 1000); \
-  initialize (&Field(ret,1), (value) p); init(p); return ret; }
+  caml_initialize (&Field(ret,1), (value) p); init(p); return ret; }
 
 #define Make_Val_final_pointer_compare(type, init, comp, final, adv) \
 static void ml_final_##type (value val) \
@@ -321,15 +332,7 @@ static struct custom_operations ml_custom_##type = \
 CAMLprim value Val_##type (type *p) \
 { value ret; if (!p) ml_raise_null_pointer(); \
   ret = ml_alloc_custom (&ml_custom_##type, sizeof(value), adv, 1000); \
-  initialize (&Field(ret,1), (value) p); init(p); return ret; }
-
-#define Pointer_val(val) ((void*)Field(val,1))
-#define Store_pointer(val,p) (Field(val,1)=Val_bp(p))
-#define MLPointer_val(val) \
-        ((int)Field(val,1) == 2 ? &Field(val,2) : (void*)Field(val,1))
-
-#define Val_addr(ptr) (1+(value)ptr)
-#define Addr_val(val) ((void*)(val-1))
+  caml_initialize (&Field(ret,1), (value) p); init(p); return ret; }
 
 #define Wosize_asize(x) ((x-1)/sizeof(value)+1)
 #define Wosizeof(x) Wosize_asize(sizeof(x))

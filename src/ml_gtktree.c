@@ -525,7 +525,7 @@ ml_gtk_tree_view_enable_model_drag_dest (value tv, value t, value a)
       , Abstract_tag );
   for (i=0; i<n_targets; i++)
   {
-    targets[i].target = Bytes_val(Field(Field(t, i), 0));
+    targets[i].target = (gchar*)Bytes_val(Field(Field(t, i), 0));
     targets[i].flags  = Flags_Target_flags_val(Field(Field(t, i), 1));
     targets[i].info   = Int_val(Field(Field(t, i), 2));
   }
@@ -551,7 +551,7 @@ ml_gtk_tree_view_enable_model_drag_source (value tv, value m, value t, value a)
       , Abstract_tag );
   for (i=0; i<n_targets; i++)
   {
-    targets[i].target = Bytes_val(Field(Field(t, i), 0));
+    targets[i].target = (gchar*)Bytes_val(Field(Field(t, i), 0));
     targets[i].flags  = Flags_Target_flags_val(Field(Field(t, i), 1));
     targets[i].info   = Int_val(Field(Field(t, i), 2));
   }
@@ -1487,8 +1487,8 @@ CAMLprim value ml_register_custom_model_callback_object(value custom_model,
   GObject *obj = GObject_val(custom_model);
   g_return_val_if_fail (IS_CUSTOM_MODEL (obj),Val_unit);
   if(Is_block(callback_object) &&
-      (char*)callback_object < (char*)young_end &&
-      (char*)callback_object > (char*)young_start)
+      (char*)callback_object < (char*)caml_young_end &&
+      (char*)callback_object > (char*)caml_young_start)
     {
       caml_register_global_root (&callback_object);
       caml_minor_collection();
