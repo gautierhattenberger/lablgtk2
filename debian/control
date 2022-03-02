@@ -8,7 +8,6 @@ Uploaders:
 Build-Depends:
  debhelper-compat (= 13),
  dh-ocaml,
- ocaml-nox,
  ocaml,
  liblablgl-ocaml-dev,
  libncurses5-dev,
@@ -17,7 +16,7 @@ Build-Depends:
  librsvg2-dev,
  libgtkspell-dev,
  ocaml-findlib
-Standards-Version: 4.5.0
+Standards-Version: 4.6.0
 Rules-Requires-Root: no
 Homepage: http://garrigue.github.io/lablgtk/
 Vcs-Git: https://salsa.debian.org/ocaml-team/lablgtk2.git
