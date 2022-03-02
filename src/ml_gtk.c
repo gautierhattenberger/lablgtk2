@@ -397,7 +397,7 @@ CAMLprim value ml_gtk_widget_style_get_property (value w, value n)
     CAMLparam2 (w, n);
     CAMLlocal1 (ret);
     GtkWidget *widget = GtkWidget_val (w);
-    gchar *name = Bytes_val (n);
+    gchar *name = (gchar*)Bytes_val (n);
     GParamSpec * pspec;
     pspec = gtk_widget_class_find_style_property
                (GTK_WIDGET_GET_CLASS (widget), name);
@@ -448,7 +448,7 @@ CAMLprim value ml_gtk_drag_dest_set (value w, value f, value t, value a)
 	  alloc (Wosize_asize(n_targets * sizeof(GtkTargetEntry)),
 		 Abstract_tag);
   for (i=0; i<n_targets; i++) {
-    targets[i].target = Bytes_val(Field(Field(t, i), 0));
+    targets[i].target = (gchar*)Bytes_val(Field(Field(t, i), 0));
     targets[i].flags = Flags_Target_flags_val(Field(Field(t, i), 1));
     targets[i].info = Int_val(Field(Field(t, i), 2));
   }
@@ -485,7 +485,7 @@ CAMLprim value ml_gtk_drag_source_set (value w, value m, value t, value a)
 	  alloc (Wosize_asize(n_targets * sizeof(GtkTargetEntry)),
 		 Abstract_tag);
   for (i=0; i<n_targets; i++) {
-    targets[i].target = Bytes_val(Field(Field(t, i), 0));
+    targets[i].target = (gchar*)Bytes_val(Field(Field(t, i), 0));
     targets[i].flags = Flags_Target_flags_val(Field(Field(t, i), 1));
     targets[i].info = Int_val(Field(Field(t, i), 2));
   }
@@ -981,6 +981,12 @@ ML_2 (gtk_socket_steal, GtkSocket_val, GdkNativeWindow_val, Unit)
 
 /* gtkmain.h */
 
+#ifdef HAS_MODIFY_ARGV
+CAMLextern value caml_sys_modify_argv(value argv);
+#else
+CAMLextern value caml_obj_truncate (value v, value newsize);
+#endif
+
 CAMLprim value ml_gtk_init (value argv)
 {
     CAMLparam1 (argv);
@@ -993,9 +999,15 @@ CAMLprim value ml_gtk_init (value argv)
       ml_raise_gtk ("ml_gtk_init: initialization failed");
     }
 
+#ifdef HAS_MODIFY_ARGV
     argv = (argc ? alloc (argc, 0) : Atom(0));
-    for (i = 0; i < argc; i++) modify(&Field(argv,i), Field(copy,i));
-    CAMLreturn (argv);
+    for (i = 0; i < argc; i++) caml_modify(&Field(argv,i), Field(copy,i));
+    caml_sys_modify_argv(argv);
+#else
+    for (i = 0; i < argc; i++) caml_modify(&Field(argv,i), Field(copy,i));
+    caml_obj_truncate(argv, Val_int(argc));
+#endif
+    CAMLreturn (Val_unit);
 }
 ML_0 (gtk_set_locale, Val_string)
 ML_0 (gtk_disable_setlocale, Unit)
